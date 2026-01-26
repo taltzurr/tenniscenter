@@ -1,0 +1,73 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidVideoFile() {
+      return request.resource.contentType.matches('video/.*') &&
+             request.resource.size < 100 * 1024 * 1024; // 100MB limit
+    }
+
+    function isValidImageFile() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+
+    // ============================================
+    // EXERCISE VIDEOS
+    // ============================================
+
+    match /exercises/{exerciseId}/{fileName} {
+      // Anyone authenticated can read exercise videos
+      allow read: if isAuthenticated();
+
+      // Authenticated users can upload valid video files
+      allow write: if isAuthenticated() && isValidVideoFile();
+    }
+
+    // ============================================
+    // EXERCISE REQUEST VIDEOS
+    // ============================================
+
+    match /exercise-requests/{requestId}/{fileName} {
+      // Anyone authenticated can read
+      allow read: if isAuthenticated();
+
+      // Authenticated users can upload valid video files
+      allow write: if isAuthenticated() && isValidVideoFile();
+    }
+
+    // ============================================
+    // CENTER LOGOS
+    // ============================================
+
+    match /centers/{centerId}/logo/{fileName} {
+      // Logos are public
+      allow read: if true;
+
+      // Only authenticated users can upload valid images
+      allow write: if isAuthenticated() && isValidImageFile();
+    }
+
+    // ============================================
+    // USER AVATARS (if needed in future)
+    // ============================================
+
+    match /users/{userId}/avatar/{fileName} {
+      // Anyone can read avatars
+      allow read: if true;
+
+      // Only the user can upload their own avatar
+      allow write: if request.auth != null &&
+                      request.auth.uid == userId &&
+                      isValidImageFile();
+    }
+  }
+}

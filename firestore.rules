@@ -1,0 +1,300 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    function isSupervisor() {
+      return isRole('supervisor');
+    }
+
+    function isCenterManager() {
+      return isRole('center_manager');
+    }
+
+    function isCoach() {
+      return isRole('coach');
+    }
+
+    function isCenterManagerOrSupervisor() {
+      return isSupervisor() || isCenterManager();
+    }
+
+    function belongsToCenter(centerId) {
+      return centerId in getUserData().centerIds;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isActiveUser() {
+      return isAuthenticated() && getUserData().isActive == true;
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+
+    match /users/{userId} {
+      // Anyone authenticated can read users (for displaying names, etc.)
+      allow read: if isAuthenticated();
+
+      // Only center managers and supervisors can create users
+      allow create: if isCenterManagerOrSupervisor();
+
+      // Users can update their own non-critical fields
+      // Managers can update users in their centers
+      allow update: if isCenterManagerOrSupervisor() || (
+        isOwner(userId) &&
+        // Prevent users from changing their own role or centerIds
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.centerIds == resource.data.centerIds
+      );
+
+      // Only supervisor can delete users
+      allow delete: if isSupervisor();
+    }
+
+    // ============================================
+    // CENTERS COLLECTION
+    // ============================================
+
+    match /centers/{centerId} {
+      allow read: if isAuthenticated();
+      allow write: if isSupervisor();
+    }
+
+    // ============================================
+    // COACHES COLLECTION
+    // ============================================
+
+    match /coaches/{coachId} {
+      allow read: if isAuthenticated();
+
+      // Center managers can create/update coaches in their centers
+      allow create: if isCenterManagerOrSupervisor();
+
+      allow update: if isCenterManagerOrSupervisor() || (
+        isOwner(coachId) &&
+        // Coaches can update their profile but not centerIds or archived status
+        request.resource.data.centerIds == resource.data.centerIds &&
+        request.resource.data.isArchived == resource.data.isArchived
+      );
+
+      allow delete: if isSupervisor();
+    }
+
+    // ============================================
+    // GROUPS COLLECTION
+    // ============================================
+
+    match /groups/{groupId} {
+      allow read: if isAuthenticated();
+
+      // Coaches can create their own groups
+      allow create: if isAuthenticated() && (
+        request.resource.data.coachId == request.auth.uid ||
+        isCenterManagerOrSupervisor()
+      );
+
+      // Group owner or managers can update
+      allow update: if isAuthenticated() && (
+        resource.data.coachId == request.auth.uid ||
+        isCenterManagerOrSupervisor()
+      );
+
+      allow delete: if isCenterManagerOrSupervisor();
+    }
+
+    // ============================================
+    // GROUP TYPES COLLECTION
+    // ============================================
+
+    match /groupTypes/{typeId} {
+      allow read: if isAuthenticated();
+      allow write: if isSupervisor();
+    }
+
+    // ============================================
+    // TRAININGS COLLECTION
+    // ============================================
+
+    match /trainings/{trainingId} {
+      allow read: if isAuthenticated();
+
+      // Coaches can create their own trainings
+      allow create: if isAuthenticated() && (
+        request.resource.data.coachId == request.auth.uid ||
+        isCenterManagerOrSupervisor()
+      );
+
+      // Training owner can update, managers can view-only (comments handled separately)
+      allow update: if isAuthenticated() && (
+        resource.data.coachId == request.auth.uid ||
+        isCenterManagerOrSupervisor()
+      );
+
+      // Coach can delete their own, managers can delete any
+      allow delete: if resource.data.coachId == request.auth.uid ||
+        isCenterManagerOrSupervisor();
+    }
+
+    // ============================================
+    // EXERCISES COLLECTION
+    // ============================================
+
+    match /exercises/{exerciseId} {
+      allow read: if isAuthenticated();
+
+      // Coaches can create private exercises
+      // Supervisors can create global exercises
+      allow create: if isAuthenticated() && (
+        // Private exercise
+        (request.resource.data.isGlobal == false &&
+         request.resource.data.createdByCoachId == request.auth.uid) ||
+        // Global exercise (supervisor only)
+        (request.resource.data.isGlobal == true && isSupervisor())
+      );
+
+      // Only supervisor can update global, coach can update their own private
+      allow update: if isSupervisor() || (
+        resource.data.isGlobal == false &&
+        resource.data.createdByCoachId == request.auth.uid
+      );
+
+      allow delete: if isSupervisor();
+    }
+
+    // ============================================
+    // EXERCISE REQUESTS COLLECTION
+    // ============================================
+
+    match /exerciseRequests/{requestId} {
+      allow read: if isAuthenticated();
+
+      // Any coach can create a request
+      allow create: if isAuthenticated() &&
+        request.resource.data.coachId == request.auth.uid;
+
+      // Only supervisor can update (approve/reject)
+      allow update: if isSupervisor();
+
+      allow delete: if isSupervisor();
+    }
+
+    // ============================================
+    // GOALS COLLECTION
+    // ============================================
+
+    match /goals/{goalId} {
+      allow read: if isAuthenticated();
+      allow write: if isSupervisor();
+    }
+
+    // ============================================
+    // VALUES COLLECTION
+    // ============================================
+
+    match /values/{valueId} {
+      allow read: if isAuthenticated();
+      allow write: if isSupervisor();
+    }
+
+    // ============================================
+    // COMMENTS COLLECTION
+    // ============================================
+
+    match /comments/{commentId} {
+      allow read: if isAuthenticated();
+
+      // Managers/supervisors can create root comments
+      // Coaches can create replies (parentId not null)
+      allow create: if isCenterManagerOrSupervisor() || (
+        isCoach() && request.resource.data.parentId != null
+      );
+
+      // Author can update their own comment, managers can update any
+      allow update: if resource.data.authorId == request.auth.uid ||
+        isCenterManagerOrSupervisor();
+
+      allow delete: if isSupervisor();
+    }
+
+    // ============================================
+    // MONTHLY PLANS COLLECTION
+    // ============================================
+
+    match /monthlyPlans/{planId} {
+      allow read: if isAuthenticated();
+
+      // Coaches can create/update their own plans
+      allow create: if isAuthenticated() &&
+        request.resource.data.coachId == request.auth.uid;
+
+      allow update: if resource.data.coachId == request.auth.uid ||
+        isCenterManagerOrSupervisor();
+
+      allow delete: if isSupervisor();
+    }
+
+    // ============================================
+    // CALENDAR EVENTS COLLECTION
+    // ============================================
+
+    match /calendarEvents/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if isCenterManagerOrSupervisor();
+    }
+
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+
+    match /notifications/{notificationId} {
+      // Users can only read their own notifications
+      allow read: if resource.data.userId == request.auth.uid;
+
+      // Users can update their own (mark as read)
+      allow update: if resource.data.userId == request.auth.uid;
+
+      // Users can delete their own
+      allow delete: if resource.data.userId == request.auth.uid;
+
+      // Only Cloud Functions can create notifications
+      allow create: if false;
+    }
+
+    // ============================================
+    // SETTINGS COLLECTION
+    // ============================================
+
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isSupervisor();
+    }
+
+    // ============================================
+    // TRASH COLLECTION
+    // ============================================
+
+    match /trash/{trashId} {
+      allow read: if isSupervisor();
+      allow write: if isSupervisor();
+    }
+  }
+}
