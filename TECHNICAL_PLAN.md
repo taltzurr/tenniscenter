@@ -1696,82 +1696,247 @@ export const restoreFromTrash = functions.https.onCall(async (data, context) => 
 
 ## 8. הנחיות UI/UX
 
-### 8.1 Design Tokens
+### 8.0 השראה עיצובית - Tiimo Style
+
+המערכת תעוצב בהשראת אפליקציית **Tiimo** - אפליקציית תכנון יומי שזכתה בפרס אפליקציית השנה של Apple 2025.
+
+#### עקרונות עיצוב מנחים:
+
+1. **נקי ופשוט** - ללא עומס ויזואלי, מינימום אלמנטים במסך
+2. **רך ומרגיע** - צבעים רכים, פינות מעוגלות מאוד, shadows עדינים
+3. **ויזואלי** - שימוש באייקונים וצבעים במקום טקסט ארוך
+4. **Timeline מבוסס בלוקים** - היום מוצג כרצף של בלוקים צבעוניים
+5. **ללא אשמה** - אין הודעות אדומות מאיימות, אין "באיחור!", אין לחץ
+6. **אנימציות עדינות** - מעברים חלקים, confetti קטן בהשלמת משימה
+7. **מרווחים נדיבים** - הרבה whitespace, נשימה בין אלמנטים
+
+### 8.1 הלוגו
+
+```
+        ┌─────────────────────────┐
+        │    ╭───────────────╮    │
+        │   ╱   מרכזי הטניס   ╲   │  ← טקסט לבן על כחול כהה
+        │  │    ╭─────────╮    │  │
+        │  │   │    🎾    │   │  │  ← מחבט צהוב על כחול בהיר
+        │  │   │  (ball)  │   │  │
+        │  │    ╰─────────╯    │  │
+        │   ╲  והתנועה בישראל  ╱   │  ← טקסט לבן
+        │    ╰───────────────╯    │
+        └─────────────────────────┘
+
+* עיגול כפול: מסגרת כחול כהה, פנים כחול בהיר
+* מחבט טניס צהוב במרכז
+* טקסט לבן
+```
+
+### 8.2 צבעי המותג (מהלוגו)
 
 ```css
-/* Colors */
---color-primary: #2563eb;        /* Blue 600 */
---color-primary-hover: #1d4ed8;  /* Blue 700 */
---color-secondary: #64748b;      /* Slate 500 */
---color-success: #16a34a;        /* Green 600 */
---color-warning: #ca8a04;        /* Yellow 600 */
---color-error: #dc2626;          /* Red 600 */
+/* Brand Colors - מרכזי הטניס */
+--brand-blue-dark: #1a5a7a;      /* כחול כהה - מסגרת הלוגו */
+--brand-blue: #0099cc;           /* כחול בהיר - רקע הלוגו */
+--brand-blue-light: #33b5e5;     /* כחול בהיר מאוד */
+--brand-yellow: #ffdd00;         /* צהוב - מחבט הטניס */
+--brand-white: #ffffff;          /* לבן */
+```
 
---color-background: #ffffff;
---color-surface: #f8fafc;        /* Slate 50 */
---color-border: #e2e8f0;         /* Slate 200 */
---color-text-primary: #1e293b;   /* Slate 800 */
---color-text-secondary: #64748b; /* Slate 500 */
+### 8.2 Design Tokens - Tiimo Style
 
-/* Spacing */
+```css
+/* =========================
+   COLOR PALETTE
+   ========================= */
+
+/* Primary - מבוסס על הלוגו */
+--color-primary: #0099cc;           /* כחול מהלוגו */
+--color-primary-soft: #e6f7fc;      /* כחול רך לרקע */
+--color-primary-hover: #007ba8;
+
+/* Accent - צהוב מהלוגו */
+--color-accent: #ffdd00;
+--color-accent-soft: #fff9e6;
+
+/* Semantic Colors - גרסאות רכות (Tiimo style) */
+--color-success: #4ade80;           /* ירוק רך */
+--color-success-soft: #f0fdf4;
+--color-warning: #fbbf24;           /* צהוב רך */
+--color-warning-soft: #fefce8;
+--color-info: #60a5fa;              /* כחול רך */
+--color-info-soft: #eff6ff;
+
+/* Neutral (לא אדום מאיים - Tiimo philosophy) */
+--color-neutral: #94a3b8;           /* אפור רך */
+--color-neutral-soft: #f8fafc;
+
+/* Background & Surface */
+--color-background: #fafbfc;        /* רקע כללי - לא לבן טהור */
+--color-surface: #ffffff;           /* כרטיסים */
+--color-surface-elevated: #ffffff;
+
+/* Text */
+--color-text-primary: #334155;      /* אפור כהה, לא שחור */
+--color-text-secondary: #64748b;
+--color-text-muted: #94a3b8;
+
+/* Borders - עדינים מאוד */
+--color-border: #e2e8f0;
+--color-border-light: #f1f5f9;
+
+/* =========================
+   SPACING - נדיב יותר
+   ========================= */
 --spacing-xs: 4px;
 --spacing-sm: 8px;
 --spacing-md: 16px;
 --spacing-lg: 24px;
 --spacing-xl: 32px;
+--spacing-2xl: 48px;
+--spacing-3xl: 64px;
 
-/* Border Radius */
---radius-sm: 4px;
---radius-md: 8px;
---radius-lg: 12px;
+/* =========================
+   BORDER RADIUS - מאוד מעוגל (Tiimo style)
+   ========================= */
+--radius-sm: 8px;
+--radius-md: 12px;
+--radius-lg: 16px;
+--radius-xl: 24px;
+--radius-2xl: 32px;
 --radius-full: 9999px;
 
-/* Shadows */
---shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
---shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
---shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+/* =========================
+   SHADOWS - עדינים מאוד
+   ========================= */
+--shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+--shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
 
-/* Typography */
---font-family: 'Heebo', 'Assistant', sans-serif;
---font-size-xs: 12px;
---font-size-sm: 14px;
---font-size-base: 16px;
---font-size-lg: 18px;
+/* =========================
+   TYPOGRAPHY
+   ========================= */
+--font-family: 'Heebo', 'Assistant', system-ui, sans-serif;
+--font-size-xs: 11px;
+--font-size-sm: 13px;
+--font-size-base: 15px;
+--font-size-lg: 17px;
 --font-size-xl: 20px;
 --font-size-2xl: 24px;
 --font-size-3xl: 30px;
+--font-size-4xl: 36px;
+
+--font-weight-normal: 400;
+--font-weight-medium: 500;
+--font-weight-semibold: 600;
+--font-weight-bold: 700;
+
+--line-height-tight: 1.25;
+--line-height-normal: 1.5;
+--line-height-relaxed: 1.75;
+
+/* =========================
+   ANIMATIONS
+   ========================= */
+--transition-fast: 150ms ease;
+--transition-normal: 250ms ease;
+--transition-slow: 350ms ease;
 ```
 
-### 8.2 Status Colors & Badges
+### 8.3 Timeline Colors (לתצוגת היום)
 
-```
-// Training Status
-draft     → Gray      → "טיוטה"
-planned   → Blue      → "מתוכנן"
-completed → Green     → "בוצע"
-cancelled → Red       → "בוטל"
-
-// Exercise Request Status
-pending   → Yellow    → "ממתין"
-approved  → Green     → "מאושר"
-rejected  → Red       → "נדחה"
-
-// Comment Status
-open      → Yellow    → "פתוח"
-resolved  → Green     → "טופל"
-
-// Monthly Plan Status
-draft     → Gray      → "טיוטה"
-submitted → Green     → "הוגש"
-reviewed  → Blue      → "נבדק"
-
-// Priority
-high      → Red       → "גבוהה"
-medium    → Yellow    → "בינונית"
-low       → Gray      → "נמוכה"
+```css
+/* צבעים לבלוקים בתצוגת Timeline - פסטליים ורכים */
+--timeline-blue: #bfdbfe;          /* אימון רגיל */
+--timeline-green: #bbf7d0;         /* הושלם */
+--timeline-yellow: #fef08a;        /* ממתין */
+--timeline-purple: #ddd6fe;        /* מיוחד */
+--timeline-pink: #fbcfe8;          /* תחרות */
+--timeline-orange: #fed7aa;        /* אזהרה */
+--timeline-gray: #e2e8f0;          /* בוטל/לא פעיל */
 ```
 
-### 8.3 Responsive Breakpoints
+### 8.4 Status Colors & Badges (Soft, Non-Punitive)
+
+```css
+/*
+ * עיקרון Tiimo: אין צבעים אדומים מאיימים!
+ * במקום "overdue" באדום - פשוט "ממתין" בצהוב רך
+ */
+
+/* Training Status - סטטוס אימון */
+.status-draft {
+  background: #f1f5f9;    /* אפור רך */
+  color: #64748b;
+  /* טיוטה */
+}
+
+.status-planned {
+  background: #dbeafe;    /* כחול רך */
+  color: #1e40af;
+  /* מתוכנן */
+}
+
+.status-completed {
+  background: #dcfce7;    /* ירוק רך */
+  color: #166534;
+  /* בוצע ✓ */
+}
+
+.status-cancelled {
+  background: #f1f5f9;    /* אפור רך - לא אדום! */
+  color: #64748b;
+  text-decoration: line-through;
+  /* בוטל */
+}
+
+/* Exercise Request Status */
+.status-pending {
+  background: #fef9c3;    /* צהוב רך */
+  color: #854d0e;
+  /* ממתין */
+}
+
+.status-approved {
+  background: #dcfce7;    /* ירוק רך */
+  color: #166534;
+  /* מאושר */
+}
+
+.status-not-approved {
+  background: #f1f5f9;    /* אפור - לא אדום! */
+  color: #64748b;
+  /* לא אושר (במקום "נדחה") */
+}
+
+/* Priority - עדיפות */
+.priority-high {
+  background: #fed7aa;    /* כתום רך - לא אדום */
+  color: #9a3412;
+  /* גבוהה */
+}
+
+.priority-medium {
+  background: #fef08a;    /* צהוב רך */
+  color: #854d0e;
+  /* בינונית */
+}
+
+.priority-low {
+  background: #f1f5f9;    /* אפור רך */
+  color: #64748b;
+  /* רגילה */
+}
+```
+
+### 8.5 Badge Component Design
+
+```
+┌─────────────────┐
+│  ✓ הושלם        │  ← פינות מעוגלות מאוד (radius-full)
+└─────────────────┘     רקע רך, טקסט כהה יותר
+                        אייקון לפני הטקסט
+```
+
+### 8.6 Responsive Breakpoints
 
 ```css
 /* Mobile First */
@@ -1781,17 +1946,28 @@ lg: 1024px  /* Laptops */
 xl: 1280px  /* Desktops */
 ```
 
-### 8.4 Mobile Navigation
+### 8.7 Mobile Navigation (Tiimo Style)
 
 ```
-Bottom Navigation (Mobile):
-┌─────────────────────────────────────────┐
-│  [🏠]     [📅]     [➕]    [📝]    [⚙️] │
-│  בית    יומן     אימון  תרגילים הגדרות │
-└─────────────────────────────────────────┘
+Bottom Navigation - מינימלי, נקי, אייקונים בלבד:
+
+┌──────────────────────────────────────────────────────┐
+│                                                      │
+│    🏠          📅          ➕          👤           │
+│                                                      │
+│   היום       יומן       חדש      פרופיל            │
+│                                                      │
+└──────────────────────────────────────────────────────┘
+
+* אייקונים גדולים (24px)
+* רק 4 פריטים מקסימום
+* כפתור ה-➕ מודגש יותר (צבע primary)
+* ללא borders מיותרים
+* רקע לבן עם shadow-sm בלבד
+* Active state: אייקון filled + צבע primary
 ```
 
-### 8.5 RTL Considerations
+### 8.8 RTL Considerations
 
 - כל הטקסט מיושר לימין
 - Icons בצד שמאל של כפתורים
@@ -1801,31 +1977,176 @@ Bottom Navigation (Mobile):
 - Table headers מיושרים לימין
 - Numbers remain LTR (תאריכים, שעות)
 
-### 8.6 Component Guidelines
+### 8.9 Component Guidelines (Tiimo Style)
 
-#### Cards
-- רקע לבן
-- Border radius: 12px
-- Shadow קל
-- Padding: 16px
-- Header עם כותרת ו-actions בצד שמאל
+#### Cards - כרטיסים
+```
+┌────────────────────────────────────────┐
+│                                        │
+│  ● כותרת הכרטיס                        │  ← נקודה צבעונית במקום אייקון
+│                                        │
+│  תוכן הכרטיס כאן...                   │
+│  מרווחים נדיבים                       │
+│                                        │
+│                            [כפתור →]  │  ← כפתור רך בפינה
+│                                        │
+└────────────────────────────────────────┘
 
-#### Forms
-- Labels מעל השדות
-- Placeholder בצבע בהיר
-- Error message מתחת לשדה באדום
-- כפתור Submit בולט, Cancel משני
-- ולידציה בזמן אמת
+* Border radius: 24px (מאוד מעוגל!)
+* Shadow: shadow-sm (כמעט לא נראה)
+* Padding: 24px
+* ללא borders - רק shadow
+* רקע לבן על רקע אפרפר קל
+```
 
-#### Tables (Mobile)
-- המרה ל-Cards במובייל
-- או גלילה אופקית עם sticky first column
-- שורות לחיצות לצפייה בפרטים
+#### Timeline Block - בלוק אימון ביומן
+```
+┌────────────────────────────────────────┐
+│ 09:00                                  │
+│ ┌────────────────────────────────────┐ │
+│ │ ████████████████████████████████  │ │  ← בלוק צבעוני
+│ │ אימון קבוצת תחרותי 14-16          │ │
+│ │ 90 דק׳                             │ │
+│ └────────────────────────────────────┘ │
+│                                        │
+│ 10:30                                  │
+│ ┌─────────────────────┐               │
+│ │ █████████████████  │               │  ← בלוק קצר יותר
+│ │ הפסקה               │               │
+│ └─────────────────────┘               │
+└────────────────────────────────────────┘
 
-#### Empty States
-- אייקון גדול באמצע
-- כותרת קצרה
-- כפתור פעולה (למשל "יצירת אימון ראשון")
+* גובה הבלוק יחסי למשך הזמן
+* צבע רקע פסטלי
+* פס צבעוני בצד (או בתחילת הבלוק)
+* טקסט מינימלי: שם + משך
+```
+
+#### Buttons - כפתורים
+```css
+/* Primary Button */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-xl);      /* 24px - מאוד מעוגל */
+  padding: 12px 24px;
+  font-weight: 500;
+  border: none;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary Button - רך יותר */
+.btn-secondary {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-radius: var(--radius-xl);
+  padding: 12px 24px;
+  border: none;
+}
+
+/* Ghost Button - שקוף */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  padding: 12px 24px;
+}
+```
+
+#### Forms - טפסים
+```
+┌────────────────────────────────────────┐
+│  שם הקבוצה                            │  ← Label קטן מעל
+│ ┌────────────────────────────────────┐ │
+│ │  הזינו שם...                       │ │  ← Input עם placeholder רך
+│ └────────────────────────────────────┘ │
+│                                        │
+│  סוג קבוצה                            │
+│ ┌────────────────────────────────────┐ │
+│ │  בחרו סוג                     ▼   │ │  ← Select
+│ └────────────────────────────────────┘ │
+│                                        │
+│  * שימו לב: יש למלא את כל השדות      │  ← הערה רכה (לא שגיאה)
+│                                        │
+└────────────────────────────────────────┘
+
+* Input radius: 16px
+* Border רק ב-focus
+* רקע אפרפר קל (#f8fafc) ב-idle
+* Focus: רקע לבן + border כחול רך
+* ללא הודעות שגיאה אדומות - במקום זאת הערות רכות
+```
+
+#### Empty States - מצבים ריקים
+```
+┌────────────────────────────────────────┐
+│                                        │
+│                                        │
+│              🎾                        │  ← אימוג'י או אייקון נחמד
+│                                        │
+│         אין אימונים היום              │  ← כותרת קצרה
+│                                        │
+│       זה הזמן המושלם ליצור             │  ← טקסט מעודד (לא "אין נתונים")
+│         את האימון הבא!                 │
+│                                        │
+│        [ + יצירת אימון ]               │  ← כפתור primary
+│                                        │
+│                                        │
+└────────────────────────────────────────┘
+```
+
+### 8.10 Animations & Micro-interactions
+
+```css
+/* הופעת כרטיס */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* השלמת משימה - confetti קטן */
+@keyframes completeCelebration {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* מעבר בין מסכים */
+.page-transition {
+  animation: fadeInUp 250ms ease-out;
+}
+
+/* Hover על כרטיס */
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+```
+
+### 8.11 Icons Style
+
+```
+סגנון אייקונים: Outlined, רכים, עגולים
+
+מומלץ: Phosphor Icons (https://phosphoricons.com)
+או: Heroicons (https://heroicons.com)
+
+* Line weight: 1.5-2px
+* Rounded corners
+* גודל סטנדרטי: 20px-24px
+* צבע: text-secondary או primary
+```
 
 ---
 
