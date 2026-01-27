@@ -16,6 +16,9 @@ import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 // Coach Pages
 import { CoachDashboard } from '@/pages/coach/CoachDashboard';
 import { CalendarPage } from '@/pages/coach/CalendarPage';
+import { TrainingsPage } from '@/pages/coach/TrainingsPage';
+import { TrainingFormPage } from '@/pages/coach/TrainingFormPage';
+import { GroupsPage } from '@/pages/coach/GroupsPage';
 
 // Loading Spinner
 import { Spinner } from '@/components/ui/Spinner';
@@ -151,7 +154,10 @@ export default function App() {
           <Route path="coach">
             <Route index element={<CoachDashboard />} />
             <Route path="calendar" element={<CalendarPage />} />
-            {/* More coach routes will be added here */}
+            <Route path="trainings" element={<TrainingsPage />} />
+            <Route path="trainings/new" element={<TrainingFormPage />} />
+            <Route path="trainings/:id" element={<TrainingFormPage />} />
+            <Route path="groups" element={<GroupsPage />} />
           </Route>
 
           {/* Center Manager Routes (placeholder) */}
