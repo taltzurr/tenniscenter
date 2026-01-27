@@ -65,7 +65,7 @@ class ValuesService extends BaseService<Value, CreateValueData, UpdateData<Value
   /**
    * Reorder values for a month
    */
-  async reorderValues(month: string, valueIds: string[]): Promise<Value[]> {
+  async reorderValues(_month: string, valueIds: string[]): Promise<Value[]> {
     const updates: Promise<Value>[] = [];
 
     valueIds.forEach((id, index) => {

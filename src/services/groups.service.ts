@@ -3,9 +3,9 @@
  * Manages training groups
  */
 
-import { where, orderBy, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { where, orderBy, Timestamp } from 'firebase/firestore';
 import { COLLECTIONS } from './firebase';
-import { BaseService, dateToTimestamp } from './base.service';
+import { BaseService } from './base.service';
 import type { Group, CreateGroupData, UpdateData, CoachHistoryEntry } from '../types';
 
 class GroupsService extends BaseService<Group, CreateGroupData, UpdateData<Group>> {

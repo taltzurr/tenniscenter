@@ -117,7 +117,7 @@ const navItems: NavItem[] = [
 ];
 
 export function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const filteredItems = navItems.filter(item =>
     item.roles.includes(user?.role || '')
