@@ -7,19 +7,27 @@
  * 3. Run: npx ts-node scripts/seed-data.ts
  */
 
-import * as admin from 'firebase-admin';
-import * as path from 'path';
+import admin from 'firebase-admin';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 // Initialize Firebase Admin
-const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const serviceAccountPath = join(__dirname, 'serviceAccountKey.json');
+
+console.log('Looking for service account at:', serviceAccountPath);
 
 try {
-  const serviceAccount = require(serviceAccountPath);
+  const serviceAccountContent = readFileSync(serviceAccountPath, 'utf-8');
+  const serviceAccount = JSON.parse(serviceAccountContent) as admin.ServiceAccount;
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
+  console.log('✓ Firebase Admin initialized successfully');
 } catch (error) {
-  console.error('❌ Error: Could not find serviceAccountKey.json');
+  console.error('❌ Error initializing Firebase Admin:', error);
   console.log('\nPlease download the service account key:');
   console.log('1. Go to Firebase Console → Project Settings → Service Accounts');
   console.log('2. Click "Generate new private key"');

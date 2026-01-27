@@ -30,6 +30,8 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 *-debug.log
+serviceAccountKey.json
+**/serviceAccountKey.json
 
 # Functions
 functions/node_modules/
