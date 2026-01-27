@@ -5,7 +5,7 @@
 
 import { where, orderBy, Timestamp } from 'firebase/firestore';
 import { COLLECTIONS } from './firebase';
-import { BaseService, getCurrentMonth, getNextMonth } from './base.service';
+import { BaseService, getCurrentMonth } from './base.service';
 import { trainingsService } from './trainings.service';
 import type {
   MonthlyPlan,

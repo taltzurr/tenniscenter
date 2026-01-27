@@ -3,7 +3,7 @@
  * Manages exercises (global and private)
  */
 
-import { where, orderBy, or, and } from 'firebase/firestore';
+import { where, orderBy } from 'firebase/firestore';
 import { COLLECTIONS } from './firebase';
 import { BaseService } from './base.service';
 import type {

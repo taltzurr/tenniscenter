@@ -4,7 +4,7 @@
  * Tiimo-style: clean, timeline-based, calming
  */
 
-import { format, isToday, isTomorrow } from 'date-fns';
+import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import {
@@ -62,32 +62,6 @@ export function CoachDashboard() {
     if (hour < 17) return 'צהריים טובים';
     if (hour < 21) return 'ערב טוב';
     return 'לילה טוב';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-timeline-green border-success';
-      case 'planned':
-        return 'bg-timeline-blue border-primary-400';
-      case 'cancelled':
-        return 'bg-timeline-gray border-slate-400';
-      default:
-        return 'bg-timeline-blue border-primary-400';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'הושלם';
-      case 'planned':
-        return 'מתוכנן';
-      case 'cancelled':
-        return 'בוטל';
-      default:
-        return '';
-    }
   };
 
   const todayDate = format(new Date(), 'EEEE, d בMMMM', { locale: he });
