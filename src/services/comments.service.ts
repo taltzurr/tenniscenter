@@ -6,7 +6,7 @@
 import { where, orderBy } from 'firebase/firestore';
 import { COLLECTIONS } from './firebase';
 import { BaseService } from './base.service';
-import type { Comment, CreateCommentData, UpdateData, CommentStatus } from '../types';
+import type { Comment, CreateCommentData, UpdateData } from '../types';
 
 class CommentsService extends BaseService<Comment, CreateCommentData, UpdateData<Comment>> {
   constructor() {
