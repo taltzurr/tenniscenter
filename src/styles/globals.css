@@ -114,7 +114,7 @@
   }
 
   .input-error {
-    @apply input ring-2 ring-warning-DEFAULT;
+    @apply input ring-2 ring-warning;
   }
 
   .label {
