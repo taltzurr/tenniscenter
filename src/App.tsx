@@ -18,6 +18,7 @@ import { CoachDashboard } from '@/pages/coach/CoachDashboard';
 import { CalendarPage } from '@/pages/coach/CalendarPage';
 import { TrainingsPage } from '@/pages/coach/TrainingsPage';
 import { TrainingFormPage } from '@/pages/coach/TrainingFormPage';
+import { TrainingDetailsPage } from '@/pages/coach/TrainingDetailsPage';
 import { GroupsPage } from '@/pages/coach/GroupsPage';
 import { ExercisesPage } from '@/pages/coach/ExercisesPage';
 
@@ -157,7 +158,8 @@ export default function App() {
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="trainings" element={<TrainingsPage />} />
             <Route path="trainings/new" element={<TrainingFormPage />} />
-            <Route path="trainings/:id" element={<TrainingFormPage />} />
+            <Route path="trainings/:id" element={<TrainingDetailsPage />} />
+            <Route path="trainings/:id/edit" element={<TrainingFormPage />} />
             <Route path="groups" element={<GroupsPage />} />
             <Route path="exercises" element={<ExercisesPage />} />
           </Route>
