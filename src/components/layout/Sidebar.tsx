@@ -134,9 +134,9 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-3 h-16 px-6 border-b border-slate-100">
         <img
-          src="/logo.png"
+          src="/logo.svg"
           alt="מרכזי הטניס"
-          className="w-10 h-10 rounded-full"
+          className="w-12 h-12"
         />
         <div>
           <h1 className="font-bold text-slate-800">מרכזי הטניס</h1>
