@@ -33,9 +33,15 @@ const navItems: NavItem[] = [
     roles: ['coach'],
   },
   {
+    label: 'לוח שנה',
+    path: '/coach/calendar',
+    icon: <CalendarBlank size={22} />,
+    roles: ['coach'],
+  },
+  {
     label: 'יומן אימונים',
     path: '/coach/trainings',
-    icon: <CalendarBlank size={22} />,
+    icon: <ClipboardText size={22} />,
     roles: ['coach'],
   },
   {
