@@ -15,6 +15,7 @@ import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 
 // Coach Pages
 import { CoachDashboard } from '@/pages/coach/CoachDashboard';
+import { CalendarPage } from '@/pages/coach/CalendarPage';
 
 // Loading Spinner
 import { Spinner } from '@/components/ui/Spinner';
@@ -149,6 +150,7 @@ export default function App() {
           {/* Coach Routes */}
           <Route path="coach">
             <Route index element={<CoachDashboard />} />
+            <Route path="calendar" element={<CalendarPage />} />
             {/* More coach routes will be added here */}
           </Route>
 

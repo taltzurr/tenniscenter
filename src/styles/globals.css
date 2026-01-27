@@ -192,3 +192,108 @@
     padding-top: env(safe-area-inset-top);
   }
 }
+
+/* ============================================
+   FULLCALENDAR CUSTOMIZATION
+   ============================================ */
+
+.calendar-wrapper {
+  @apply rounded-xl overflow-hidden;
+}
+
+.calendar-wrapper .fc {
+  --fc-border-color: theme('colors.slate.200');
+  --fc-today-bg-color: theme('colors.primary.50');
+  --fc-neutral-bg-color: theme('colors.slate.50');
+  --fc-page-bg-color: white;
+  --fc-event-border-color: transparent;
+  font-family: inherit;
+}
+
+.calendar-wrapper .fc-theme-standard td,
+.calendar-wrapper .fc-theme-standard th {
+  border-color: var(--fc-border-color);
+}
+
+.calendar-wrapper .fc-col-header-cell {
+  @apply bg-slate-50 py-3 font-medium text-slate-600 text-sm;
+}
+
+.calendar-wrapper .fc-col-header-cell-cushion {
+  @apply py-2;
+}
+
+.calendar-wrapper .fc-daygrid-day {
+  @apply transition-colors;
+}
+
+.calendar-wrapper .fc-daygrid-day:hover {
+  @apply bg-slate-50;
+}
+
+.calendar-wrapper .fc-daygrid-day-number {
+  @apply p-2 text-slate-600 font-medium text-sm;
+}
+
+.calendar-wrapper .fc-day-today .fc-daygrid-day-number {
+  @apply bg-primary-500 text-white rounded-full w-7 h-7 flex items-center justify-center m-1;
+}
+
+.calendar-wrapper .fc-daygrid-event {
+  @apply rounded-md px-2 py-1 text-xs font-medium border-l-0 border-r-2;
+  @apply hover:opacity-80 cursor-pointer;
+}
+
+.calendar-wrapper .fc-timegrid-slot {
+  @apply h-12;
+}
+
+.calendar-wrapper .fc-timegrid-slot-label {
+  @apply text-xs text-slate-500 font-medium;
+}
+
+.calendar-wrapper .fc-timegrid-event {
+  @apply rounded-lg border-l-0 border-r-4 shadow-sm;
+}
+
+.calendar-wrapper .fc-timegrid-event .fc-event-main {
+  @apply p-2;
+}
+
+.calendar-wrapper .fc-timegrid-event .fc-event-title {
+  @apply font-medium text-sm;
+}
+
+.calendar-wrapper .fc-timegrid-event .fc-event-time {
+  @apply text-xs opacity-80;
+}
+
+.calendar-wrapper .fc-more-link {
+  @apply text-primary-600 font-medium text-xs hover:text-primary-700;
+}
+
+.calendar-wrapper .fc-now-indicator-line {
+  @apply border-t-2 border-red-500;
+}
+
+.calendar-wrapper .fc-now-indicator-arrow {
+  @apply border-l-8 border-l-red-500;
+}
+
+.calendar-wrapper .fc-highlight {
+  @apply bg-primary-100;
+}
+
+.calendar-wrapper .fc-day-other .fc-daygrid-day-number {
+  @apply text-slate-300;
+}
+
+/* RTL adjustments */
+[dir="rtl"] .calendar-wrapper .fc-daygrid-event {
+  @apply border-r-0 border-l-2;
+}
+
+[dir="rtl"] .calendar-wrapper .fc-timegrid-event {
+  @apply border-r-0 border-l-4;
+}
+
