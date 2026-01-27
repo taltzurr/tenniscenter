@@ -21,6 +21,8 @@ import { TrainingFormPage } from '@/pages/coach/TrainingFormPage';
 import { TrainingDetailsPage } from '@/pages/coach/TrainingDetailsPage';
 import { GroupsPage } from '@/pages/coach/GroupsPage';
 import { ExercisesPage } from '@/pages/coach/ExercisesPage';
+import { MonthlyPlanPage } from '@/pages/coach/MonthlyPlanPage';
+import { GroupDetailsPage } from '@/pages/coach/GroupDetailsPage';
 
 // Loading Spinner
 import { Spinner } from '@/components/ui/Spinner';
@@ -161,7 +163,9 @@ export default function App() {
             <Route path="trainings/:id" element={<TrainingDetailsPage />} />
             <Route path="trainings/:id/edit" element={<TrainingFormPage />} />
             <Route path="groups" element={<GroupsPage />} />
+            <Route path="groups/:id" element={<GroupDetailsPage />} />
             <Route path="exercises" element={<ExercisesPage />} />
+            <Route path="monthly-plan" element={<MonthlyPlanPage />} />
           </Route>
 
           {/* Center Manager Routes (placeholder) */}
