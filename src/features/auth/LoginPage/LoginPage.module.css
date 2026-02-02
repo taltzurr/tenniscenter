@@ -1,0 +1,131 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-100) 0%, var(--bg-secondary) 50%, var(--accent-100) 100%);
+    padding: var(--space-4);
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-8);
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-4);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+}
+
+.title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-800);
+    margin-bottom: var(--space-2);
+}
+
+.subtitle {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.forgotPassword {
+    display: inline-block;
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    text-align: left;
+    margin-top: calc(var(--space-2) * -1);
+    transition: color var(--transition-fast);
+}
+
+.forgotPassword:hover {
+    color: var(--primary-800);
+    text-decoration: underline;
+}
+
+.error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--error-100);
+    border-radius: var(--radius-md);
+    color: var(--error-500);
+    font-size: var(--font-size-sm);
+}
+
+.successMessage {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--success-100);
+    border-radius: var(--radius-md);
+    color: var(--success-500);
+    font-size: var(--font-size-sm);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--gray-200);
+}
+
+.backToLogin {
+    text-align: center;
+    margin-top: var(--space-4);
+}
+
+.backToLogin a {
+    color: var(--primary-600);
+    font-weight: var(--font-weight-medium);
+}
+
+.backToLogin a:hover {
+    text-decoration: underline;
+}

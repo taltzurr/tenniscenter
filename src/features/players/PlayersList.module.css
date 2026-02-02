@@ -1,0 +1,88 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: var(--transition-all);
+}
+
+.item:hover {
+    background-color: var(--bg-hover);
+}
+
+.mainInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.name {
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+}
+
+.subInfo {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: 2px;
+}
+
+.infoBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    background-color: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-2);
+    visibility: hidden;
+    /* Show on hover for cleaner look */
+}
+
+.item:hover .actions {
+    visibility: visible;
+}
+
+.actionButton {
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-colors);
+}
+
+.actionButton:hover {
+    background-color: var(--gray-200);
+    color: var(--text-primary);
+}
+
+.actionButton.delete:hover {
+    background-color: var(--red-50);
+    color: var(--error);
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--space-6);
+    color: var(--text-secondary);
+    background: var(--bg-subtle);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--border-color);
+}

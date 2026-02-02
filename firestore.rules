@@ -1,0 +1,125 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isCoach() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach';
+    }
+    function isCenterManager() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'center_manager';
+    }
+    function isSupervisor() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'supervisor';
+    }
+    
+    // Check if the user is the coach of the group
+    function isGroupCoach(resource) {
+      return resource.data.coachId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      // Allow users to create/update their own profile
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId || isSupervisor();
+      allow delete: if isSupervisor();
+    }
+
+    match /groups/{groupId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach() || isCenterManager() || isSupervisor();
+      allow update: if isGroupCoach(resource) 
+                    || isCenterManager() 
+                    || isSupervisor();
+      allow delete: if isSupervisor();
+    }
+    
+    match /groupTypes/{typeId} {
+      allow read: if isSignedIn();
+      allow write: if isSupervisor();
+    }
+
+    match /trainings/{trainingId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach() || isCenterManager() || isSupervisor();
+      allow update: if resource.data.coachId == request.auth.uid 
+                    || isCenterManager() 
+                    || isSupervisor();
+      allow delete: if resource.data.coachId == request.auth.uid 
+                    || isSupervisor();
+    }
+
+    match /exercises/{exerciseId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach() || isCenterManager() || isSupervisor();
+      allow update: if resource.data.createdBy == request.auth.uid 
+                    || isCenterManager() 
+                    || isSupervisor();
+      allow delete: if isSupervisor();
+    }
+
+    match /exerciseRequests/{requestId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach() || isCenterManager() || isSupervisor();
+      allow update: if resource.data.requestedBy == request.auth.uid 
+                    || isCenterManager() 
+                    || isSupervisor();
+      allow delete: if isSupervisor();
+    }
+
+    match /monthlyPlans/{planId} {
+      allow read: if isSignedIn();
+      allow create: if isCoach() || isCenterManager() || isSupervisor();
+      allow update: if resource.data.coachId == request.auth.uid 
+                    || isCenterManager() 
+                    || isSupervisor();
+      allow delete: if resource.data.coachId == request.auth.uid 
+                    || isSupervisor();
+    }
+
+    match /comments/{commentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if resource.data.authorId == request.auth.uid;
+      allow delete: if resource.data.authorId == request.auth.uid 
+                    || isSupervisor();
+    }
+
+    // Goals collection
+    match /goals/{goalId} {
+      allow read: if isSignedIn();
+      allow create: if isCenterManager() || isSupervisor() || isCoach();
+      allow update: if isCenterManager() || isSupervisor() || isCoach();
+      allow delete: if isSupervisor() || isCenterManager() || (isCoach() && resource.data.type == 'group');
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Events collection (Calendar)
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isSupervisor() || isCenterManager();
+    }
+
+    // Monthly Themes collection
+    match /monthlyThemes/{themeId} {
+      allow read: if isSignedIn();
+      allow write: if isSupervisor() || isCenterManager();
+    }
+
+    // Centers collection
+    match /centers/{centerId} {
+      allow read: if isSignedIn();
+      allow write: if isSupervisor();
+    }
+  }
+}

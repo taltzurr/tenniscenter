@@ -1,0 +1,126 @@
+.page {
+    padding: var(--space-6);
+    min-height: 100vh;
+    background-color: var(--bg-secondary);
+}
+
+.greeting {
+    margin-bottom: var(--space-8);
+}
+
+.greetingTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.greetingSubtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-lg);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    border: 1px solid var(--gray-100);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+}
+
+.cardIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+}
+
+/* Icon Colors */
+.blue {
+    background-color: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.green {
+    background-color: var(--success-bg);
+    color: var(--success);
+}
+
+.purple {
+    background-color: var(--purple-50);
+    color: var(--purple-600);
+}
+
+.orange {
+    background-color: var(--orange-50);
+    color: var(--orange-600);
+}
+
+.cardTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.cardDescription {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+}
+
+.quickActions {
+    margin-top: var(--space-8);
+}
+
+.sectionTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: var(--space-4);
+    }
+
+    .greeting {
+        margin-bottom: var(--space-6);
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        /* Full width cards on mobile */
+        gap: var(--space-4);
+    }
+
+    .card {
+        padding: var(--space-5);
+    }
+}

@@ -1,0 +1,142 @@
+.page {
+    padding: var(--space-4);
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+}
+
+.title {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
+}
+
+.section {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--gray-100);
+    padding-bottom: var(--space-4);
+}
+
+.sectionTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.sectionIcon {
+    color: var(--primary-500);
+}
+
+.sectionContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.settingRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    transition: background 0.2s;
+}
+
+.settingRow:hover {
+    background: var(--gray-50);
+}
+
+.settingInfo {
+    flex: 1;
+}
+
+.settingLabel {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.settingDescription {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.logoutButton {
+    width: 100%;
+    margin-top: var(--space-8);
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid var(--error-bg);
+}
+
+.logoutButton:hover {
+    background: var(--error);
+    color: white;
+}
+
+/* Switch Component */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-300);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: var(--shadow-sm);
+}
+
+.switch input:checked + .slider {
+    background-color: var(--primary-500);
+}
+
+.switch input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-500);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(20px);
+}

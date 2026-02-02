@@ -1,0 +1,781 @@
+/* MOBILE FIRST STYLES */
+
+.page {
+    padding: var(--space-2);
+    max-width: 100%;
+    overflow-x: hidden;
+    padding-bottom: 90px;
+    /* Space for bottom nav */
+}
+
+/* Header & Controls */
+.header {
+    background: white;
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+    margin-bottom: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.headerTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.title {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin: 4px 0 0 0;
+}
+
+.headerControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Spread out on mobile */
+    width: 100%;
+    gap: 8px;
+}
+
+/* Weekly List Section */
+.weeklyListSection {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.weeklyListHeader {
+    font-size: var(--font-size-md);
+    font-weight: 800;
+    color: var(--text-primary);
+    padding: 0 var(--space-2);
+}
+
+.dayListCard {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border: 1px solid var(--gray-100);
+}
+
+.dayListHeader {
+    background: var(--gray-50);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.dayListHeader.today {
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.dayListName {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.dayListDate {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.dayListContent {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.emptyDayMessage {
+    padding: 12px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Detailed Training Card in List */
+.listTrainingCard {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    background: white;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.listTrainingCard:active {
+    transform: scale(0.99);
+    background: var(--gray-50);
+}
+
+.listTrainingCard::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--indicator-color, var(--gray-300));
+}
+
+.cardTimeBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    text-align: center;
+    border-left: 1px solid var(--gray-100);
+    padding-left: 12px;
+}
+
+.cardTime {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.cardDuration {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+
+.cardInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cardTitle {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.cardGroup {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cardTag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    background: var(--gray-100);
+    color: var(--text-secondary);
+    margin-top: 4px;
+    align-self: flex-start;
+}
+
+/* Remove old Toggle styles if present or keep minimal */
+.toggleContainer,
+.toggleButton {
+    display: none;
+    /* Hidden as per request */
+}
+
+@media (min-width: 768px) {
+    .weeklyListSection {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--space-4);
+    }
+}
+
+/* ... Previous Mobile First CSS ... */
+
+/* [Replacing Filter styles with Group Pills] */
+.groupPillsContainer {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.groupPillsContainer::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+.groupPill {
+    white-space: nowrap;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: white;
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.groupPill.active {
+    background: var(--primary-600);
+    color: white;
+    border-color: var(--primary-600);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    /* Blue shadow */
+}
+
+/* Legend */
+.legendContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 8px 4px;
+    margin-top: 8px;
+    border-top: 1px solid var(--gray-50);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.legendDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Weekly List Styles... (keeping existing) */
+
+/* Updated Training Card with Checkbox */
+.listTrainingCard {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+    align-items: center;
+    /* Align checkbox */
+}
+
+.listTrainingCard.performed {
+    background: #f0fdf4;
+    /* green-50 */
+    border-color: #bbf7d0;
+    /* green-200 */
+}
+
+/* Checkbox Area */
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 4px;
+    z-index: 2;
+    /* Clickable */
+}
+
+.customCheckbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    /* Circle checkbox like standard todo apps */
+    border: 2px solid var(--gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.customCheckbox.checked {
+    background: #16a34a;
+    /* green-600 */
+    border-color: #16a34a;
+    color: white;
+}
+
+.executedByLabel {
+    font-size: 10px;
+    color: #15803d;
+    /* green-700 */
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* ... Media Queries ... */
+@media (min-width: 768px) {
+
+    /* ... existing ... */
+    .groupPill:hover {
+        background: var(--gray-50);
+    }
+
+    .groupPill.active:hover {
+        background: var(--primary-700);
+    }
+}
+
+/* Month Navigator */
+.monthNav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--gray-50);
+    margin-top: var(--space-2);
+}
+
+.currentMonth {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.navButton {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-100);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    /* Touch target */
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.navButton:active {
+    background: var(--gray-200);
+    transform: scale(0.95);
+}
+
+/* Calendar Grid Container */
+.calendarContainer {
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: var(--space-2);
+    overflow: hidden;
+    /* Prevent full page scroll locking */
+}
+
+/* MONTH VIEW MOBILE */
+.weekHeaders {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--gray-100);
+    padding-bottom: 8px;
+}
+
+.weekHeader {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+}
+
+.daysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.dayCell {
+    background: white;
+    min-height: 80px;
+    /* Compact for mobile */
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dayCell:active {
+    background: var(--gray-50);
+}
+
+.dayCell.today {
+    background: var(--primary-50);
+}
+
+.dayHeader {
+    display: flex;
+    justify-content: center;
+    /* Center number on mobile */
+    margin-bottom: 2px;
+}
+
+.dayNumber {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.today .dayNumber {
+    background: var(--primary-500);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+}
+
+.dayContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+/* Mobile: Dots instead of text if very small */
+.eventPill {
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 14px;
+}
+
+.trainingDot {
+    width: 100%;
+    /* height: 4px; Remove fixed height */
+    border-radius: 3px;
+    /* background: var(--gray-200); Remove default gray */
+    display: flex;
+    align-items: center;
+    padding: 1px 3px;
+    margin-bottom: 2px;
+    overflow: hidden;
+    min-height: 14px;
+    /* Ensure space for text */
+}
+
+/* Show text on mobile now? NO - reverting to dots for mobile as List is Primary */
+.trainingDot .timeText,
+.trainingDot .groupText {
+    display: none;
+    /* Hide on mobile to save space */
+}
+
+/* Adjust Desktop overrides checks */
+/* ... */
+
+/* WEEK VIEW MOBILE (Scrollable) */
+.weekContainer {
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+    /* Fixed height for scroll */
+}
+
+.weekGridHeader {
+    display: flex;
+    /* Scrollable header */
+    overflow-x: hidden;
+    /* Syncs with body via JS usually, or assume sticky */
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    flex-shrink: 0;
+}
+
+/* We need a grid that scrolls both ways or just X? 
+   Let's make the week view a horizontal scroll of days on mobile 
+   OR a vertical scroll of hours with fixed days?
+   Mobile standard: Vertical scroll time, Horizontal scroll days if > 3-4?
+   Let's try a CSS Grid that overflows X.
+*/
+
+.weekGridWrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.weekGridBody {
+    overflow-y: auto;
+    flex: 1;
+    position: relative;
+    /* Enable momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile: Grid is wider than screen */
+.weekGridRow,
+.weekGridHeader {
+    display: grid;
+    grid-template-columns: 40px repeat(7, minmax(60px, 1fr));
+    /* Min width per day */
+    width: 100%;
+    /* Or min-content to force scroll? */
+    min-width: 500px;
+    /* Force scroll on small screens */
+}
+
+.timeColumnHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    border-right: 1px solid var(--gray-100);
+}
+
+.weekDayHeader {
+    padding: 8px 2px;
+    text-align: center;
+    border-right: 1px solid var(--gray-100);
+    background: var(--gray-50);
+}
+
+.weekDayHeader.todayHeader {
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.weekDayName {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.weekDayDate {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.timeLabel {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding-top: 6px;
+    background: white;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    border-right: 1px solid var(--gray-50);
+}
+
+.weekGridCell {
+    border-right: 1px solid var(--gray-50);
+    border-bottom: 1px solid var(--gray-50);
+    height: 50px;
+    position: relative;
+}
+
+.weekTrainingBlock {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+    padding: 2px;
+    border-radius: 4px;
+    font-size: 9px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.blockTitle {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.blockGroup {
+    display: none;
+}
+
+/* Show less on compact */
+
+
+/* DESKTOP ENHANCEMENTS (min-width typically 768px for tablet/desktop) */
+@media (min-width: 768px) {
+    .page {
+        padding: var(--space-6);
+        max-width: 1400px;
+        /* Wide screen support */
+        margin: 0 auto;
+    }
+
+    /* Header Row */
+    .header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .headerTop {
+        width: auto;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .headerControls {
+        width: auto;
+        gap: 16px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    /* Month View Desktop */
+    .dayCell {
+        min-height: 120px;
+        padding: 6px;
+    }
+
+    .dayHeader {
+        justify-content: flex-end;
+        /* Right align numbers */
+    }
+
+    .trainingDot {
+        height: auto;
+        background: transparent;
+        border-radius: 2px;
+        border-right: 3px solid transparent;
+        background: var(--gray-50);
+        padding: 2px 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 2px;
+    }
+
+    .trainingDot .timeText {
+        display: inline;
+        font-weight: 700;
+        font-size: 10px;
+    }
+
+    .trainingDot .groupText {
+        display: inline;
+        font-size: 10px;
+        opacity: 0.9;
+    }
+
+    /* Week View Desktop */
+    .weekGridRow,
+    .weekGridHeader {
+        min-width: auto;
+        /* Fit to screen usually sufficient */
+        display: grid;
+        grid-template-columns: 60px repeat(7, 1fr);
+    }
+
+    .blockGroup {
+        display: block;
+        /* Show group name on desktop */
+        opacity: 0.8;
+    }
+}
+
+/* Modal Styles */
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modalSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modalSectionTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 4px;
+}
+
+.modalCard {
+    background-color: var(--gray-50);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: background-color 0.2s;
+}
+
+.modalCard:hover {
+    background-color: var(--gray-100);
+}
+
+.emptyText {
+    font-size: 14px;
+    color: var(--gray-500);
+    font-style: italic;
+    text-align: center;
+    padding: 16px;
+    background-color: var(--gray-50);
+    border-radius: 8px;
+    border: 1px dashed var(--gray-300);
+}

@@ -1,0 +1,216 @@
+.container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.bellButton {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bellButton:hover,
+.bellButton.active {
+    background: var(--gray-100);
+    color: var(--primary-600);
+}
+
+.badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--error-500);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--bg-primary);
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 360px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--gray-200);
+    z-index: 1000;
+    margin-top: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--gray-50);
+}
+
+.title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.markAllButton {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--primary-600);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.markAllButton:hover {
+    background: var(--primary-50);
+}
+
+.list {
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.emptyState {
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-tertiary);
+    gap: 12px;
+}
+
+.emptyIcon {
+    opacity: 0.2;
+}
+
+.emptyText {
+    font-size: 14px;
+}
+
+.item {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    align-items: flex-start;
+}
+
+.item:hover {
+    background: var(--gray-50);
+}
+
+.item.unread {
+    background: var(--primary-50);
+}
+
+.item.unread:hover {
+    background: var(--primary-100);
+}
+
+.itemIcon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.iconInfo {
+    color: var(--info-500);
+}
+
+.iconSuccess {
+    color: var(--success-500);
+}
+
+.iconWarning {
+    color: var(--warning-500);
+}
+
+.iconError {
+    color: var(--error-500);
+}
+
+.itemContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.itemTitle {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.itemMessage {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.itemTime {
+    color: var(--text-tertiary);
+    font-size: 11px;
+}
+
+.deleteButton {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.item:hover .deleteButton {
+    opacity: 1;
+}
+
+.deleteButton:hover {
+    color: var(--error-500);
+    background: var(--error-50);
+}

@@ -1,0 +1,95 @@
+.card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.interactive {
+    cursor: pointer;
+}
+
+.interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.interactive:active {
+    transform: translateY(0);
+}
+
+/* Padding variants */
+.paddingNone {
+    padding: 0;
+}
+
+.paddingSmall {
+    padding: var(--space-4);
+}
+
+.paddingMedium {
+    padding: var(--space-6);
+}
+
+.paddingLarge {
+    padding: var(--space-8);
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-top: var(--space-1);
+}
+
+/* Body */
+.body {
+    padding: var(--space-6);
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Status indicator */
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.statusActive {
+    background-color: var(--success-500);
+}
+
+.statusPending {
+    background-color: var(--warning-500);
+}
+
+.statusInactive {
+    background-color: var(--gray-400);
+}

@@ -1,0 +1,89 @@
+.page {
+    padding: var(--space-6);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+}
+
+.title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+.tableContainer {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.table th,
+.table td {
+    padding: var(--space-4);
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+    background-color: var(--bg-secondary);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.roleBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.roleSupervisor {
+    background-color: #E0E7FF;
+    color: #3730A3;
+}
+
+.roleCenterManager {
+    background-color: #DCFCE7;
+    color: #166534;
+}
+
+.roleCoach {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--space-12);
+    color: var(--text-secondary);
+}

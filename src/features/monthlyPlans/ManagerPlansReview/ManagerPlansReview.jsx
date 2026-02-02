@@ -1,0 +1,310 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent } from 'lucide-react';
+import useAuthStore from '../../../stores/authStore';
+import useGroupsStore from '../../../stores/groupsStore';
+import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
+import useUsersStore from '../../../stores/usersStore';
+import { HEBREW_MONTHS } from '../../../services/monthlyPlans';
+import { PLAN_STATUS, ROLES } from '../../../config/constants';
+import Spinner from '../../../components/ui/Spinner';
+import Button from '../../../components/ui/Button';
+import { seedManagerDashboardData } from '../../../utils/seedDashboardData';
+import styles from './ManagerPlansReview.module.css';
+
+// Helper to get initials
+const getInitials = (name) => {
+    if (!name) return '?';
+    if (/^[a-zA-Z]+$/.test(name)) return name.slice(0, 2).toUpperCase(); // English
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2); // Hebrew/Hebrew
+};
+
+function ManagerPlansReview() {
+    const navigate = useNavigate();
+    const { userData } = useAuthStore();
+    const { groups, fetchGroups, isLoading: groupsLoading } = useGroupsStore();
+    const { users, fetchUsers, isLoading: usersLoading } = useUsersStore();
+    const { plans, fetchAllPlans, approvePlan, rejectPlan, isLoading: plansLoading } = useMonthlyPlansStore();
+
+    // Filters
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [expandedCoaches, setExpandedCoaches] = useState({});
+
+    // Fetch Data
+    useEffect(() => {
+        const loadUsersAndGroups = async () => {
+            // 1. Fetch all users (to find coaches)
+            await fetchUsers();
+
+            // 2. Fetch all groups (Supervisor mode)
+            if (userData?.id) {
+                await fetchGroups(userData.id, true);
+            }
+        };
+        loadUsersAndGroups();
+    }, [fetchUsers, fetchGroups, userData]);
+
+    // Fetch plans when filters change
+    useEffect(() => {
+        fetchAllPlans(selectedYear, selectedMonth);
+    }, [selectedYear, selectedMonth, fetchAllPlans]);
+
+    // Derived Data
+    const coaches = users.filter(u =>
+        (u.role === ROLES.COACH || u.role === ROLES.CENTER_MANAGER) && u.active !== false
+    );
+
+    // Aggregation Logic
+    const getCoachStats = (coachId) => {
+        // Find all groups for this coach
+        // A group belongs to a coach if group.coachId === coachId OR coachId is in group.coaches array
+        const coachGroups = groups.filter(g =>
+            g.coachId === coachId || (g.coaches && g.coaches.includes(coachId))
+        );
+
+        // Find plans for this coach (already filtered by year/month in store)
+        // Match plans to groups
+        const stats = coachGroups.map(group => {
+            const plan = plans.find(p => p.groupId === group.id);
+            return {
+                group,
+                plan,
+                status: plan ? plan.status : 'missing'
+            };
+        });
+
+        const totalGroups = coachGroups.length;
+        const submittedCount = stats.filter(s =>
+            s.status === PLAN_STATUS.SUBMITTED ||
+            s.status === PLAN_STATUS.APPROVED ||
+            s.status === PLAN_STATUS.REVIEWED
+        ).length; // Counting Submitted+Approved as "Submitted" for progress
+
+        const approvedCount = stats.filter(s => s.status === PLAN_STATUS.APPROVED).length;
+
+        const isComplete = totalGroups > 0 && submittedCount === totalGroups;
+        const percent = totalGroups > 0 ? Math.round((submittedCount / totalGroups) * 100) : 0;
+
+        return {
+            totalGroups,
+            submittedCount,
+            approvedCount,
+            isComplete,
+            percent,
+            details: stats
+        };
+    };
+
+    // Overall Stats
+    const overallStats = coaches.reduce((acc, coach) => {
+        const stats = getCoachStats(coach.id);
+        if (stats.totalGroups > 0) {
+            acc.activeCoaches++;
+            if (stats.isComplete) acc.completedCoaches++;
+            if (stats.submittedCount < stats.totalGroups) acc.missingSubmissions++;
+        }
+        return acc;
+    }, { activeCoaches: 0, completedCoaches: 0, missingSubmissions: 0 });
+
+    const toggleExpand = (coachId) => {
+        setExpandedCoaches(prev => ({ ...prev, [coachId]: !prev[coachId] }));
+    };
+
+    const handleViewPlan = (groupId) => {
+        navigate(`/monthly-plans/edit?groupId=${groupId}&year=${selectedYear}&month=${selectedMonth}&view=true`);
+    };
+
+    const isLoading = groupsLoading || usersLoading || plansLoading;
+
+    const handleSeed = async () => {
+        if (confirm('האם ליצור נתוני דמו? זה ייצור משתמשים וקבוצות חדשים.')) {
+            await seedManagerDashboardData();
+            alert('נתונים נוצרו בהצלחה! רענן את העמוד כדי לראות.');
+            window.location.reload();
+        }
+    };
+
+    if (isLoading && coaches.length === 0) return <Spinner.FullPage />;
+
+    return (
+        <div className={styles.page}>
+            <div className={styles.header}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1 className={styles.title}>דשבורד אישור תכניות</h1>
+                        <p className={styles.subtitle}>מעקב ובקרה אחר הגשות תכניות חודשיות</p>
+                    </div>
+                    <Button onClick={handleSeed} variant="secondary">
+                        צור נתוני דמו 🎲
+                    </Button>
+                </div>
+            </div>
+
+            {/* Filters */}
+            <div className={styles.filters}>
+                <select
+                    className={styles.filterSelect}
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                >
+                    <option value={currentYear + 1}>{currentYear + 1}</option>
+                    <option value={currentYear}>{currentYear}</option>
+                    <option value={currentYear - 1}>{currentYear - 1}</option>
+                </select>
+
+                <select
+                    className={styles.filterSelect}
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                >
+                    {HEBREW_MONTHS.map((m, i) => (
+                        <option key={i} value={i}>{m}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Stats Overview */}
+            <div className={styles.statsGrid}>
+                <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ background: 'var(--primary-100)', color: 'var(--primary-600)' }}>
+                        <User />
+                    </div>
+                    <div className={styles.statInfo}>
+                        <span className={styles.statValue}>{overallStats.activeCoaches}</span>
+                        <span className={styles.statLabel}>מאמנים פעילים</span>
+                    </div>
+                </div>
+                <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ background: 'var(--success-100)', color: 'var(--success-600)' }}>
+                        <CheckCircle />
+                    </div>
+                    <div className={styles.statInfo}>
+                        <span className={styles.statValue}>{overallStats.completedCoaches}</span>
+                        <span className={styles.statLabel}>הגישו הכל</span>
+                    </div>
+                </div>
+                <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ background: 'var(--warning-100)', color: 'var(--warning-600)' }}>
+                        <Clock />
+                    </div>
+                    <div className={styles.statInfo}>
+                        <span className={styles.statValue}>{overallStats.missingSubmissions}</span>
+                        <span className={styles.statLabel}>חסר הגשות</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Matrix Table */}
+            <div className={styles.matrixCard}>
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th>מאמן</th>
+                            <th>סטטוס הגשות</th>
+                            <th>התקדמות</th>
+                            <th>סטטוס כללי</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {coaches.map(coach => {
+                            const stats = getCoachStats(coach.id);
+                            if (stats.totalGroups === 0) return null; // Skip coaches with no groups
+
+                            const isExpanded = expandedCoaches[coach.id];
+
+                            return (
+                                <>
+                                    <tr
+                                        key={coach.id}
+                                        className={`${styles.coachRow} ${isExpanded ? styles.expanded : ''}`}
+                                        onClick={() => toggleExpand(coach.id)}
+                                    >
+                                        <td>
+                                            <div className={styles.coachInfo}>
+                                                <div className={styles.avatar}>
+                                                    {getInitials(coach.displayName || coach.firstName)}
+                                                </div>
+                                                <span>{coach.displayName || `${coach.firstName} ${coach.lastName}`}</span>
+                                            </div>
+                                        </td>
+                                        <td>{stats.submittedCount} / {stats.totalGroups} קבוצות</td>
+                                        <td>
+                                            <div className={styles.progressBar}>
+                                                <div
+                                                    className={`${styles.progressFill} ${stats.isComplete ? 'complete' : ''}`}
+                                                    style={{ width: `${stats.percent}%` }}
+                                                ></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {stats.isComplete ? (
+                                                <span className={styles.statusBadge} style={{ background: 'var(--success-50)', color: 'var(--success-600)' }}>
+                                                    <CheckCircle size={14} />
+                                                    מלא
+                                                </span>
+                                            ) : (
+                                                <span className={styles.statusBadge} style={{ background: 'var(--warning-50)', color: 'var(--warning-600)' }}>
+                                                    <Clock size={14} />
+                                                    חסר {stats.totalGroups - stats.submittedCount}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            <ChevronDown className={styles.expandIcon} size={20} />
+                                        </td>
+                                    </tr>
+
+                                    {/* Expanded Details */}
+                                    {isExpanded && (
+                                        <tr className={styles.detailsRow}>
+                                            <td colSpan="5">
+                                                <div className={styles.detailsContent}>
+                                                    {stats.details.map(({ group, plan, status }) => (
+                                                        <div
+                                                            key={group.id}
+                                                            className={styles.groupCard}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (plan) handleViewPlan(group.id);
+                                                            }}
+                                                            style={{ cursor: plan ? 'pointer' : 'default' }}
+                                                        >
+                                                            <span className={styles.groupName}>{group.name}</span>
+
+                                                            {status === 'missing' && (
+                                                                <span className={`${styles.groupStatus} ${styles.rejected}`}>טרם הוגש</span>
+                                                            )}
+                                                            {status === PLAN_STATUS.DRAFT && (
+                                                                <span className={styles.groupStatus}>טיוטה</span>
+                                                            )}
+                                                            {status === PLAN_STATUS.SUBMITTED && (
+                                                                <span className={`${styles.groupStatus} ${styles.submitted}`}>ממתין לאישור</span>
+                                                            )}
+                                                            {status === PLAN_STATUS.APPROVED && (
+                                                                <span className={`${styles.groupStatus} ${styles.approved}`}>אושר</span>
+                                                            )}
+                                                            {status === PLAN_STATUS.REJECTED && (
+                                                                <span className={`${styles.groupStatus} ${styles.rejected}`}>נדחה</span>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+export default ManagerPlansReview;

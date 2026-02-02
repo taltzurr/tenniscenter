@@ -1,0 +1,117 @@
+.inputWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    width: 100%;
+}
+
+.label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+}
+
+.required {
+    color: var(--error-500);
+    margin-right: var(--space-1);
+}
+
+.inputContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-base);
+    background-color: var(--bg-primary);
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    direction: rtl;
+}
+
+.input::placeholder {
+    color: var(--gray-400);
+}
+
+.input:hover:not(:disabled) {
+    border-color: var(--gray-400);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.input:disabled {
+    background-color: var(--gray-100);
+    cursor: not-allowed;
+}
+
+/* Error state */
+.hasError .input {
+    border-color: var(--error-500);
+}
+
+.hasError .input:focus {
+    box-shadow: 0 0 0 3px var(--error-100);
+}
+
+.error {
+    font-size: var(--font-size-sm);
+    color: var(--error-500);
+}
+
+/* Hint */
+.hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* With icon */
+.hasIconStart .input {
+    padding-right: var(--space-10);
+}
+
+.hasIconEnd .input {
+    padding-left: var(--space-10);
+}
+
+.iconStart,
+.iconEnd {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    pointer-events: none;
+}
+
+.iconStart {
+    right: var(--space-3);
+}
+
+.iconEnd {
+    left: var(--space-3);
+}
+
+/* Textarea */
+.textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Sizes */
+.small .input {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+}
+
+.large .input {
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--font-size-lg);
+}

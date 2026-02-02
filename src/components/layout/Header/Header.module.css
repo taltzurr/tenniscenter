@@ -1,0 +1,127 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--primary-900);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    color: white;
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-400) 0%, var(--primary-500) 100%);
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.menuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    color: white;
+    transition: all var(--transition-fast);
+}
+
+.menuButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.logoImage {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+}
+
+.logoText {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.iconButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    color: rgba(255, 255, 255, 0.7);
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.iconButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.notificationBadge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--error-500);
+    border-radius: 50%;
+    border: 2px solid var(--primary-900);
+}
+
+.userButton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.userButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.userName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: white;
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .userName {
+        display: block;
+    }
+}
+
+/* Page title for mobile */
+.pageTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+}

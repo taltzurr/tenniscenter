@@ -1,0 +1,59 @@
+/* Badge.module.css */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* Variants */
+.default {
+    background-color: var(--gray-100);
+    color: var(--gray-800);
+    border: 1px solid var(--gray-200);
+}
+
+.primary {
+    background-color: var(--primary-100);
+    color: var(--primary-800);
+    border: 1px solid var(--primary-200);
+}
+
+.success,
+.approved {
+    background-color: var(--success-100);
+    color: var(--success-800);
+    border: 1px solid var(--success-200);
+}
+
+.warning,
+.pending,
+.submitted {
+    background-color: var(--warning-100);
+    color: var(--warning-800);
+    border: 1px solid var(--warning-200);
+}
+
+.danger,
+.rejected {
+    background-color: var(--error-100);
+    color: var(--error-800);
+    border: 1px solid var(--error-200);
+}
+
+.outline {
+    background-color: transparent;
+    border: 1px solid var(--gray-300);
+    color: var(--gray-600);
+}
+
+.outline.active {
+    border-color: var(--primary-500);
+    color: var(--primary-600);
+}

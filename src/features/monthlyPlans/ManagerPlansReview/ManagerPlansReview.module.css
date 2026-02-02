@@ -1,0 +1,230 @@
+.page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    align-items: center;
+}
+
+.filterSelect {
+    padding: 8px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 150px;
+}
+
+/* Stats Cards */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.statCard {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.statIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.statValue {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.statLabel {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Submission Matrix */
+.matrixCard {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: right;
+    padding: 16px;
+    background: var(--gray-50);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--text-primary);
+}
+
+.coachRow {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.coachRow:hover {
+    background-color: var(--gray-50);
+}
+
+.coachInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.progressBar {
+    width: 100px;
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--primary-500);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progressFill.complete {
+    background: var(--success-500);
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.expandIcon {
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.expanded .expandIcon {
+    transform: rotate(180deg);
+}
+
+/* Expanded Details */
+.detailsRow {
+    background: var(--gray-50);
+}
+
+.detailsContent {
+    padding: 16px 40px 16px 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.groupCard {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.groupName {
+    font-weight: 500;
+}
+
+.groupStatus {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--gray-100);
+    color: var(--text-secondary);
+}
+
+.groupStatus.submitted {
+    background: var(--warning-50);
+    color: var(--warning-600);
+}
+
+.groupStatus.approved {
+    background: var(--success-50);
+    color: var(--success-600);
+}
+
+.groupStatus.rejected {
+    background: var(--error-bg);
+    color: var(--error);
+}

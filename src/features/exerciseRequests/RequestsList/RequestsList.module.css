@@ -1,0 +1,185 @@
+.page {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+}
+
+.title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+    padding: var(--space-1);
+    background: var(--gray-100);
+    border-radius: var(--radius-lg);
+    width: fit-content;
+}
+
+.tab {
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+}
+
+.tab.active {
+    background: var(--bg-primary);
+    color: var(--primary-600);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Request list */
+.requestsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.requestCard {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    border-right: 4px solid var(--gray-300);
+    transition: all 0.2s ease;
+}
+
+.requestCard:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.requestCard.pending {
+    border-right-color: var(--warning-500);
+}
+
+.requestCard.approved {
+    border-right-color: var(--success-500);
+}
+
+.requestCard.rejected {
+    border-right-color: var(--error-500);
+}
+
+.requestCard.in_progress {
+    border-right-color: var(--primary-500);
+}
+
+.requestHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-3);
+}
+
+.requestTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.statusBadge.pending {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.statusBadge.approved {
+    background: var(--success-100);
+    color: var(--success-700);
+}
+
+.statusBadge.rejected {
+    background: var(--error-100);
+    color: var(--error-700);
+}
+
+.statusBadge.in_progress {
+    background: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.requestDescription {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    line-height: 1.6;
+}
+
+.requestMeta {
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+}
+
+.requestMetaItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+/* Empty state */
+.emptyState {
+    text-align: center;
+    padding: var(--space-12);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+}
+
+.emptyIcon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    color: var(--gray-300);
+}
+
+.emptyTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.emptyText {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+}
