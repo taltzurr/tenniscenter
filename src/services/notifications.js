@@ -90,7 +90,6 @@ export const notifyGroup = async (groupId, notification) => {
         });
 
         await batch.commit();
-        console.log(`Notified ${players.length} players in group ${groupId}`);
     } catch (error) {
         console.error('Error notifying group:', error);
     }
@@ -112,7 +111,6 @@ export const notifyRole = async (role, notification) => {
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            console.log(`No users found with role: ${role}`);
             return;
         }
 
@@ -130,7 +128,6 @@ export const notifyRole = async (role, notification) => {
         });
 
         await batch.commit();
-        console.log(`Notified ${snapshot.size} users with role ${role}`);
 
     } catch (error) {
         console.error(`Error notifying role ${role}:`, error);

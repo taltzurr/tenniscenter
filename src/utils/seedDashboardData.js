@@ -65,7 +65,6 @@ const createPlan = async (groupId, groupName, coachId, status, year, month) => {
 };
 
 export const seedManagerDashboardData = async () => {
-    console.log('Starting Seed Process...');
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
 
@@ -74,7 +73,6 @@ export const seedManagerDashboardData = async () => {
             // 1. Create Coach
             const userRef = await addDoc(collection(db, 'users'), coachData);
             const coachId = userRef.id;
-            console.log(`Created coach: ${coachData.displayName}`);
 
             // 2. Create 3 Groups for this coach
             const groupTypes = ['תחרותי', 'עתודה', 'מתחילים'];
@@ -112,7 +110,6 @@ export const seedManagerDashboardData = async () => {
                 await createPlan(groupId, groupName, coachId, status, currentYear, currentMonth);
             }
         }
-        console.log('Seed Process Complete!');
         return true;
     } catch (error) {
         console.error('Error seeding data:', error);

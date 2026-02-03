@@ -1,24 +1,38 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import useAuthStore from './stores/authStore';
 import ProtectedRoute from './routes/ProtectedRoute';
 import PageContainer from './components/layout/PageContainer';
 import ToastContainer from './components/ui/Toast';
-import LoginPage from './features/auth/LoginPage';
-import { CoachDashboard, ManagerDashboard, ManagerAnalyticsDashboard } from './features/dashboard';
-import { GroupList, GroupForm, GroupDetails } from './features/groups';
-import { TrainingProgramPage, TrainingForm, WeeklySchedulePage, TrainingDetailsPage, WeeklyStatusPage } from './features/trainings';
-import { ExerciseList, ExerciseForm } from './features/exercises';
-import { RequestForm, RequestsList } from './features/exerciseRequests';
-import { PlanForm, PlansList, ManagerPlansReview } from './features/monthlyPlans';
-import TrainingBuilderPage from './features/trainings/TrainingBuilder/TrainingBuilderPage';
-import EventsCalendarPage from './features/manager/MonthlyThemes/EventsCalendarPage';
-import SettingsPage from './features/settings/SettingsPage';
-import { GoalsPage } from './features/goals';
-import { UsersPage } from './features/users';
-import { CentersPage } from './features/centers';
 import Spinner from './components/ui/Spinner';
 import './styles/global.css';
+
+// Lazy load all page components for better code splitting
+const LoginPage = lazy(() => import('./features/auth/LoginPage/LoginPage'));
+const CoachDashboard = lazy(() => import('./features/dashboard/CoachDashboard'));
+const ManagerDashboard = lazy(() => import('./features/dashboard/ManagerDashboard'));
+const ManagerAnalyticsDashboard = lazy(() => import('./features/dashboard/ManagerAnalyticsDashboard'));
+const GroupList = lazy(() => import('./features/groups/GroupList/GroupList'));
+const GroupForm = lazy(() => import('./features/groups/GroupForm/GroupForm'));
+const GroupDetails = lazy(() => import('./features/groups/GroupDetails/GroupDetails'));
+const TrainingProgramPage = lazy(() => import('./features/trainings/TrainingProgramPage/TrainingProgramPage'));
+const TrainingForm = lazy(() => import('./features/trainings/TrainingForm/TrainingForm'));
+const WeeklySchedulePage = lazy(() => import('./features/trainings/WeeklySchedulePage'));
+const TrainingDetailsPage = lazy(() => import('./features/trainings/TrainingDetailsPage'));
+const WeeklyStatusPage = lazy(() => import('./features/trainings/WeeklyStatusPage'));
+const TrainingBuilderPage = lazy(() => import('./features/trainings/TrainingBuilder/TrainingBuilderPage'));
+const ExerciseList = lazy(() => import('./features/exercises/ExerciseList/ExerciseList'));
+const ExerciseForm = lazy(() => import('./features/exercises/ExerciseForm/ExerciseForm'));
+const RequestForm = lazy(() => import('./features/exerciseRequests/RequestForm/RequestForm'));
+const RequestsList = lazy(() => import('./features/exerciseRequests/RequestsList/RequestsList'));
+const PlanForm = lazy(() => import('./features/monthlyPlans/PlanForm/PlanForm'));
+const PlansList = lazy(() => import('./features/monthlyPlans/PlansList/PlansList'));
+const ManagerPlansReview = lazy(() => import('./features/monthlyPlans/ManagerPlansReview/ManagerPlansReview'));
+const EventsCalendarPage = lazy(() => import('./features/manager/MonthlyThemes/EventsCalendarPage'));
+const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
+const GoalsPage = lazy(() => import('./features/goals/GoalsPage/GoalsPage'));
+const UsersPage = lazy(() => import('./features/users/UsersPage'));
+const CentersPage = lazy(() => import('./features/centers/CentersPage'));
 
 // Dashboard Wrapper Component
 function DashboardWrapper() {
@@ -45,9 +59,10 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<LoginPage />} />
+      <Suspense fallback={<Spinner.FullPage />}>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
 
         {/* Protected routes */}
         <Route
@@ -108,6 +123,7 @@ function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      </Suspense>
 
       {/* Global Toast Container */}
       <ToastContainer />
