@@ -73,7 +73,7 @@ describe('Auth Store', () => {
     const { result } = renderHook(() => useAuthStore());
 
     act(() => {
-      result.current.userData = { role: 'center_manager' };
+      result.current.userData = { role: 'centerManager' };
     });
 
     expect(result.current.isCoach()).toBe(false);

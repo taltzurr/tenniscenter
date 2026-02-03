@@ -102,12 +102,15 @@ describe('Auth Service', () => {
 
   describe('updateUserData', () => {
     it('should update user data in Firestore', async () => {
+      const mockDocRef = { id: 'user123', path: 'users/user123' };
+      vi.mocked(firestore.doc).mockReturnValue(mockDocRef);
       vi.mocked(firestore.updateDoc).mockResolvedValue(undefined);
 
       const updates = { displayName: 'Updated Name' };
       await updateUserData('user123', updates);
 
-      expect(firestore.updateDoc).toHaveBeenCalledWith(expect.anything(), updates);
+      expect(firestore.doc).toHaveBeenCalledWith(expect.anything(), 'users', 'user123');
+      expect(firestore.updateDoc).toHaveBeenCalledWith(mockDocRef, updates);
     });
   });
 });
