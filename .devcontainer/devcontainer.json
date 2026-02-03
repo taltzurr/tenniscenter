@@ -1,0 +1,25 @@
+{
+    "name": "Tennis Center Dev",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "hostRequirements": {
+        "cpus": 4,
+        "memory": "8gb"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "editor.formatOnSave": true
+            }
+        }
+    },
+    "postCreateCommand": "npm install"
+}
