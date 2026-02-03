@@ -13,7 +13,8 @@
             "extensions": [
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
-                "tamasfe.even-better-toml"
+                "tamasfe.even-better-toml",
+                "anthropic.claude-code"
             ],
             "settings": {
                 "editor.defaultFormatter": "esbenp.prettier-vscode",
