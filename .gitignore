@@ -23,6 +23,9 @@ firestore-debug.log
 firebase-debug.log
 ui-debug.log
 
+# Vercel
+.vercel
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

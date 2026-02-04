@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Building2, Calendar, Settings, ShieldCheck, BarChart2 } from 'lucide-react';
 import useAuthStore from '../../stores/authStore';
@@ -5,7 +6,7 @@ import styles from './ManagerDashboard.module.css';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
-    const { userData } = useAuthStore();
+    const { userData, isSupervisor } = useAuthStore();
 
     const getGreeting = () => {
         const hour = new Date().getHours();
@@ -15,36 +16,42 @@ const ManagerDashboard = () => {
         return 'לילה טוב';
     };
 
-    const dashboardItems = [
-        {
-            title: 'ניהול משתמשים',
-            description: 'צפייה, הוספה ועריכה של משתמשים, מאמנים ומנהלים במערכת.',
-            icon: Users,
-            color: 'blue',
-            path: '/users'
-        },
-        {
-            title: 'ניהול מרכזים',
-            description: 'הגדרת מרכזים, כתובות ופרטי התקשרות.',
-            icon: Building2,
-            color: 'green',
-            path: '/centers'
-        },
-        {
-            title: 'פיקוח ובקרה (אנליטיקה)',
-            description: 'דוחות ביצוע, סטטיסטיקות מאמנים ומעקב אחר השלמת אימונים.',
-            icon: BarChart2,
-            color: 'orange',
-            path: '/analytics'
-        },
-        {
-            title: 'לוח אירועים ומטרות',
-            description: 'ניהול לוח שנה ארגוני, אירועים מיוחדים ומטרות חודשיות.',
-            icon: Calendar,
-            color: 'purple',
-            path: '/events-calendar'
-        }
-    ];
+    // Filter dashboard items based on role
+    // Center managers should not see "Center Management" - that's supervisor-only
+    const dashboardItems = useMemo(() => {
+        const items = [
+            {
+                title: 'ניהול משתמשים',
+                description: 'צפייה, הוספה ועריכה של משתמשים, מאמנים ומנהלים במערכת.',
+                icon: Users,
+                color: 'blue',
+                path: '/users'
+            },
+            // Show "Center Management" only to supervisors
+            ...(isSupervisor() ? [{
+                title: 'ניהול מרכזים',
+                description: 'הגדרת מרכזים, כתובות ופרטי התקשרות.',
+                icon: Building2,
+                color: 'green',
+                path: '/centers'
+            }] : []),
+            {
+                title: 'פיקוח ובקרה (אנליטיקה)',
+                description: 'דוחות ביצוע, סטטיסטיקות מאמנים ומעקב אחר השלמת אימונים.',
+                icon: BarChart2,
+                color: 'orange',
+                path: '/analytics'
+            },
+            {
+                title: 'לוח אירועים ומטרות',
+                description: 'ניהול לוח שנה ארגוני, אירועים מיוחדים ומטרות חודשיות.',
+                icon: Calendar,
+                color: 'purple',
+                path: '/events-calendar'
+            }
+        ];
+        return items;
+    }, [isSupervisor]);
 
     return (
         <div className={styles.page}>

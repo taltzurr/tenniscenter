@@ -11,6 +11,7 @@ import './styles/global.css';
 const LoginPage = lazy(() => import('./features/auth/LoginPage/LoginPage'));
 const CoachDashboard = lazy(() => import('./features/dashboard/CoachDashboard'));
 const ManagerDashboard = lazy(() => import('./features/dashboard/ManagerDashboard'));
+const CenterManagerDashboard = lazy(() => import('./features/dashboard/CenterManagerDashboard'));
 const ManagerAnalyticsDashboard = lazy(() => import('./features/dashboard/ManagerAnalyticsDashboard'));
 const GroupList = lazy(() => import('./features/groups/GroupList/GroupList'));
 const GroupForm = lazy(() => import('./features/groups/GroupForm/GroupForm'));
@@ -38,10 +39,17 @@ const CentersPage = lazy(() => import('./features/centers/CentersPage'));
 function DashboardWrapper() {
   const { isCenterManager, isSupervisor } = useAuthStore();
 
-  if (isCenterManager() || isSupervisor()) {
+  // Supervisors see card navigation dashboard
+  if (isSupervisor()) {
     return <ManagerDashboard />;
   }
 
+  // Center managers see operational consolidated dashboard
+  if (isCenterManager()) {
+    return <CenterManagerDashboard />;
+  }
+
+  // Coaches see their dashboard
   return <CoachDashboard />;
 }
 

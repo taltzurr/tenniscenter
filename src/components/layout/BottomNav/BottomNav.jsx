@@ -1,15 +1,34 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, CalendarDays, UserCog } from 'lucide-react';
+import useAuthStore from '../../../stores/authStore';
+import { ROLES } from '../../../config/constants';
 import styles from './BottomNav.module.css';
 
-const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-    { to: '/monthly-plans', icon: CalendarDays, label: 'לוז אימונים' },
-    { to: '/calendar', icon: Calendar, label: 'בניית תכנית' },
-    { to: '/groups', icon: Users, label: 'קבוצות' },
-];
-
 function BottomNav() {
+    const { userData } = useAuthStore();
+
+    // Get navigation items based on role
+    const getNavItems = () => {
+        // Center Manager navigation
+        if (userData?.role === ROLES.CENTER_MANAGER) {
+            return [
+                { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
+                { to: '/users', icon: UserCog, label: 'מאמנים' },
+                { to: '/groups', icon: Users, label: 'קבוצות' },
+            ];
+        }
+
+        // Coach and Supervisor navigation (original)
+        return [
+            { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
+            { to: '/monthly-plans', icon: CalendarDays, label: 'לוז אימונים' },
+            { to: '/calendar', icon: Calendar, label: 'בניית תכנית' },
+            { to: '/groups', icon: Users, label: 'קבוצות' },
+        ];
+    };
+
+    const navItems = getNavItems();
+
     return (
         <nav className={styles.bottomNav}>
             {navItems.map((item) => (

@@ -41,15 +41,30 @@ export const EVENT_COLORS = {
 
 /**
  * Get events for a specific month (or range)
- * Currently fetching by month/year filter
+ * @param {number} year - Year
+ * @param {number} month - Month (0-11)
+ * @param {string} centerId - Optional center ID to filter events by center
  */
-export const getEvents = async (year, month) => {
+export const getEvents = async (year, month, centerId = null) => {
     try {
-        const q = query(
-            collection(db, COLLECTION),
-            where('year', '==', year),
-            where('month', '==', month)
-        );
+        let q;
+
+        if (centerId) {
+            // Get events for specific center
+            q = query(
+                collection(db, COLLECTION),
+                where('year', '==', year),
+                where('month', '==', month),
+                where('centerId', '==', centerId)
+            );
+        } else {
+            // Get all events (for supervisors)
+            q = query(
+                collection(db, COLLECTION),
+                where('year', '==', year),
+                where('month', '==', month)
+            );
+        }
 
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({

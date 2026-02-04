@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useEventsStore from '../../../stores/eventsStore';
 import useUIStore from '../../../stores/uiStore';
@@ -13,6 +14,7 @@ import styles from './EventsCalendarPage.module.css';
 
 function EventsCalendarPage() {
     const navigate = useNavigate();
+    const { userData, isSupervisor } = useAuthStore();
     const { fetchTheme, saveTheme, isLoading: themesLoading } = useMonthlyThemesStore();
     const { events, fetchEvents, addEvent, editEvent, removeEvent, isLoading: eventsLoading } = useEventsStore();
     const { addToast } = useUIStore();
@@ -49,10 +51,12 @@ function EventsCalendarPage() {
             }
 
             // Load Events
-            await fetchEvents(selectedYear, selectedMonth);
+            // Center managers see only their center's events, supervisors see all
+            const centerId = isSupervisor() ? null : userData?.managedCenterId;
+            await fetchEvents(selectedYear, selectedMonth, centerId);
         };
         loadData();
-    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents]);
+    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
 
     // Theme Handlers
     const handleSaveThemes = async (e) => {
@@ -112,7 +116,9 @@ function EventsCalendarPage() {
                 ...formData,
                 date: date,
                 year: selectedYear,
-                month: selectedMonth
+                month: selectedMonth,
+                // Add centerId for center-specific events
+                centerId: userData?.managedCenterId || null
             };
 
             let res;

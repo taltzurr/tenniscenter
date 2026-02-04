@@ -42,6 +42,29 @@ function Sidebar() {
 
     // Navigation items based on role
     const getNavItems = () => {
+        // Center Manager navigation
+        if (userData?.role === ROLES.CENTER_MANAGER) {
+            return [
+                {
+                    section: 'ראשי',
+                    items: [
+                        { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
+                        { to: '/users', icon: UserCog, label: 'מאמנים' },
+                        { to: '/groups', icon: Users, label: 'קבוצות' },
+                    ]
+                },
+                {
+                    section: 'ניהול',
+                    items: [
+                        { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
+                        { to: '/events-calendar', icon: CalendarDays, label: 'אירועים' },
+                        { to: '/settings', icon: Settings, label: 'הגדרות' },
+                    ]
+                }
+            ];
+        }
+
+        // Coach and Supervisor navigation (original)
         const items = [
             {
                 section: 'ראשי',
@@ -71,16 +94,6 @@ function Sidebar() {
                     { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
                     { to: '/goals', icon: Target, label: 'מטרות' },
                     { to: '/values', icon: Heart, label: 'ערכים' },
-                ]
-            });
-        }
-
-        // Add center manager items
-        if (userData?.role === ROLES.CENTER_MANAGER) {
-            items.push({
-                section: 'ניהול מרכז',
-                items: [
-                    { to: '/users', icon: UserCog, label: 'מאמנים' },
                 ]
             });
         }

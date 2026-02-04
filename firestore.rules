@@ -9,7 +9,7 @@ service cloud.firestore {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach';
     }
     function isCenterManager() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'center_manager';
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'centerManager';
     }
     function isSupervisor() {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'supervisor';
@@ -107,7 +107,12 @@ service cloud.firestore {
     // Events collection (Calendar)
     match /events/{eventId} {
       allow read: if isSignedIn();
-      allow write: if isSupervisor() || isCenterManager();
+      // Center managers can only create events for their own center
+      allow create: if isSupervisor()
+                    || (isCenterManager() && request.resource.data.centerId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.managedCenterId);
+      // Center managers can only update/delete events that belong to their center
+      allow update, delete: if isSupervisor()
+                            || (isCenterManager() && resource.data.centerId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.managedCenterId);
     }
 
     // Monthly Themes collection

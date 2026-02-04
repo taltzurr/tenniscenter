@@ -1,0 +1,394 @@
+.page {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.greeting {
+    margin-bottom: var(--space-6);
+}
+
+.greetingTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.greetingSubtitle {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .statsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .statsGrid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.statCard {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.statCard:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-100);
+    transform: translateY(-1px);
+}
+
+.statIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.blue {
+    background-color: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.green {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.orange {
+    background-color: var(--warning-50);
+    color: var(--warning-600);
+}
+
+.purple {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.yellow {
+    background-color: #fffde7;
+    color: #fbc02d;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.statValue {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin: 0;
+}
+
+.statLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+.section {
+    margin-bottom: var(--space-6);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.sectionTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.sectionAction {
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+}
+
+.sectionAction:hover {
+    text-decoration: underline;
+}
+
+/* Plan Progress List */
+.planProgressList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.coachProgressItem {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.coachAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.coachProgressInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.coachName {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.coachProgressMeta {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.progressBarContainer {
+    width: 100%;
+    height: 8px;
+    background-color: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progressBarFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--transition-base);
+}
+
+.progressBarFill.success {
+    background-color: var(--success-500);
+}
+
+.progressBarFill.warning {
+    background-color: var(--warning-500);
+}
+
+.progressBarFill.danger {
+    background-color: var(--danger-500);
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+}
+
+.statusBadge.success {
+    background-color: var(--success-100);
+    color: var(--success-700);
+}
+
+.statusBadge.warning {
+    background-color: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.statusBadge.danger {
+    background-color: var(--danger-100);
+    color: var(--danger-700);
+}
+
+/* Trainings List */
+.trainingsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.trainingItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+.trainingItem:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.trainingTime {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+}
+
+.trainingTimeValue {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--primary-700);
+}
+
+.trainingTimeDuration {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.trainingDetails {
+    flex: 1;
+}
+
+.trainingGroup {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.trainingMeta {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.trainingStatus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background-color: var(--gray-100);
+    color: var(--text-tertiary);
+    transition: all var(--transition-fast);
+}
+
+.trainingStatus.completed {
+    background-color: var(--success-100);
+    color: var(--success-500);
+}
+
+/* Execution List */
+.executionList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.executionItem {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.executionCoachInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.executionCoachName {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.executionStats {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.executionPercentage {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+/* Empty State */
+.emptyState {
+    text-align: center;
+    padding: var(--space-10) var(--space-4);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+}
+
+.emptyIcon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    color: var(--gray-300);
+}
+
+.emptyText {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+/* Loading Spinner */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}

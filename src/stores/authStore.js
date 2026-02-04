@@ -89,8 +89,21 @@ const useAuthStore = create((set, get) => ({
         }
 
         try {
+            // Sign in with Firebase - this will trigger onAuthStateChanged
             const { user, userData } = await signIn(email, password);
+
+            // Ensure userData exists before allowing navigation
+            if (!userData) {
+                throw new Error('לא נמצאו נתוני משתמש. אנא פנה למנהל המערכת.');
+            }
+
+            // Set the state with user and userData
             set({ user, userData, isLoading: false });
+
+            // Wait a brief moment to ensure the onAuthStateChanged listener has fired
+            // and the store is fully synchronized before navigation
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             return { success: true };
         } catch (error) {
             set({ error: error.message, isLoading: false });
