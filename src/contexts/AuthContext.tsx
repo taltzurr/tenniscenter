@@ -26,11 +26,14 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  error: string | null;
 
   // Methods
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
+  clearError: () => void;
+  retryLoadSession: () => Promise<void>;
 
   // Helpers
   hasRole: (roles: UserRole | UserRole[]) => boolean;
@@ -51,6 +54,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load user session data
+  const loadUserSession = useCallback(async (fbUser: FirebaseUser) => {
+    try {
+      setError(null);
+      const userData = await getUserData(fbUser.uid);
+      if (!userData) {
+        setError('לא נמצאו נתוני משתמש. אנא פנה למנהל המערכת.');
+        setUser(null);
+      } else {
+        setUser(userData);
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+      setError('שגיאה בטעינת נתוני המשתמש. בדוק את החיבור לאינטרנט ונסה שוב.');
+      setUser(null);
+    }
+  }, []);
+
+  // Retry loading session
+  const retryLoadSession = useCallback(async () => {
+    if (firebaseUser) {
+      setIsLoading(true);
+      await loadUserSession(firebaseUser);
+      setIsLoading(false);
+    }
+  }, [firebaseUser, loadUserSession]);
+
+  // Clear error
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   // Listen for auth state changes
   useEffect(() => {
@@ -58,22 +94,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setFirebaseUser(fbUser);
 
       if (fbUser) {
-        try {
-          const userData = await getUserData(fbUser.uid);
-          setUser(userData);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          setUser(null);
-        }
+        await loadUserSession(fbUser);
       } else {
         setUser(null);
+        setError(null);
       }
 
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [loadUserSession]);
 
   // Login
   const login = useCallback(async (email: string, password: string) => {
@@ -120,9 +151,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     firebaseUser,
     isLoading,
     isAuthenticated: !!user,
+    error,
     login,
     logout,
     sendPasswordReset,
+    clearError,
+    retryLoadSession,
     hasRole: checkRole,
     belongsToCenter: checkCenter,
   };

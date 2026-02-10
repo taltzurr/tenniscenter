@@ -15,6 +15,14 @@ import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 
 // Coach Pages
 import { CoachDashboard } from '@/pages/coach/CoachDashboard';
+import { CalendarPage } from '@/pages/coach/CalendarPage';
+import { TrainingsPage } from '@/pages/coach/TrainingsPage';
+import { TrainingFormPage } from '@/pages/coach/TrainingFormPage';
+import { TrainingDetailsPage } from '@/pages/coach/TrainingDetailsPage';
+import { GroupsPage } from '@/pages/coach/GroupsPage';
+import { ExercisesPage } from '@/pages/coach/ExercisesPage';
+import { MonthlyPlanPage } from '@/pages/coach/MonthlyPlanPage';
+import { GroupDetailsPage } from '@/pages/coach/GroupDetailsPage';
 
 // Loading Spinner
 import { Spinner } from '@/components/ui/Spinner';
@@ -24,12 +32,39 @@ import { Spinner } from '@/components/ui/Spinner';
 // ============================================
 
 function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, error, retryLoadSession, logout } = useAuth();
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  // Show error state with retry option
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="text-5xl mb-4">😕</div>
+          <h2 className="text-xl font-semibold text-slate-800 mb-2">שגיאה בטעינת המשתמש</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <div className="space-y-3">
+            <button
+              onClick={retryLoadSession}
+              className="w-full px-4 py-3 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-colors"
+            >
+              נסה שוב
+            </button>
+            <button
+              onClick={logout}
+              className="w-full px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+            >
+              התנתק
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -122,7 +157,15 @@ export default function App() {
           {/* Coach Routes */}
           <Route path="coach">
             <Route index element={<CoachDashboard />} />
-            {/* More coach routes will be added here */}
+            <Route path="calendar" element={<CalendarPage />} />
+            <Route path="trainings" element={<TrainingsPage />} />
+            <Route path="trainings/new" element={<TrainingFormPage />} />
+            <Route path="trainings/:id" element={<TrainingDetailsPage />} />
+            <Route path="trainings/:id/edit" element={<TrainingFormPage />} />
+            <Route path="groups" element={<GroupsPage />} />
+            <Route path="groups/:id" element={<GroupDetailsPage />} />
+            <Route path="exercises" element={<ExercisesPage />} />
+            <Route path="monthly-plan" element={<MonthlyPlanPage />} />
           </Route>
 
           {/* Center Manager Routes (placeholder) */}

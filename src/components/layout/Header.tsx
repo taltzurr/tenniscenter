@@ -28,9 +28,9 @@ export function Header() {
         {/* Logo and title - mobile only */}
         <div className="flex items-center gap-3 lg:hidden">
           <img
-            src="/logo.png"
+            src="/logo.svg"
             alt="מרכזי הטניס"
-            className="w-10 h-10 rounded-full"
+            className="w-10 h-10"
           />
           <span className="font-semibold text-slate-800">מרכזי הטניס</span>
         </div>

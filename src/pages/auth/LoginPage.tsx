@@ -71,11 +71,11 @@ export function LoginPage() {
       {/* Logo */}
       <div className="mb-8 text-center">
         <img
-          src="/logo.png"
+          src="/logo.svg"
           alt="מרכזי הטניס"
-          className="w-24 h-24 mx-auto mb-4"
+          className="w-28 h-28 mx-auto mb-4"
         />
-        <h1 className="text-2xl font-bold text-slate-800">מרכזי הטניס</h1>
+        <h1 className="text-2xl font-bold text-slate-800">מרכזי הטניס והתנועה</h1>
         <p className="text-slate-500 mt-1">מערכת ניהול אימונים</p>
       </div>
 
