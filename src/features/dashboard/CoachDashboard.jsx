@@ -18,6 +18,7 @@ import useGroupsStore from '../../stores/groupsStore';
 import useEventsStore from '../../stores/eventsStore'; // NEW
 import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
 import TrainingDetailsModal from './TrainingDetailsModal';
+import MonthlyOutstandingCard from './MonthlyOutstandingCard';
 import styles from './CoachDashboard.module.css';
 
 function CoachDashboard() {
@@ -235,6 +236,9 @@ function CoachDashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Monthly Outstanding */}
+            <MonthlyOutstandingCard />
 
             {/* Stats Grid */}
             <div className={styles.statsGrid} style={{ marginTop: 'var(--space-6)' }}>

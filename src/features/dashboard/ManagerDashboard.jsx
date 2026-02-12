@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Building2, Calendar, Settings, ShieldCheck, BarChart2 } from 'lucide-react';
+import { Users, Building2, Calendar, Settings, ShieldCheck, BarChart2, Trophy } from 'lucide-react';
 import useAuthStore from '../../stores/authStore';
+import MonthlyOutstandingCard from './MonthlyOutstandingCard';
 import styles from './ManagerDashboard.module.css';
 
 const ManagerDashboard = () => {
@@ -48,6 +49,13 @@ const ManagerDashboard = () => {
                 icon: Calendar,
                 color: 'purple',
                 path: '/events-calendar'
+            },
+            {
+                title: 'מצטייני החודש',
+                description: 'בחירת מאמנים ומרכזים מצטיינים בכל חודש.',
+                icon: Trophy,
+                color: 'yellow',
+                path: '/monthly-outstanding'
             }
         ];
         return items;
@@ -63,6 +71,9 @@ const ManagerDashboard = () => {
                     ברוך הבא לממשק הניהול של הטניס סנטר.
                 </p>
             </header>
+
+            {/* Monthly Outstanding Widget */}
+            <MonthlyOutstandingCard />
 
             <main>
                 <h2 className={styles.sectionTitle}>

@@ -34,6 +34,7 @@ const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
 const GoalsPage = lazy(() => import('./features/goals/GoalsPage/GoalsPage'));
 const UsersPage = lazy(() => import('./features/users/UsersPage'));
 const CentersPage = lazy(() => import('./features/centers/CentersPage'));
+const MonthlyOutstandingPage = lazy(() => import('./features/monthlyOutstanding/MonthlyOutstandingPage'));
 
 // Dashboard Wrapper Component
 function DashboardWrapper() {
@@ -72,65 +73,66 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
 
-        {/* Protected routes */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <PageContainer />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<DashboardWrapper />} />
-          <Route path="/calendar" element={<TrainingProgramPage />} />
-          <Route path="/weekly-schedule" element={<WeeklySchedulePage />} />
-          <Route path="/weekly-completed" element={<WeeklyStatusPage status="completed" />} />
-          <Route path="/weekly-pending" element={<WeeklyStatusPage status="pending" />} />
-          <Route path="/analytics" element={<ManagerAnalyticsDashboard />} />
+          {/* Protected routes */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <PageContainer />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<DashboardWrapper />} />
+            <Route path="/calendar" element={<TrainingProgramPage />} />
+            <Route path="/weekly-schedule" element={<WeeklySchedulePage />} />
+            <Route path="/weekly-completed" element={<WeeklyStatusPage status="completed" />} />
+            <Route path="/weekly-pending" element={<WeeklyStatusPage status="pending" />} />
+            <Route path="/analytics" element={<ManagerAnalyticsDashboard />} />
 
-          {/* Trainings */}
-          <Route path="/trainings/new" element={<TrainingForm />} />
-          <Route path="/trainings/:id" element={<TrainingDetailsPage />} />
-          <Route path="/trainings/:id/edit" element={<TrainingForm />} />
-          <Route path="/trainings/:trainingId/builder" element={<TrainingBuilderPage />} />
+            {/* Trainings */}
+            <Route path="/trainings/new" element={<TrainingForm />} />
+            <Route path="/trainings/:id" element={<TrainingDetailsPage />} />
+            <Route path="/trainings/:id/edit" element={<TrainingForm />} />
+            <Route path="/trainings/:trainingId/builder" element={<TrainingBuilderPage />} />
 
-          {/* Groups routes */}
-          <Route path="/groups" element={<GroupList />} />
-          <Route path="/groups/new" element={<GroupForm />} />
-          <Route path="/groups/:id" element={<GroupDetails />} />
-          <Route path="/groups/:id/edit" element={<GroupForm />} />
+            {/* Groups routes */}
+            <Route path="/groups" element={<GroupList />} />
+            <Route path="/groups/new" element={<GroupForm />} />
+            <Route path="/groups/:id" element={<GroupDetails />} />
+            <Route path="/groups/:id/edit" element={<GroupForm />} />
 
-          {/* Exercises routes */}
-          <Route path="/exercises" element={<ExerciseList />} />
-          <Route path="/exercises/new" element={<ExerciseForm />} />
-          <Route path="/exercises/:id" element={<ExerciseForm />} />
-          <Route path="/exercises/:id/edit" element={<ExerciseForm />} />
+            {/* Exercises routes */}
+            <Route path="/exercises" element={<ExerciseList />} />
+            <Route path="/exercises/new" element={<ExerciseForm />} />
+            <Route path="/exercises/:id" element={<ExerciseForm />} />
+            <Route path="/exercises/:id/edit" element={<ExerciseForm />} />
 
-          {/* Exercise Requests routes */}
-          <Route path="/exercise-requests" element={<RequestsList />} />
-          <Route path="/exercise-requests/new" element={<RequestForm />} />
+            {/* Exercise Requests routes */}
+            <Route path="/exercise-requests" element={<RequestsList />} />
+            <Route path="/exercise-requests/new" element={<RequestForm />} />
 
-          {/* Monthly Plans routes */}
-          <Route path="/monthly-plans" element={<PlansList />} />
-          <Route path="/monthly-plans/new" element={<PlanForm />} />
-          <Route path="/monthly-plans/edit" element={<PlanForm />} />
-          <Route path="/monthly-plans/review" element={<ManagerPlansReview />} />
+            {/* Monthly Plans routes */}
+            <Route path="/monthly-plans" element={<PlansList />} />
+            <Route path="/monthly-plans/new" element={<PlanForm />} />
+            <Route path="/monthly-plans/edit" element={<PlanForm />} />
+            <Route path="/monthly-plans/review" element={<ManagerPlansReview />} />
 
-          {/* Manager routes */}
-          <Route path="/events-calendar" element={<EventsCalendarPage />} />
+            {/* Manager routes */}
+            <Route path="/events-calendar" element={<EventsCalendarPage />} />
 
-          <Route path="/trainings" element={<Navigate to="/weekly-schedule" replace />} />
-          <Route path="/centers" element={<CentersPage />} />
-          <Route path="/users" element={<UsersPage />} />
+            <Route path="/trainings" element={<Navigate to="/weekly-schedule" replace />} />
+            <Route path="/centers" element={<CentersPage />} />
+            <Route path="/users" element={<UsersPage />} />
 
-          {/* Goals routes */}
-          <Route path="/goals" element={<GoalsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Route>
+            {/* Goals routes */}
+            <Route path="/goals" element={<GoalsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/monthly-outstanding" element={<MonthlyOutstandingPage />} />
+          </Route>
 
-        {/* Redirects */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+          {/* Redirects */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </Suspense>
 
       {/* Global Toast Container */}

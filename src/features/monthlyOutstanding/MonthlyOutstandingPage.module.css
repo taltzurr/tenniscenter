@@ -1,0 +1,293 @@
+.page {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.header {
+    margin-bottom: var(--space-6);
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-3);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.backLink:hover {
+    color: var(--primary-600);
+}
+
+.title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Month Navigation */
+.monthNav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
+}
+
+.monthNavBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background-color: var(--gray-100);
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.monthNavBtn:hover {
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.monthLabel {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    min-width: 140px;
+    text-align: center;
+}
+
+.currentBadge {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    margin-right: var(--space-2);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Category Cards */
+.categoriesList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.categoryCard {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    transition: all var(--transition-fast);
+}
+
+.categoryCard:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.categoryHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.categoryIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+}
+
+.categoryIcon.coach {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #2563EB;
+}
+
+.categoryIcon.overallCoach {
+    background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+    color: #4F46E5;
+}
+
+.categoryIcon.center {
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+    color: #059669;
+}
+
+.categoryTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.categoryDesc {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+/* Selection Area */
+.selectionArea {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.selectWrapper {
+    position: relative;
+}
+
+.selectLabel {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+    display: block;
+}
+
+.selectInput {
+    width: 100%;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    font-size: var(--font-size-base);
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    appearance: none;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+    direction: rtl;
+}
+
+.selectInput:focus {
+    outline: none;
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.selectArrow {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+}
+
+.saveBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.saveBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.saveBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.clearBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.clearBtn:hover {
+    color: var(--error-600);
+    border-color: var(--error-200);
+    background: var(--error-50);
+}
+
+/* Selected Badge */
+.selectedBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    color: #92400E;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.successMessage {
+    font-size: var(--font-size-sm);
+    color: var(--success-500);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: var(--space-10);
+    color: var(--text-secondary);
+}

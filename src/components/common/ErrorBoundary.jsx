@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import * as Sentry from '@sentry/react';
 
 class ErrorBoundary extends Component {
     constructor(props) {
@@ -12,19 +11,7 @@ class ErrorBoundary extends Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        // Log to Sentry in production
-        if (import.meta.env.PROD) {
-            Sentry.captureException(error, {
-                contexts: {
-                    react: {
-                        componentStack: errorInfo.componentStack,
-                    },
-                },
-            });
-        } else {
-            // Only log to console in development
-            console.error('Application error:', error, errorInfo);
-        }
+        console.error('Application error:', error, errorInfo);
     }
 
     render() {

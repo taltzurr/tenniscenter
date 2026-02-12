@@ -19,6 +19,7 @@ import {
   getStatusText
 } from './utils/centerDashboardUtils';
 import Spinner from '../../components/ui/Spinner/Spinner';
+import MonthlyOutstandingCard from '../dashboard/MonthlyOutstandingCard';
 import styles from './CenterManagerDashboard.module.css';
 
 const CenterManagerDashboard = () => {
@@ -190,6 +191,9 @@ const CenterManagerDashboard = () => {
         </p>
       </div>
 
+      {/* Monthly Outstanding */}
+      <MonthlyOutstandingCard />
+
       {/* Stats Grid */}
       <div className={styles.statsGrid}>
         {/* Total Coaches */}
@@ -325,9 +329,8 @@ const CenterManagerDashboard = () => {
                   </div>
                 </div>
                 <div
-                  className={`${styles.trainingStatus} ${
-                    training.status === 'completed' ? styles.completed : ''
-                  }`}
+                  className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''
+                    }`}
                 >
                   {training.status === 'completed' ? (
                     <CheckCircle size={18} />
