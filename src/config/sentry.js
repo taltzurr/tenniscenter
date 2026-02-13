@@ -1,52 +1,51 @@
-import * as Sentry from '@sentry/react';
-
 /**
  * Initialize Sentry for error tracking in production.
  * Requires VITE_SENTRY_DSN environment variable to be set.
- * In development, Sentry is disabled to avoid noise.
+ * Uses dynamic import so the app works even if @sentry/react is unavailable.
  */
-export const initSentry = () => {
+export const initSentry = async () => {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
 
-  // Skip if no DSN configured (development) or explicitly disabled
-  if (!dsn) {
-    console.info('[Sentry] No DSN configured — error tracking disabled');
+  // Skip if no DSN configured (development) or not production
+  if (!dsn || !import.meta.env.PROD) {
     return;
   }
 
-  Sentry.init({
-    dsn,
-    environment: import.meta.env.MODE, // 'development' or 'production'
-    release: import.meta.env.VITE_APP_VERSION || '1.0.0',
+  try {
+    const Sentry = await import('@sentry/react');
 
-    // Performance monitoring
-    tracesSampleRate: import.meta.env.PROD ? 0.2 : 1.0,
+    Sentry.init({
+      dsn,
+      environment: import.meta.env.MODE,
+      release: import.meta.env.VITE_APP_VERSION || '1.0.0',
 
-    // Session replay for debugging (production only)
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: import.meta.env.PROD ? 1.0 : 0,
+      // Performance monitoring
+      tracesSampleRate: 0.2,
 
-    // Don't send errors in development
-    enabled: import.meta.env.PROD,
+      // Session replay for debugging
+      replaysSessionSampleRate: 0,
+      replaysOnErrorSampleRate: 1.0,
 
-    // Filter out noisy errors
-    ignoreErrors: [
-      'ResizeObserver loop',
-      'Non-Error promise rejection',
-      'Network request failed',
-      'Load failed',
-      'Failed to fetch',
-    ],
+      // Filter out noisy errors
+      ignoreErrors: [
+        'ResizeObserver loop',
+        'Non-Error promise rejection',
+        'Network request failed',
+        'Load failed',
+        'Failed to fetch',
+      ],
 
-    // Add user context when available
-    beforeSend(event) {
-      // Strip demo mode events — never send to Sentry
-      if (typeof window !== 'undefined' && window.localStorage?.getItem('demo_mode') === 'true') {
-        return null;
-      }
-      return event;
-    },
-  });
+      beforeSend(event) {
+        // Never send demo mode events
+        if (typeof window !== 'undefined' && window.localStorage?.getItem('demo_mode') === 'true') {
+          return null;
+        }
+        return event;
+      },
+    });
+  } catch {
+    // @sentry/react not installed — silently skip
+  }
 };
 
-export default Sentry;
+export default {};
