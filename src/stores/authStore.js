@@ -38,6 +38,15 @@ const DEMO_USERS = {
         isActive: true,
         _password: '123456',
     },
+    'talbdika@demo.com': {
+        id: 'demo-coach-yafo',
+        email: 'talbdika@demo.com',
+        displayName: 'טל בדיקה',
+        role: 'coach',
+        centerIds: ['center-yafo'],
+        isActive: true,
+        _password: '123456',
+    },
 };
 
 // Check if we're in demo mode (Firebase not configured)

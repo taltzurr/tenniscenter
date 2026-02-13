@@ -17,10 +17,39 @@ import { notifyRole, NOTIFICATION_TYPES, notifyGroup } from './notifications';
 
 const COLLECTION = 'monthlyPlans';
 
+// Demo mode helpers
+const isDemoMode = () => {
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+    const demoUser = localStorage.getItem('demoUser');
+    return !apiKey || apiKey === 'YOUR_API_KEY' || demoUser !== null;
+};
+
+const STORAGE_KEY = 'tennis_mock_monthly_plans';
+
+const getMockPlans = () => {
+    if (typeof window === 'undefined') return [];
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored, (key, value) => {
+        if (key === 'createdAt' || key === 'updatedAt') {
+            return value ? new Date(value) : value;
+        }
+        return value;
+    }) : [];
+};
+
+const saveMockPlans = (plans) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
+};
+
 /**
  * Get monthly plan for a specific month and group
  */
 export const getMonthlyPlan = async (groupId, year, month) => {
+    if (isDemoMode()) {
+        const plans = getMockPlans();
+        return plans.find(p => p.groupId === groupId && p.year === year && p.month === month) || null;
+    }
+
     try {
         const q = query(
             collection(db, COLLECTION),
@@ -48,6 +77,12 @@ export const getMonthlyPlan = async (groupId, year, month) => {
  * Get all monthly plans for a coach
  */
 export const getCoachMonthlyPlans = async (coachId, year = null) => {
+    if (isDemoMode()) {
+        let plans = getMockPlans().filter(p => p.coachId === coachId);
+        if (year) plans = plans.filter(p => p.year === year);
+        return plans.sort((a, b) => (b.year - a.year) || (b.month - a.month));
+    }
+
     try {
         let q = query(
             collection(db, COLLECTION),
@@ -79,6 +114,10 @@ export const getCoachMonthlyPlans = async (coachId, year = null) => {
  * Get all monthly plans for a specific date (Admin/Manager view)
  */
 export const getAllMonthlyPlans = async (year, month) => {
+    if (isDemoMode()) {
+        return getMockPlans().filter(p => p.year === year && p.month === month);
+    }
+
     try {
         let q = query(
             collection(db, COLLECTION),
@@ -103,6 +142,12 @@ export const getAllMonthlyPlans = async (year, month) => {
  * Get all monthly plans for a group
  */
 export const getGroupMonthlyPlans = async (groupId) => {
+    if (isDemoMode()) {
+        return getMockPlans()
+            .filter(p => p.groupId === groupId)
+            .sort((a, b) => (b.year - a.year) || (b.month - a.month));
+    }
+
     try {
         const q = query(
             collection(db, COLLECTION),
@@ -128,12 +173,33 @@ export const getGroupMonthlyPlans = async (groupId) => {
  * Create or update a monthly plan
  */
 export const saveMonthlyPlan = async (data) => {
+    if (isDemoMode()) {
+        const plans = getMockPlans();
+        const existingIndex = plans.findIndex(
+            p => p.groupId === data.groupId && p.year === data.year && p.month === data.month
+        );
+
+        if (existingIndex !== -1) {
+            plans[existingIndex] = { ...plans[existingIndex], ...data, updatedAt: new Date() };
+            saveMockPlans(plans);
+            return plans[existingIndex];
+        } else {
+            const newPlan = {
+                ...data,
+                id: `plan-${Date.now()}`,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+            plans.push(newPlan);
+            saveMockPlans(plans);
+            return newPlan;
+        }
+    }
+
     try {
-        // Check if plan already exists
         const existing = await getMonthlyPlan(data.groupId, data.year, data.month);
 
         if (existing) {
-            // Update existing
             const docRef = doc(db, COLLECTION, existing.id);
             await updateDoc(docRef, {
                 ...data,
@@ -141,7 +207,6 @@ export const saveMonthlyPlan = async (data) => {
             });
             return { id: existing.id, ...data };
         } else {
-            // Create new
             const docRef = await addDoc(collection(db, COLLECTION), {
                 ...data,
                 createdAt: serverTimestamp(),
@@ -159,6 +224,12 @@ export const saveMonthlyPlan = async (data) => {
  * Delete a monthly plan
  */
 export const deleteMonthlyPlan = async (id) => {
+    if (isDemoMode()) {
+        const plans = getMockPlans();
+        saveMockPlans(plans.filter(p => p.id !== id));
+        return { success: true };
+    }
+
     try {
         await deleteDoc(doc(db, COLLECTION, id));
         return { success: true };
@@ -171,9 +242,18 @@ export const deleteMonthlyPlan = async (id) => {
 /**
  * Submit a monthly plan for approval
  */
-
-
 export const submitMonthlyPlan = async (id, groupName) => {
+    if (isDemoMode()) {
+        const plans = getMockPlans();
+        const index = plans.findIndex(p => p.id === id);
+        if (index !== -1) {
+            plans[index].status = PLAN_STATUS.SUBMITTED;
+            plans[index].updatedAt = new Date();
+            saveMockPlans(plans);
+        }
+        return { success: true };
+    }
+
     try {
         const docRef = doc(db, COLLECTION, id);
         await updateDoc(docRef, {
@@ -181,7 +261,6 @@ export const submitMonthlyPlan = async (id, groupName) => {
             updatedAt: serverTimestamp()
         });
 
-        // Notify Supervisor
         await notifyRole(ROLES.SUPERVISOR, {
             type: NOTIFICATION_TYPES.INFO,
             title: 'תכנית חודשית חדשה הוגשה',
@@ -201,20 +280,25 @@ export const submitMonthlyPlan = async (id, groupName) => {
  * Approve a monthly plan
  */
 export const approveMonthlyPlan = async (id, coachId, groupName) => {
+    if (isDemoMode()) {
+        const plans = getMockPlans();
+        const index = plans.findIndex(p => p.id === id);
+        if (index !== -1) {
+            plans[index].status = PLAN_STATUS.APPROVED;
+            plans[index].managerFeedback = '';
+            plans[index].updatedAt = new Date();
+            saveMockPlans(plans);
+        }
+        return { success: true };
+    }
+
     try {
         const docRef = doc(db, COLLECTION, id);
         await updateDoc(docRef, {
             status: PLAN_STATUS.APPROVED,
-            managerFeedback: '', // Clear any previous feedback
+            managerFeedback: '',
             updatedAt: serverTimestamp()
         });
-
-        // Notify Coach (handled by notifyGroup logic if we had user mappings, but here we likely need a direct generic notify or rely on "My Plans" updates)
-        // For now, let's assume we notify the coach if we have a way. 
-        // Since we don't have direct "notifyUser" by ID easily without looking up their auth ID from somewhere if it's not stored on the plan...
-        // Actually, the plan has `coachId`. But `notifyRole` is not relevant.
-        // We need a `notifyUser` if we wanted to be precise.
-        // For MVP, we'll skip direct notification to coach OR assume he sees it on dashboard.
 
         return { success: true };
     } catch (error) {
@@ -227,6 +311,18 @@ export const approveMonthlyPlan = async (id, coachId, groupName) => {
  * Reject a monthly plan
  */
 export const rejectMonthlyPlan = async (id, feedback, groupName) => {
+    if (isDemoMode()) {
+        const plans = getMockPlans();
+        const index = plans.findIndex(p => p.id === id);
+        if (index !== -1) {
+            plans[index].status = PLAN_STATUS.REJECTED;
+            plans[index].managerFeedback = feedback;
+            plans[index].updatedAt = new Date();
+            saveMockPlans(plans);
+        }
+        return { success: true };
+    }
+
     try {
         const docRef = doc(db, COLLECTION, id);
         await updateDoc(docRef, {
@@ -246,6 +342,10 @@ export const rejectMonthlyPlan = async (id, feedback, groupName) => {
  * Get all pending plans (for manager)
  */
 export const getPendingMonthlyPlans = async () => {
+    if (isDemoMode()) {
+        return getMockPlans().filter(p => p.status === PLAN_STATUS.SUBMITTED);
+    }
+
     try {
         const q = query(
             collection(db, COLLECTION),

@@ -4,6 +4,13 @@ import { getGroupPlayers } from './players';
 
 const COLLECTION = 'notifications';
 
+// Demo mode helpers
+const isDemoMode = () => {
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+    const demoUser = localStorage.getItem('demoUser');
+    return !apiKey || apiKey === 'YOUR_API_KEY' || demoUser !== null;
+};
+
 export const NOTIFICATION_TYPES = {
     INFO: 'info',
     SUCCESS: 'success',
@@ -13,6 +20,12 @@ export const NOTIFICATION_TYPES = {
 
 export const subscribeToNotifications = (userId, callback) => {
     if (!userId) return () => { };
+
+    if (isDemoMode()) {
+        // In demo mode, just return empty notifications
+        callback([]);
+        return () => { };
+    }
 
     const q = query(
         collection(db, COLLECTION),
@@ -26,10 +39,12 @@ export const subscribeToNotifications = (userId, callback) => {
 };
 
 export const markAsRead = async (id) => {
+    if (isDemoMode()) return;
     await updateDoc(doc(db, COLLECTION, id), { isRead: true });
 };
 
 export const markAllAsRead = async (userId) => {
+    if (isDemoMode()) return;
     const q = query(
         collection(db, COLLECTION),
         where('userId', '==', userId),
@@ -44,6 +59,7 @@ export const markAllAsRead = async (userId) => {
 };
 
 export const createNotification = async (notification) => {
+    if (isDemoMode()) return;
     await addDoc(collection(db, COLLECTION), {
         ...notification,
         isRead: false,
@@ -52,38 +68,22 @@ export const createNotification = async (notification) => {
 };
 
 export const deleteNotification = async (id) => {
+    if (isDemoMode()) return;
     await deleteDoc(doc(db, COLLECTION, id));
 };
 
-
-
 export const notifyGroup = async (groupId, notification) => {
+    if (isDemoMode()) return;
     try {
-        // 1. Fetch all players in the group
         const players = await getGroupPlayers(groupId);
-
         if (players.length === 0) return;
 
-        // 2. Create notification for each player (simulated by creating one for each player record found)
-        // NOTE: In a real app with Auth, we would notify the *User* associated with the player/parent.
-        // For now, assuming we might map player -> userId, or just storing it for reference.
-        // Since we don't have mapped Users for players yet, this is still effectively a "system" notification record
-        // that might not be seen unless a User claims a Player profile.
-        // However, to fulfill the requirement, we will create the records.
-
         const batch = writeBatch(db);
-
         players.forEach(player => {
-            // If player has a linked userId, notify them. 
-            // Currently players are just profiles. 
-            // We will skip actual notification creation if no userId is associated, 
-            // OR create it with 'playerId' field so it can be fetched later.
-
             const docRef = doc(collection(db, COLLECTION));
             batch.set(docRef, {
                 ...notification,
-                playerId: player.id, // Target specific player profile
-                // userId: player.userId || null, // If we had this
+                playerId: player.id,
                 isRead: false,
                 createdAt: serverTimestamp()
             });
@@ -97,26 +97,19 @@ export const notifyGroup = async (groupId, notification) => {
 
 /**
  * Notify all users with a specific role
- * @param {string} role - The role to notify (e.g. 'supervisor')
- * @param {Object} notification - Notification object
  */
 export const notifyRole = async (role, notification) => {
+    if (isDemoMode()) return;
     try {
-        // 1. Get all users with the specified role
         const q = query(
             collection(db, 'users'),
             where('role', '==', role)
         );
 
         const snapshot = await getDocs(q);
+        if (snapshot.empty) return;
 
-        if (snapshot.empty) {
-            return;
-        }
-
-        // 2. Batch create notifications
         const batch = writeBatch(db);
-
         snapshot.docs.forEach(userDoc => {
             const docRef = doc(collection(db, COLLECTION));
             batch.set(docRef, {
@@ -128,7 +121,6 @@ export const notifyRole = async (role, notification) => {
         });
 
         await batch.commit();
-
     } catch (error) {
         console.error(`Error notifying role ${role}:`, error);
     }
