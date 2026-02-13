@@ -76,8 +76,8 @@ function CoachDashboard() {
         return [
             { icon: Users, label: 'קבוצות', value: groupCount, color: 'blue', path: '/groups' },
             { icon: Calendar, label: 'אימונים השבוע', value: trainingsThisWeek, color: 'yellow', path: '/weekly-schedule' },
-            { icon: CheckCircle, label: 'בוצעו', value: completed, color: 'green', path: '/weekly-completed' },
-            { icon: Clock, label: 'ממתינים', value: pending, color: 'purple', path: '/weekly-pending' },
+            { icon: CheckCircle, label: 'אימונים שבוצעו', value: completed, color: 'green', path: '/weekly-completed' },
+            { icon: Clock, label: 'אימונים ממתינים', value: pending, color: 'purple', path: '/weekly-pending' },
         ];
     }, [groups, trainings]);
 
@@ -250,7 +250,7 @@ function CoachDashboard() {
                         style={{ cursor: 'pointer' }}
                     >
                         <div className={`${styles.statIcon} ${styles[stat.color]}`}>
-                            <stat.icon size={20} />
+                            <stat.icon size={16} />
                         </div>
                         <div className={styles.statInfo}>
                             <div className={styles.statValue}>{stat.value}</div>

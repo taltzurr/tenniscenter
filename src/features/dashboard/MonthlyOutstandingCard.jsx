@@ -61,7 +61,6 @@ function MonthlyOutstandingCard() {
         <div className={styles.outstandingCard}>
             <div className={styles.cardHeader}>
                 <div className={styles.cardTitle}>
-                    <span className={styles.cardTitleIcon}>🏆</span>
                     מצטייני החודש
                 </div>
                 {canManage && (

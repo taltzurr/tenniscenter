@@ -10,6 +10,7 @@ const DEMO_USERS = {
         role: 'coach',
         centerIds: ['center-1'],
         isActive: true,
+        _password: 'demo123',
     },
     'manager@demo.com': {
         id: 'demo-manager-1',
@@ -18,6 +19,7 @@ const DEMO_USERS = {
         role: 'centerManager',
         managedCenterId: 'center-1',
         isActive: true,
+        _password: 'demo123',
     },
     'supervisor@demo.com': {
         id: 'demo-supervisor-1',
@@ -25,6 +27,16 @@ const DEMO_USERS = {
         displayName: 'מיכל אברהם',
         role: 'supervisor',
         isActive: true,
+        _password: 'demo123',
+    },
+    'talzur07@gmail.com': {
+        id: 'user-tal-tzur',
+        email: 'talzur07@gmail.com',
+        displayName: 'טל צור',
+        role: 'supervisor',
+        managedCenterId: 'center-yafo',
+        isActive: true,
+        _password: '123456',
     },
 };
 
@@ -83,11 +95,13 @@ const useAuthStore = create((set, get) => ({
 
         // Always try demo users first (regardless of Firebase mode)
         const demoUser = DEMO_USERS[email.toLowerCase()];
-        if (demoUser && password === 'demo123') {
-            localStorage.setItem('demoUser', JSON.stringify(demoUser));
+        if (demoUser && password === demoUser._password) {
+            // Strip _password before storing
+            const { _password, ...userData } = demoUser;
+            localStorage.setItem('demoUser', JSON.stringify(userData));
             set({
-                user: { uid: demoUser.id },
-                userData: demoUser,
+                user: { uid: userData.id },
+                userData,
                 isLoading: false,
                 _isLoggingIn: false
             });
