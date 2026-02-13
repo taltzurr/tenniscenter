@@ -13,7 +13,7 @@
 }
 
 .greeting {
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-2);
 }
 
 .greetingTitle {
