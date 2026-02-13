@@ -19,6 +19,8 @@ import {
 } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { getOrganizationTrainings } from '../../services/trainings';
+import useAuthStore from '../../stores/authStore';
+import useUsersStore from '../../stores/usersStore';
 import Avatar from '../../components/ui/Avatar';
 import Spinner from '../../components/ui/Spinner';
 import Button from '../../components/ui/Button';
@@ -26,6 +28,8 @@ import CoachTrainingsModal from './CoachTrainingsModal';
 import styles from './ManagerAnalyticsDashboard.module.css';
 
 const ManagerAnalyticsDashboard = () => {
+    const { userData, isSupervisor, isCenterManager } = useAuthStore();
+    const { users, fetchUsers } = useUsersStore();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [trainings, setTrainings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -34,12 +38,32 @@ const ManagerAnalyticsDashboard = () => {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
 
+    // Get center coach IDs for filtering (center managers only)
+    const centerCoachIds = useMemo(() => {
+        if (isSupervisor() || !userData?.managedCenterId || !users || users.length === 0) return null;
+        return users
+            .filter(u => u.role === 'coach' && u.centerIds?.includes(userData.managedCenterId))
+            .map(u => u.id);
+    }, [users, userData?.managedCenterId, isSupervisor]);
+
+    useEffect(() => {
+        if (isCenterManager()) {
+            fetchUsers();
+        }
+    }, [isCenterManager, fetchUsers]);
+
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
                 // Fetch all trainings for the selected month
-                const data = await getOrganizationTrainings(monthStart, monthEnd);
+                let data = await getOrganizationTrainings(monthStart, monthEnd);
+
+                // Center managers: filter to only their center's coaches
+                if (!isSupervisor() && centerCoachIds) {
+                    data = data.filter(t => centerCoachIds.includes(t.coachId));
+                }
+
                 setTrainings(data);
             } catch (error) {
                 console.error("Failed to fetch analytics data", error);
@@ -48,8 +72,11 @@ const ManagerAnalyticsDashboard = () => {
             }
         };
 
-        fetchData();
-    }, [currentDate]);
+        // Wait for centerCoachIds to be ready for center managers
+        if (isSupervisor() || centerCoachIds !== null) {
+            fetchData();
+        }
+    }, [currentDate, centerCoachIds, isSupervisor]);
 
     // Calculate Statistics
     const stats = useMemo(() => {
@@ -108,7 +135,7 @@ const ManagerAnalyticsDashboard = () => {
                 <div>
                     <h1 className={styles.title}>דאשבורד פיקוח ובקרה</h1>
                     <p className={styles.subtitle}>
-                        סקירה חודשית של ביצוע תוכניות האימון במרכז
+                        {isCenterManager() ? 'סקירה חודשית של ביצוע תוכניות האימון במרכז שלך' : 'סקירה חודשית של ביצוע תוכניות האימון בכל המרכזים'}
                     </p>
                 </div>
 

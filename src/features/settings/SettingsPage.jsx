@@ -98,7 +98,11 @@ function SettingsPage() {
                     <div className={styles.settingRow}>
                         <div className={styles.settingInfo}>
                             <span className={styles.settingLabel}>תפקיד</span>
-                            <span className={styles.settingDescription}>{userData?.role === 'coach' ? 'מאמן' : 'מנהל'}</span>
+                            <span className={styles.settingDescription}>
+                                {userData?.role === 'coach' ? 'מאמן' :
+                                    userData?.role === 'centerManager' ? 'מנהל מרכז' :
+                                        userData?.role === 'supervisor' ? 'מנהל מקצועי (סופר אדמין)' : 'מנהל'}
+                            </span>
                         </div>
                     </div>
                     <div className={styles.settingRow}>
