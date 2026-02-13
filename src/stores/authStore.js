@@ -81,19 +81,9 @@ const useAuthStore = create((set, get) => ({
             return () => { }; // No unsubscribe needed
         }
 
-        // Also check localStorage for demo user even in Firebase mode
-        const savedDemoUser = localStorage.getItem('demoUser');
-        if (savedDemoUser) {
-            const userData = JSON.parse(savedDemoUser);
-            set({ user: { uid: userData.id }, userData, isLoading: false });
-            // Still subscribe but don't let it override demo user
-        }
-
         const unsubscribe = onAuthChange(({ user, userData }) => {
             // Don't override state during an active login attempt
             if (get()._isLoggingIn) return;
-            // Don't override demo user session
-            if (!user && localStorage.getItem('demoUser')) return;
             set({ user, userData, isLoading: false });
         });
         return unsubscribe;
@@ -102,22 +92,22 @@ const useAuthStore = create((set, get) => ({
     login: async (email, password) => {
         set({ isLoading: true, error: null, _isLoggingIn: true });
 
-        // Always try demo users first (regardless of Firebase mode)
-        const demoUser = DEMO_USERS[email.toLowerCase()];
-        if (demoUser && password === demoUser._password) {
-            // Strip _password before storing
-            const { _password, ...userData } = demoUser;
-            localStorage.setItem('demoUser', JSON.stringify(userData));
-            set({
-                user: { uid: userData.id },
-                userData,
-                isLoading: false,
-                _isLoggingIn: false
-            });
-            return { success: true };
-        }
-
+        // Demo users ONLY work in demo mode (no Firebase configured)
         if (isDemoMode()) {
+            const demoUser = DEMO_USERS[email.toLowerCase()];
+            if (demoUser && password === demoUser._password) {
+                // Strip _password before storing
+                const { _password, ...userData } = demoUser;
+                localStorage.setItem('demoUser', JSON.stringify(userData));
+                set({
+                    user: { uid: userData.id },
+                    userData,
+                    isLoading: false,
+                    _isLoggingIn: false
+                });
+                return { success: true };
+            }
+
             // In strict demo mode (no Firebase), show help
             set({
                 error: 'במצב Demo, השתמש באחד מהמשתמשים הבאים:\n• coach@demo.com\n• manager@demo.com\n• supervisor@demo.com\nסיסמה: demo123',
