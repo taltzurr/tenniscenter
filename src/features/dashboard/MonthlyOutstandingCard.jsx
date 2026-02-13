@@ -82,7 +82,7 @@ function MonthlyOutstandingCard() {
                                 {name ? (
                                     initial
                                 ) : (
-                                    <Icon size={18} />
+                                    <Icon size={15} />
                                 )}
                             </div>
                             <div className={styles.categoryLabel}>{label}</div>

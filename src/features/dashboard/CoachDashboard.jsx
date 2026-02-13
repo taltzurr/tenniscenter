@@ -195,6 +195,9 @@ function CoachDashboard() {
                 </h1>
             </div>
 
+            {/* Monthly Outstanding */}
+            <MonthlyOutstandingCard />
+
             {/* Monthly Values */}
             {/* Monthly Themes Container */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -236,9 +239,6 @@ function CoachDashboard() {
                     </div>
                 </div>
             </div>
-
-            {/* Monthly Outstanding */}
-            <MonthlyOutstandingCard />
 
             {/* Stats Grid */}
             <div className={styles.statsGrid} style={{ marginTop: 'var(--space-6)' }}>

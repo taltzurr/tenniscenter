@@ -1,30 +1,30 @@
 .outstandingCard {
-    padding: var(--space-3) 0;
+    padding: var(--space-1) 0;
 }
 
 .cardHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
     padding: 0 var(--space-1);
 }
 
 .cardTitle {
-    font-size: var(--font-size-xs);
+    font-size: 11px;
     font-weight: var(--font-weight-semibold);
     color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: 4px;
 }
 
 .cardTitleIcon {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .manageLink {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--primary-600);
     font-weight: var(--font-weight-medium);
     cursor: pointer;
@@ -42,27 +42,27 @@
     display: flex;
     justify-content: space-around;
     align-items: flex-start;
-    gap: var(--space-1);
+    gap: 0;
 }
 
 .categoryItem {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     flex: 1;
     min-width: 0;
 }
 
 /* Circle avatar */
 .categoryCircle {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 600;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
@@ -75,19 +75,19 @@
 .categoryCircle.coach {
     background: linear-gradient(145deg, #DBEAFE, #93C5FD);
     color: #1D4ED8;
-    box-shadow: 0 3px 8px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
 }
 
 .categoryCircle.overallCoach {
     background: linear-gradient(145deg, #E0E7FF, #A5B4FC);
     color: #4338CA;
-    box-shadow: 0 3px 8px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.15);
 }
 
 .categoryCircle.center {
     background: linear-gradient(145deg, #D1FAE5, #6EE7B7);
     color: #047857;
-    box-shadow: 0 3px 8px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
 }
 
 /* Empty state circle */
@@ -98,33 +98,33 @@
 }
 
 .questionMark {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
     color: var(--gray-400);
 }
 
 /* Text below circle */
 .categoryLabel {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-tertiary);
     text-align: center;
     line-height: 1.2;
-    max-width: 80px;
+    max-width: 70px;
 }
 
 .categoryName {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 80px;
+    max-width: 70px;
 }
 
 .emptyName {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-tertiary);
     text-align: center;
 }

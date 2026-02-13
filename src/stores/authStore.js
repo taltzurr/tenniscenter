@@ -44,6 +44,7 @@ const useAuthStore = create((set, get) => ({
     isLoading: true,
     error: null,
     isDemoMode: isDemoMode(),
+    _isLoggingIn: false, // Prevents onAuthStateChanged from overwriting state mid-login
 
     // Actions
     initialize: () => {
@@ -59,31 +60,46 @@ const useAuthStore = create((set, get) => ({
             return () => { }; // No unsubscribe needed
         }
 
+        // Also check localStorage for demo user even in Firebase mode
+        const savedDemoUser = localStorage.getItem('demoUser');
+        if (savedDemoUser) {
+            const userData = JSON.parse(savedDemoUser);
+            set({ user: { uid: userData.id }, userData, isLoading: false });
+            // Still subscribe but don't let it override demo user
+        }
+
         const unsubscribe = onAuthChange(({ user, userData }) => {
+            // Don't override state during an active login attempt
+            if (get()._isLoggingIn) return;
+            // Don't override demo user session
+            if (!user && localStorage.getItem('demoUser')) return;
             set({ user, userData, isLoading: false });
         });
         return unsubscribe;
     },
 
     login: async (email, password) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, _isLoggingIn: true });
+
+        // Always try demo users first (regardless of Firebase mode)
+        const demoUser = DEMO_USERS[email.toLowerCase()];
+        if (demoUser && password === 'demo123') {
+            localStorage.setItem('demoUser', JSON.stringify(demoUser));
+            set({
+                user: { uid: demoUser.id },
+                userData: demoUser,
+                isLoading: false,
+                _isLoggingIn: false
+            });
+            return { success: true };
+        }
 
         if (isDemoMode()) {
-            // Demo credentials only work in demo mode (when Firebase is not configured)
-            const demoUser = DEMO_USERS[email.toLowerCase()];
-            if (demoUser && password === 'demo123') {
-                localStorage.setItem('demoUser', JSON.stringify(demoUser));
-                set({
-                    user: { uid: demoUser.id },
-                    userData: demoUser,
-                    isLoading: false
-                });
-                return { success: true };
-            }
-            // If in strict demo mode and didn't match above, show help
+            // In strict demo mode (no Firebase), show help
             set({
                 error: 'במצב Demo, השתמש באחד מהמשתמשים הבאים:\n• coach@demo.com\n• manager@demo.com\n• supervisor@demo.com\nסיסמה: demo123',
-                isLoading: false
+                isLoading: false,
+                _isLoggingIn: false
             });
             return { success: false, error: 'invalid-demo-credentials' };
         }
@@ -98,15 +114,11 @@ const useAuthStore = create((set, get) => ({
             }
 
             // Set the state with user and userData
-            set({ user, userData, isLoading: false });
-
-            // Wait a brief moment to ensure the onAuthStateChanged listener has fired
-            // and the store is fully synchronized before navigation
-            await new Promise(resolve => setTimeout(resolve, 100));
+            set({ user, userData, isLoading: false, _isLoggingIn: false });
 
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: error.message, isLoading: false, _isLoggingIn: false });
             return { success: false, error: error.message };
         }
     },
@@ -114,8 +126,10 @@ const useAuthStore = create((set, get) => ({
     logout: async () => {
         set({ isLoading: true });
 
+        // Always clear demo user
+        localStorage.removeItem('demoUser');
+
         if (isDemoMode()) {
-            localStorage.removeItem('demoUser');
             set({ user: null, userData: null, isLoading: false });
             return;
         }
@@ -124,7 +138,8 @@ const useAuthStore = create((set, get) => ({
             await signOut();
             set({ user: null, userData: null, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            // Even if Firebase signout fails, clear local state
+            set({ user: null, userData: null, error: error.message, isLoading: false });
         }
     },
 
