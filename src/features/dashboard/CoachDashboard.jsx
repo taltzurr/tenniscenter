@@ -188,22 +188,14 @@ function CoachDashboard() {
         if (currentTheme?.values && currentTheme.values.length > 0) {
             return currentTheme.values.map((val, i) => ({ id: `v-${i}`, name: val }));
         }
-        return [
-            { id: '1', name: 'התמדה' },
-            { id: '2', name: 'משמעת עצמית' },
-            { id: '3', name: 'כבוד' },
-        ];
+        return [];
     }, [currentTheme]);
 
     const monthlyGoals = useMemo(() => {
         if (currentTheme?.goals && currentTheme.goals.length > 0) {
             return currentTheme.goals.map((g, i) => ({ id: `g-${i}`, name: g }));
         }
-        return [
-            { id: 'g-def-1', name: 'שיפור משחק רשת' },
-            { id: 'g-def-2', name: 'עבודת רגליים' },
-            { id: 'g-def-3', name: 'יציבות בהגשה' },
-        ];
+        return [];
     }, [currentTheme]);
 
     const handleTrainingClick = (training) => {
@@ -279,32 +271,34 @@ function CoachDashboard() {
                 </div>
             </div>
 
-            {/* 5. Monthly Values — collapsible */}
-            <div className={`${styles.dashSection} ${styles.delay4}`}>
-                <div className={styles.valuesCard}>
-                    <button
-                        className={styles.valuesToggle}
-                        onClick={() => setValuesExpanded(!valuesExpanded)}
-                        aria-expanded={valuesExpanded}
-                        aria-label="הצג/הסתר ערכי החודש"
-                    >
-                        <div className={styles.valuesTitle} style={{ color: 'var(--primary-700)' }}>
-                            <Heart size={14} style={{ display: 'inline', marginLeft: '4px' }} />
-                            ערכי החודש
-                        </div>
-                        {valuesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-                    {valuesExpanded && (
-                        <div className={styles.valuesContent}>
-                            {monthlyValues.map((value) => (
-                                <span key={value.id} className={styles.valueTag}>
-                                    {value.name}
-                                </span>
-                            ))}
-                        </div>
-                    )}
+            {/* 5. Monthly Values — collapsible, hidden when empty */}
+            {monthlyValues.length > 0 && (
+                <div className={`${styles.dashSection} ${styles.delay4}`}>
+                    <div className={styles.valuesCard}>
+                        <button
+                            className={styles.valuesToggle}
+                            onClick={() => setValuesExpanded(!valuesExpanded)}
+                            aria-expanded={valuesExpanded}
+                            aria-label="הצג/הסתר ערכי החודש"
+                        >
+                            <div className={styles.valuesTitle} style={{ color: 'var(--primary-700)' }}>
+                                <Heart size={14} style={{ display: 'inline', marginLeft: '4px' }} />
+                                ערכי החודש
+                            </div>
+                            {valuesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                        {valuesExpanded && (
+                            <div className={styles.valuesContent}>
+                                {monthlyValues.map((value) => (
+                                    <span key={value.id} className={styles.valueTag}>
+                                        {value.name}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* 6. Monthly Outstanding — conditional */}
             <div className={`${styles.dashSection} ${styles.delay5}`}>
