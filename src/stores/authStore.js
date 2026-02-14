@@ -84,6 +84,13 @@ const useAuthStore = create((set, get) => ({
         const unsubscribe = onAuthChange(({ user, userData }) => {
             // Don't override state during an active login attempt
             if (get()._isLoggingIn) return;
+
+            // Don't override valid userData with null for the same user
+            const current = get();
+            if (user && !userData && current.user && current.userData && current.user.uid === user.uid) {
+                return;
+            }
+
             set({ user, userData, isLoading: false });
         });
         return unsubscribe;
