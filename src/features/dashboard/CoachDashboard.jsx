@@ -224,15 +224,11 @@ function CoachDashboard() {
                     </div>
                     <div className={styles.valuesContent}>
                         {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
-                            <span key={goal.id} className={styles.valueTag} style={{
-                                backgroundColor: 'var(--accent-50)',
-                                color: 'var(--accent-700)',
-                                borderColor: 'var(--accent-200)'
-                            }}>
+                            <span key={goal.id} className={styles.goalTag}>
                                 {goal.name}
                             </span>
                         )) : (
-                            <span className={styles.valueTag} style={{ background: 'none', color: 'var(--text-tertiary)', padding: 0 }}>
+                            <span className={styles.goalTag} style={{ background: 'none', color: 'var(--text-tertiary)', border: 'none', padding: 0 }}>
                                 לא הוגדרו מטרות
                             </span>
                         )}
