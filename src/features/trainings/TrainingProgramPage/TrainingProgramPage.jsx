@@ -320,19 +320,28 @@ export default function TrainingProgramPage() {
                                 <span className={styles.groupDot} style={{ backgroundColor: '#6b7280' }} />
                                 כל הקבוצות
                             </button>
-                            {groups && groups.map((group) => (
-                                <button
-                                    key={group.id}
-                                    className={`${styles.filterChip} ${selectedGroup === group.id ? styles.active : ''}`}
-                                    onClick={() => setSelectedGroup(group.id)}
-                                >
-                                    <span
-                                        className={styles.groupDot}
-                                        style={{ backgroundColor: group.color || stringToColor(group.name) }}
-                                    />
-                                    {group.name}
-                                </button>
-                            ))}
+                            {groups && groups.map((group) => {
+                                const groupColor = group.color || stringToColor(group.name);
+                                const isActive = selectedGroup === group.id;
+                                return (
+                                    <button
+                                        key={group.id}
+                                        className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
+                                        onClick={() => setSelectedGroup(group.id)}
+                                        style={isActive ? {
+                                            backgroundColor: groupColor,
+                                            borderColor: groupColor,
+                                            color: 'white'
+                                        } : undefined}
+                                    >
+                                        <span
+                                            className={styles.groupDot}
+                                            style={{ backgroundColor: isActive ? 'white' : groupColor }}
+                                        />
+                                        {group.name}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 

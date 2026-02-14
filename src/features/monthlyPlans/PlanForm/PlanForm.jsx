@@ -278,25 +278,37 @@ function PlanForm() {
                 </div>
             )}
 
-            {/* Selection Bar */}
-            <div className={styles.selectors}>
-                <div className={styles.selector}>
-                    <label className={styles.selectorLabel}>קבוצה</label>
-                    <select
-                        className={styles.selectorSelect}
-                        value={selectedGroup}
-                        onChange={(e) => setSelectedGroup(e.target.value)}
-                        disabled={(!isEditing && existingPlanId) || isLocked}
-                    >
-                        <option value="">בחר קבוצה</option>
-                        {groups.map(group => (
-                            <option key={group.id} value={group.id}>
-                                {group.name}
-                            </option>
-                        ))}
-                    </select>
+            {/* Group Selector - Swipeable Chips */}
+            <div className={styles.groupSection}>
+                <label className={styles.selectorLabel}>קבוצה</label>
+                <div className={styles.groupChips}>
+                    {groups.map(group => (
+                        <button
+                            key={group.id}
+                            type="button"
+                            className={`${styles.groupChip} ${selectedGroup === group.id ? styles.activeChip : ''}`}
+                            onClick={() => {
+                                if ((!isEditing && existingPlanId) || isLocked) return;
+                                setSelectedGroup(group.id);
+                            }}
+                            disabled={(!isEditing && existingPlanId) || isLocked}
+                            style={selectedGroup === group.id ? {
+                                borderColor: group.color || '#2563eb',
+                                backgroundColor: `${group.color || '#2563eb'}15`
+                            } : undefined}
+                        >
+                            <span
+                                className={styles.groupDot}
+                                style={{ backgroundColor: group.color || '#2563eb' }}
+                            />
+                            {group.name}
+                        </button>
+                    ))}
                 </div>
+            </div>
 
+            {/* Year & Month Selection */}
+            <div className={styles.selectors}>
                 <div className={styles.selector}>
                     <label className={styles.selectorLabel}>שנה</label>
                     <select

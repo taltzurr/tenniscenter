@@ -273,19 +273,28 @@ function PlansList() {
                             >
                                 כל הקבוצות
                             </button>
-                            {groups.map(g => (
-                                <button
-                                    key={g.id}
-                                    className={`${styles.groupPill} ${selectedGroupId === g.id ? styles.active : ''}`}
-                                    onClick={() => setSelectedGroupId(g.id)}
-                                >
-                                    <span
-                                        className={styles.groupDot}
-                                        style={{ backgroundColor: g.color || stringToColor(g.name) }}
-                                    />
-                                    {g.name}
-                                </button>
-                            ))}
+                            {groups.map(g => {
+                                const groupColor = g.color || stringToColor(g.name);
+                                const isActive = selectedGroupId === g.id;
+                                return (
+                                    <button
+                                        key={g.id}
+                                        className={`${styles.groupPill} ${isActive ? styles.active : ''}`}
+                                        onClick={() => setSelectedGroupId(g.id)}
+                                        style={isActive ? {
+                                            backgroundColor: groupColor,
+                                            borderColor: groupColor,
+                                            color: 'white'
+                                        } : undefined}
+                                    >
+                                        <span
+                                            className={styles.groupDot}
+                                            style={{ backgroundColor: isActive ? 'white' : groupColor }}
+                                        />
+                                        {g.name}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

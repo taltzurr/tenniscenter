@@ -230,6 +230,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     /* Firefox */
+    max-width: 100%;
 }
 
 .groupPillsContainer::-webkit-scrollbar {

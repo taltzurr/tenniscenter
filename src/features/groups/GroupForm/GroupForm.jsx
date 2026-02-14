@@ -55,14 +55,21 @@ function GroupForm() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: (name === 'birthYearFrom' || name === 'birthYearTo')
-                ? (value === '' ? '' : parseInt(value))
-                : name === 'playerCount'
-                    ? parseInt(value) || 0
-                    : value
-        }));
+        setFormData(prev => {
+            const updated = {
+                ...prev,
+                [name]: (name === 'birthYearFrom' || name === 'birthYearTo')
+                    ? (value === '' ? '' : parseInt(value))
+                    : name === 'playerCount'
+                        ? parseInt(value) || 0
+                        : value
+            };
+            // Reset birthYearTo if birthYearFrom changed to be higher than current birthYearTo
+            if (name === 'birthYearFrom' && updated.birthYearFrom && updated.birthYearTo && updated.birthYearFrom > updated.birthYearTo) {
+                updated.birthYearTo = '';
+            }
+            return updated;
+        });
         // Clear error when field is edited
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: null }));
