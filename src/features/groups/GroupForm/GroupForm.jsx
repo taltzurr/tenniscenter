@@ -23,8 +23,8 @@ function GroupForm() {
         name: '',
         groupTypeId: '',
         color: '#2563eb', // Default blue
-        birthYearFrom: new Date().getFullYear() - 14,
-        birthYearTo: new Date().getFullYear() - 12,
+        birthYearFrom: '',
+        birthYearTo: '',
         playerCount: 0,
         notes: '',
     });
@@ -45,8 +45,8 @@ function GroupForm() {
                 name: selectedGroup.name || '',
                 groupTypeId: selectedGroup.groupTypeId || '',
                 color: selectedGroup.color || '#2563eb',
-                birthYearFrom: selectedGroup.birthYearFrom || new Date().getFullYear() - 14,
-                birthYearTo: selectedGroup.birthYearTo || new Date().getFullYear() - 12,
+                birthYearFrom: selectedGroup.birthYearFrom || '',
+                birthYearTo: selectedGroup.birthYearTo || '',
                 playerCount: selectedGroup.playerCount || 0,
                 notes: selectedGroup.notes || '',
             });
@@ -57,9 +57,11 @@ function GroupForm() {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'birthYearFrom' || name === 'birthYearTo' || name === 'playerCount'
-                ? parseInt(value) || 0
-                : value
+            [name]: (name === 'birthYearFrom' || name === 'birthYearTo')
+                ? (value === '' ? '' : parseInt(value))
+                : name === 'playerCount'
+                    ? parseInt(value) || 0
+                    : value
         }));
         // Clear error when field is edited
         if (errors[name]) {
@@ -78,7 +80,7 @@ function GroupForm() {
             newErrors.groupTypeId = 'יש לבחור סוג קבוצה';
         }
 
-        if (formData.birthYearFrom > formData.birthYearTo) {
+        if (formData.birthYearFrom && formData.birthYearTo && formData.birthYearFrom > formData.birthYearTo) {
             newErrors.birthYearFrom = 'שנתון התחלה חייב להיות קטן או שווה לשנתון סיום';
         }
 
@@ -96,6 +98,8 @@ function GroupForm() {
         const groupType = DEFAULT_GROUP_TYPES.find(t => t.id === formData.groupTypeId);
         const groupData = {
             ...formData,
+            birthYearFrom: formData.birthYearFrom || null,
+            birthYearTo: formData.birthYearTo || null,
             groupTypeName: groupType?.name || formData.groupTypeId,
             coachId: userData.id,
             centerId: userData.centerIds?.[0] || userData.managedCenterId || 'center-1',
@@ -220,6 +224,7 @@ function GroupForm() {
                                 value={formData.birthYearFrom}
                                 onChange={handleChange}
                             >
+                                <option value="">לא הוגדר</option>
                                 {yearOptions.map(year => (
                                     <option key={year} value={year}>{year}</option>
                                 ))}
@@ -236,9 +241,12 @@ function GroupForm() {
                                 value={formData.birthYearTo}
                                 onChange={handleChange}
                             >
-                                {yearOptions.map(year => (
-                                    <option key={year} value={year}>{year}</option>
-                                ))}
+                                <option value="">לא הוגדר</option>
+                                {yearOptions
+                                    .filter(year => !formData.birthYearFrom || year >= formData.birthYearFrom)
+                                    .map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))}
                             </select>
                         </div>
                     </div>

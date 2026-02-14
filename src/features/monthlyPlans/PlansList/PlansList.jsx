@@ -279,6 +279,10 @@ function PlansList() {
                                     className={`${styles.groupPill} ${selectedGroupId === g.id ? styles.active : ''}`}
                                     onClick={() => setSelectedGroupId(g.id)}
                                 >
+                                    <span
+                                        className={styles.groupDot}
+                                        style={{ backgroundColor: g.color || stringToColor(g.name) }}
+                                    />
                                     {g.name}
                                 </button>
                             ))}

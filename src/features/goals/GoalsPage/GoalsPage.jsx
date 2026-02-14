@@ -13,14 +13,15 @@ import useGoalsStore from '../../../stores/goalsStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useAuthStore from '../../../stores/authStore';
 import useUIStore from '../../../stores/uiStore';
-import { GOAL_CATEGORIES, DEFAULT_VALUES } from '../../../services/goals';
+import { GOAL_CATEGORIES, VALUE_CATEGORIES } from '../../../services/goals';
+import { HEBREW_MONTHS } from '../../../services/monthlyThemes';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import styles from './GoalsPage.module.css';
 
 function GoalsPage() {
     const { userData } = useAuthStore();
-    const { centerGoals, groupGoals, fetchCenterGoals, fetchGroupGoals, saveGoal, deleteGoal, isLoading } = useGoalsStore();
+    const { centerGoals, centerValues, groupGoals, fetchCenterGoals, fetchCenterValues, fetchGroupGoals, saveGoal, deleteGoal, isLoading } = useGoalsStore();
     const { groups, fetchGroups } = useGroupsStore();
     const { addToast } = useUIStore();
 
@@ -32,15 +33,17 @@ function GoalsPage() {
         title: '',
         description: '',
         category: 'technical',
-        icon: '🎯'
+        icon: '🎯',
+        month: ''
     });
 
     useEffect(() => {
         fetchCenterGoals();
+        fetchCenterValues();
         if (userData?.id) {
             fetchGroups(userData.id, userData.role === 'supervisor');
         }
-    }, [fetchCenterGoals, fetchGroups, userData]);
+    }, [fetchCenterGoals, fetchCenterValues, fetchGroups, userData]);
 
     useEffect(() => {
         if (selectedGroupId) {
@@ -48,22 +51,26 @@ function GoalsPage() {
         }
     }, [selectedGroupId, fetchGroupGoals]);
 
+    const isValueTab = activeTab === 'values';
+
     const handleOpenModal = (goal = null) => {
         if (goal) {
             setEditingGoal(goal);
             setFormData({
                 title: goal.title,
                 description: goal.description,
-                category: goal.category,
-                icon: goal.icon || '🎯'
+                category: goal.category || (isValueTab ? 'respect' : 'technical'),
+                icon: goal.icon || (isValueTab ? '❤️' : '🎯'),
+                month: goal.month ?? ''
             });
         } else {
             setEditingGoal(null);
             setFormData({
                 title: '',
                 description: '',
-                category: 'technical',
-                icon: '🎯'
+                category: isValueTab ? 'respect' : 'technical',
+                icon: isValueTab ? '❤️' : '🎯',
+                month: ''
             });
         }
         setShowModal(true);
@@ -79,9 +86,14 @@ function GoalsPage() {
 
         const goalData = {
             ...formData,
-            type: activeTab === 'center' ? 'center' : 'group',
+            month: formData.month === '' ? null : parseInt(formData.month),
+            type: isValueTab ? 'value' : (activeTab === 'center' ? 'center' : 'group'),
             groupId: activeTab === 'groups' ? selectedGroupId : null,
-            order: editingGoal?.order ?? (activeTab === 'center' ? centerGoals.length : (groupGoals[selectedGroupId] || []).length)
+            order: editingGoal?.order ?? (
+                isValueTab ? centerValues.length :
+                activeTab === 'center' ? centerGoals.length :
+                (groupGoals[selectedGroupId] || []).length
+            )
         };
 
         if (editingGoal) {
@@ -92,19 +104,21 @@ function GoalsPage() {
         const result = await saveGoal(goalData);
 
         if (result.success) {
-            addToast({ type: 'success', message: editingGoal ? 'המטרה עודכנה' : 'המטרה נוספה' });
+            const label = isValueTab ? 'הערך' : 'המטרה';
+            addToast({ type: 'success', message: editingGoal ? `${label} עודכן` : `${label} נוסף` });
             handleCloseModal();
         } else {
-            addToast({ type: 'error', message: 'שגיאה בשמירת המטרה' });
+            addToast({ type: 'error', message: isValueTab ? 'שגיאה בשמירת הערך' : 'שגיאה בשמירת המטרה' });
         }
     };
 
     const handleDelete = async (goal) => {
-        if (!confirm('האם למחוק את המטרה?')) return;
+        const label = goal.type === 'value' ? 'הערך' : 'המטרה';
+        if (!confirm(`האם למחוק את ${label}?`)) return;
 
         const result = await deleteGoal(goal.id, goal.type, goal.groupId);
         if (result.success) {
-            addToast({ type: 'success', message: 'המטרה נמחקה' });
+            addToast({ type: 'success', message: `${label} נמחק` });
         } else {
             addToast({ type: 'error', message: 'שגיאה במחיקה' });
         }
@@ -116,7 +130,9 @@ function GoalsPage() {
 
     const canEdit = userData?.role === 'supervisor' || userData?.role === 'center_manager' || userData?.role === 'coach';
 
-    if (isLoading && centerGoals.length === 0) {
+    const currentCategories = isValueTab ? VALUE_CATEGORIES : GOAL_CATEGORIES;
+
+    if (isLoading && centerGoals.length === 0 && centerValues.length === 0) {
         return <Spinner.FullPage />;
     }
 
@@ -153,23 +169,60 @@ function GoalsPage() {
             </div>
 
             {/* Content */}
-            {activeTab === 'values' ? (
+            {isValueTab ? (
                 <div className={styles.section}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
                             <Heart size={20} />
                             ערכי המרכז
                         </h2>
+                        {canEdit && (
+                            <Button size="small" onClick={() => handleOpenModal()}>
+                                <Plus size={16} />
+                                הוסף ערך
+                            </Button>
+                        )}
                     </div>
-                    <div className={styles.valuesGrid}>
-                        {DEFAULT_VALUES.map(value => (
-                            <div key={value.id} className={styles.valueCard}>
-                                <div className={styles.valueIcon}>{value.icon}</div>
-                                <div className={styles.valueTitle}>{value.title}</div>
-                                <div className={styles.valueDescription}>{value.description}</div>
-                            </div>
-                        ))}
-                    </div>
+                    {centerValues.length > 0 ? (
+                        <div className={styles.valuesGrid}>
+                            {centerValues.map(value => (
+                                <div key={value.id} className={styles.valueCard}>
+                                    <div className={styles.valueCardHeader}>
+                                        <div className={styles.valueIcon}>{value.icon || '❤️'}</div>
+                                        {canEdit && (
+                                            <div className={styles.goalActions}>
+                                                <button
+                                                    className={styles.iconButton}
+                                                    onClick={() => handleOpenModal(value)}
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    className={`${styles.iconButton} ${styles.delete}`}
+                                                    onClick={() => handleDelete(value)}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className={styles.valueTitle}>{value.title}</div>
+                                    <div className={styles.valueDescription}>{value.description}</div>
+                                    {value.month != null && (
+                                        <span className={styles.goalCategory}>
+                                            {HEBREW_MONTHS[value.month]}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={styles.emptyState}>
+                            <Heart className={styles.emptyIcon} />
+                            <div className={styles.emptyTitle}>אין ערכים עדיין</div>
+                            <div className={styles.emptyDescription}>הגדר ערכים עבור המרכז</div>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <>
@@ -261,7 +314,10 @@ function GoalsPage() {
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
                             <h3 className={styles.modalTitle}>
-                                {editingGoal ? 'עריכת מטרה' : 'הוספת מטרה'}
+                                {editingGoal
+                                    ? (isValueTab ? 'עריכת ערך' : 'עריכת מטרה')
+                                    : (isValueTab ? 'הוספת ערך' : 'הוספת מטרה')
+                                }
                             </h3>
                             <button className={styles.modalClose} onClick={handleCloseModal}>
                                 <X size={20} />
@@ -294,7 +350,7 @@ function GoalsPage() {
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                     >
-                                        {Object.values(GOAL_CATEGORIES).map(cat => (
+                                        {Object.values(currentCategories).map(cat => (
                                             <option key={cat.id} value={cat.id}>{cat.label}</option>
                                         ))}
                                     </select>
@@ -306,9 +362,24 @@ function GoalsPage() {
                                         className={styles.input}
                                         value={formData.icon}
                                         onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                        placeholder="🎯"
+                                        placeholder={isValueTab ? '❤️' : '🎯'}
                                     />
                                 </div>
+                                {isValueTab && (
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>חודש (אופציונלי)</label>
+                                        <select
+                                            className={styles.select}
+                                            value={formData.month}
+                                            onChange={(e) => setFormData({ ...formData, month: e.target.value })}
+                                        >
+                                            <option value="">כל השנה</option>
+                                            {HEBREW_MONTHS.map((name, idx) => (
+                                                <option key={idx} value={idx}>{name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
                             <div className={styles.modalFooter}>
                                 <Button type="button" variant="ghost" onClick={handleCloseModal}>

@@ -297,11 +297,7 @@ export default function TrainingProgramPage() {
                     </div>
                     <div className={styles.valuesContent}>
                         {(currentTheme?.goals?.length > 0 ? currentTheme.goals : ['שיפור משחק רשת', 'עבודת רגליים', 'יציבות בהגשה']).map((goal, i) => (
-                            <span key={i} className={styles.valueTag} style={{
-                                backgroundColor: 'var(--accent-50)',
-                                color: 'var(--accent-700)',
-                                borderColor: 'var(--accent-200)'
-                            }}>
+                            <span key={i} className={styles.goalTag}>
                                 {goal}
                             </span>
                         ))}
@@ -415,7 +411,7 @@ export default function TrainingProgramPage() {
                             return (
                                 <div
                                     key={day.toISOString()}
-                                    className={`${styles.dayCell} ${!isCurrent ? styles.otherMonth : ''} ${hasHoliday ? styles.holidayCell : ''}`}
+                                    className={`${styles.dayCell} ${!isCurrent ? styles.otherMonth : ''} ${hasHoliday ? styles.holidayCell : ''} ${isToday(day) ? styles.today : ''}`}
                                     onClick={() => handleDayClick(day)}
                                 >
                                     <div className={styles.dayTop}>

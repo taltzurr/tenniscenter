@@ -9,7 +9,6 @@ import MultiSelect from '../../../components/ui/MultiSelect/MultiSelect';
 import RecurrencePicker from '../../../components/ui/RecurrencePicker/RecurrencePicker';
 import Spinner from '../../../components/ui/Spinner';
 import Comments from '../../../components/ui/Comments';
-import ExercisePicker from '../ExercisePicker';
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useGroupsStore from '../../../stores/groupsStore';
@@ -38,8 +37,7 @@ function TrainingForm() {
 
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-
+    const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
         groupId: searchParams.get('groupId') || '',
@@ -53,7 +51,6 @@ function TrainingForm() {
         trainingTopics: [], // Tags
         description: '',
         location: 'מגרש ראשי',
-        exercises: [],
         recurrence: {
             frequency: 'NONE',
             interval: 1,
@@ -101,7 +98,6 @@ function TrainingForm() {
                         trainingTopics: training.trainingTopics || [],
                         description: training.description || '',
                         location: training.location || '',
-                        exercises: training.exercises || []
                     }));
                 }
             }
@@ -118,6 +114,9 @@ function TrainingForm() {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
     };
 
     const handleCommentAdded = async () => {
@@ -147,8 +146,15 @@ function TrainingForm() {
 
             const selectedGroup = groups.find(g => g.id === formData.groupId);
 
-            // Validation relies on form required attributes mostly, but good to check
-            if (!formData.topic || !formData.groupId) {
+            const newErrors = {};
+            if (!formData.groupId) {
+                newErrors.groupId = 'יש לבחור קבוצה';
+            }
+            if (!formData.topic) {
+                newErrors.topic = 'נא למלא שם אימון';
+            }
+            if (Object.keys(newErrors).length > 0) {
+                setErrors(newErrors);
                 addToast({ type: 'error', message: 'נא למלא שדות חובה' });
                 setIsSubmitting(false);
                 return;
@@ -167,7 +173,7 @@ function TrainingForm() {
                 trainingTopics: formData.trainingTopics,
                 description: formData.description,
                 location: formData.location,
-                exercises: formData.exercises,
+                exercises: [],
                 coachId: userData.id,
                 coachName: userData.displayName || '', // Denormalize coach name
                 groupName: selectedGroup?.name || '', // Denormalize group name
@@ -262,7 +268,7 @@ function TrainingForm() {
                                     name="groupId"
                                     value={formData.groupId}
                                     onChange={handleChange}
-                                    className={styles.selectStyled}
+                                    className={`${styles.selectStyled} ${errors.groupId ? styles.selectError : ''}`}
                                     required
                                 >
                                     <option value="">בחר קבוצה...</option>
@@ -272,6 +278,9 @@ function TrainingForm() {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.groupId && (
+                                    <span className={styles.fieldError}>{errors.groupId}</span>
+                                )}
                             </div>
                         </div>
 
@@ -401,14 +410,6 @@ function TrainingForm() {
                         </div>
                     </div>
 
-                    {/* Exercises Section */}
-                    <div className={styles.section} style={{ marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                        <h2 className={styles.sectionTitle}>תרגילי האימון</h2>
-                        <ExercisePicker
-                            selectedExercises={formData.exercises}
-                            onChange={(exercises) => setFormData(prev => ({ ...prev, exercises }))}
-                        />
-                    </div>
                 </div>
 
                 <div className={styles.footer}>

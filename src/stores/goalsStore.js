@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import {
     getCenterGoals,
+    getCenterValues,
     getGroupGoals,
     saveGoal,
     deleteGoal,
@@ -9,9 +10,21 @@ import {
 
 const useGoalsStore = create((set, get) => ({
     centerGoals: [],
+    centerValues: [],
     groupGoals: {},
     isLoading: false,
     error: null,
+
+    // Fetch center values
+    fetchCenterValues: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const values = await getCenterValues();
+            set({ centerValues: values, isLoading: false });
+        } catch (error) {
+            set({ error: error.message, isLoading: false });
+        }
+    },
 
     // Fetch center goals
     fetchCenterGoals: async () => {
@@ -44,7 +57,15 @@ const useGoalsStore = create((set, get) => ({
         try {
             const saved = await saveGoal(goalData);
 
-            if (goalData.type === 'center') {
+            if (goalData.type === 'value') {
+                set(state => {
+                    const exists = state.centerValues.find(g => g.id === saved.id);
+                    const updatedValues = exists
+                        ? state.centerValues.map(g => g.id === saved.id ? saved : g)
+                        : [...state.centerValues, saved];
+                    return { centerValues: updatedValues, isLoading: false };
+                });
+            } else if (goalData.type === 'center') {
                 set(state => {
                     const exists = state.centerGoals.find(g => g.id === saved.id);
                     const updatedGoals = exists
@@ -79,7 +100,12 @@ const useGoalsStore = create((set, get) => ({
         try {
             await deleteGoal(goalId);
 
-            if (type === 'center') {
+            if (type === 'value') {
+                set(state => ({
+                    centerValues: state.centerValues.filter(g => g.id !== goalId),
+                    isLoading: false
+                }));
+            } else if (type === 'center') {
                 set(state => ({
                     centerGoals: state.centerGoals.filter(g => g.id !== goalId),
                     isLoading: false

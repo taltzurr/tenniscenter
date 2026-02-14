@@ -93,23 +93,37 @@
 
 .valuesContent {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    flex-wrap: nowrap;
+    gap: var(--space-1);
     align-items: center;
 }
 
 .valueTag {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
+    padding: 3px 8px;
     border-radius: var(--radius-full);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: 600;
     line-height: 1;
-    /* Default is overridden in JSX for specific types but baseline here */
-    background-color: var(--gray-50);
-    color: var(--text-primary);
-    border: 1px solid transparent;
+    white-space: nowrap;
+    background-color: var(--primary-50);
+    color: var(--primary-700);
+    border: 1px solid var(--primary-200);
+}
+
+.goalTag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    background-color: var(--accent-100);
+    color: var(--accent-600);
+    border: 1px solid var(--accent-200);
 }
 
 /* Main Grid Layout - Mobile First: Stacked */
@@ -135,9 +149,17 @@
     margin-bottom: var(--space-3);
 }
 
+.groupDot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
 /* Group Chips - Horizontal Scroll on Mobile */
 .groupChips {
     display: flex;
+    flex-wrap: nowrap;
     gap: var(--space-2);
     overflow-x: auto;
     padding-bottom: var(--space-2);
@@ -448,10 +470,11 @@
 }
 
 .listActions {
-    position: absolute;
-    left: var(--space-4);
-    top: var(--space-4);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
     color: var(--gray-400);
+    padding: var(--space-1);
 }
 
 .lockIcon {

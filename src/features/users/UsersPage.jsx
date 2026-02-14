@@ -119,74 +119,103 @@ function UsersPage() {
                 />
             </div>
 
-            <div className={styles.tableContainer}>
-                {filteredUsers.length === 0 ? (
-                    <div className={styles.emptyState}>
-                        <p>לא נמצאו משתמשים</p>
+            {filteredUsers.length === 0 ? (
+                <div className={styles.emptyState}>
+                    <p>לא נמצאו משתמשים</p>
+                </div>
+            ) : (
+                <>
+                    {/* Desktop Table */}
+                    <div className={styles.desktopTable}>
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>שם</th>
+                                        <th>תפקיד</th>
+                                        <th>מרכז</th>
+                                        <th>אימייל</th>
+                                        <th>טלפון</th>
+                                        <th>פעולות</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.map(user => (
+                                        <tr key={user.id}>
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <Avatar name={user.displayName} size="small" />
+                                                    <span style={{ fontWeight: '500' }}>{user.displayName}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`${styles.roleBadge} ${getRoleClass(user.role)}`}>
+                                                    {ROLE_LABELS[user.role] || user.role}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {user.centerIds && user.centerIds.length > 0
+                                                    ? user.centerIds.map(id => getCenterName(id)).join(', ')
+                                                    : (user.managedCenterId ? getCenterName(user.managedCenterId) : '-')
+                                                }
+                                            </td>
+                                            <td>{user.email}</td>
+                                            <td>{user.phone || '-'}</td>
+                                            <td>
+                                                <div className={styles.actions}>
+                                                    <Button variant="ghost" size="small" onClick={() => handleEditUser(user)} title="ערוך">
+                                                        <Edit2 size={16} />
+                                                    </Button>
+                                                    <Button variant="ghost" size="small" onClick={() => handleDeleteUser(user)} title="מחק">
+                                                        <Trash2 size={16} color="var(--error-500)" />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                ) : (
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>שם</th>
-                                <th>תפקיד</th>
-                                <th>מרכז</th>
-                                <th>אימייל</th>
-                                <th>טלפון</th>
-                                <th>פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredUsers.map(user => (
-                                <tr key={user.id}>
-                                    <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <Avatar name={user.displayName} size="small" />
-                                            <span style={{ fontWeight: '500' }}>{user.displayName}</span>
-                                        </div>
-                                    </td>
-                                    <td>
+
+                    {/* Mobile Cards */}
+                    <div className={styles.mobileCards}>
+                        {filteredUsers.map(user => (
+                            <div key={user.id} className={styles.userCard}>
+                                <div className={styles.cardMain}>
+                                    <Avatar name={user.displayName} size="small" />
+                                    <div className={styles.cardInfo}>
+                                        <span className={styles.cardName}>{user.displayName}</span>
                                         <span className={`${styles.roleBadge} ${getRoleClass(user.role)}`}>
                                             {ROLE_LABELS[user.role] || user.role}
                                         </span>
-                                    </td>
-                                    <td>
-                                        {/* Display Center(s) */}
-                                        {user.centerIds && user.centerIds.length > 0
-                                            ? user.centerIds.map(id => getCenterName(id)).join(', ')
-                                            : (user.managedCenterId ? getCenterName(user.managedCenterId) : '-')
-                                        }
-                                    </td>
-                                    <td>{user.email}</td>
-                                    <td>{user.phone || '-'}</td>
-                                    <td>
-                                        <div className={styles.actions}>
-                                            <Button
-                                                variant="ghost"
-                                                size="small"
-                                                onClick={() => handleEditUser(user)}
-                                                className="p-1"
-                                                title="ערוך"
-                                            >
-                                                <Edit2 size={16} />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="small"
-                                                onClick={() => handleDeleteUser(user)}
-                                                className="p-1 text-red-500 hover:text-red-700"
-                                                title="מחק"
-                                            >
-                                                <Trash2 size={16} color="var(--error)" />
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                                    </div>
+                                    <div className={styles.cardActions}>
+                                        <button className={styles.cardActionBtn} onClick={() => handleEditUser(user)} title="ערוך">
+                                            <Edit2 size={18} />
+                                        </button>
+                                        <button className={`${styles.cardActionBtn} ${styles.deleteBtn}`} onClick={() => handleDeleteUser(user)} title="מחק">
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className={styles.cardDetails}>
+                                    {user.email && <span className={styles.cardDetail}>{user.email}</span>}
+                                    {user.phone && <span className={styles.cardDetail}>{user.phone}</span>}
+                                    {(user.centerIds?.length > 0 || user.managedCenterId) && (
+                                        <span className={styles.cardDetail}>
+                                            {user.centerIds?.length > 0
+                                                ? user.centerIds.map(id => getCenterName(id)).join(', ')
+                                                : getCenterName(user.managedCenterId)
+                                            }
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
 
             <UserFormModal
                 isOpen={isFormOpen}

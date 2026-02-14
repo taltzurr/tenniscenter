@@ -184,6 +184,13 @@
     border: 1px solid var(--primary-200);
 }
 
+.valueCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-2);
+}
+
 .valueIcon {
     font-size: 36px;
     margin-bottom: var(--space-3);

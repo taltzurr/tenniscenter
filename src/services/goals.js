@@ -18,7 +18,19 @@ const COLLECTION = 'goals';
 export const GOAL_TYPES = {
     CENTER: 'center',      // Center-wide goals
     GROUP: 'group',        // Group-specific goals
-    SEASONAL: 'seasonal'   // Seasonal goals
+    SEASONAL: 'seasonal',  // Seasonal goals
+    VALUE: 'value'         // Center values
+};
+
+// Value categories
+export const VALUE_CATEGORIES = {
+    RESPECT: { id: 'respect', label: 'כבוד' },
+    EFFORT: { id: 'effort', label: 'מאמץ' },
+    TEAMWORK: { id: 'teamwork', label: 'עבודת צוות' },
+    DISCIPLINE: { id: 'discipline', label: 'משמעת' },
+    ENJOYMENT: { id: 'enjoyment', label: 'הנאה' },
+    SPORTSMANSHIP: { id: 'sportsmanship', label: 'ספורטיביות' },
+    PERSEVERANCE: { id: 'perseverance', label: 'התמדה' }
 };
 
 // Goal categories
@@ -28,6 +40,28 @@ export const GOAL_CATEGORIES = {
     PHYSICAL: { id: 'physical', label: 'פיזי', icon: 'Dumbbell' },
     MENTAL: { id: 'mental', label: 'מנטלי', icon: 'Brain' },
     VALUES: { id: 'values', label: 'ערכים', icon: 'Heart' }
+};
+
+/**
+ * Get all center values
+ */
+export const getCenterValues = async () => {
+    try {
+        const q = query(
+            collection(db, COLLECTION),
+            where('type', '==', GOAL_TYPES.VALUE),
+            orderBy('order', 'asc')
+        );
+
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error('Error fetching center values:', error);
+        return [];
+    }
 };
 
 /**

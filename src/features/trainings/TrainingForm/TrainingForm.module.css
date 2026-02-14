@@ -151,6 +151,18 @@
     border: 1px solid var(--border-color);
 }
 
+/* Error States */
+.selectError {
+    border-color: var(--error-500) !important;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.15);
+}
+
+.fieldError {
+    color: var(--error-500);
+    font-size: var(--font-size-xs);
+    margin-top: var(--space-1);
+}
+
 /* Comments Section */
 .commentsSection {
     margin-top: var(--space-6);
