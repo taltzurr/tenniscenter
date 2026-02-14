@@ -40,6 +40,16 @@ function MonthlyOutstandingCard() {
 
     const canManage = isSupervisor() || isCenterManager();
 
+    // Check if any category has a selected name
+    const hasAnySelection = useMemo(() => {
+        return CATEGORIES.some(({ type }) => {
+            if (type === 'centerCoach' && isCenterManager() && userData?.managedCenterId) {
+                return items.some(i => i.type === type && i.centerId === userData.managedCenterId && i.selectedName);
+            }
+            return items.some(i => i.type === type && i.selectedName);
+        });
+    }, [items, userData, isCenterManager]);
+
     const getSelectedName = (type) => {
         if (type === 'centerCoach' && isCenterManager() && userData?.managedCenterId) {
             const match = items.find(
@@ -56,6 +66,11 @@ function MonthlyOutstandingCard() {
         if (!name) return null;
         return name.charAt(0);
     };
+
+    // Hide entirely if no selections exist
+    if (!hasAnySelection && !canManage) {
+        return null;
+    }
 
     return (
         <div className={styles.outstandingCard}>

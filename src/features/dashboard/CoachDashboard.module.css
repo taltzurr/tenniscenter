@@ -6,12 +6,36 @@
     from {
         opacity: 0;
     }
-
     to {
         opacity: 1;
     }
 }
 
+/* Staggered slide-up animation for sections */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashSection {
+    opacity: 0;
+    animation: slideUp 0.3s ease forwards;
+}
+
+.delay0 { animation-delay: 0ms; }
+.delay1 { animation-delay: 80ms; }
+.delay2 { animation-delay: 160ms; }
+.delay3 { animation-delay: 240ms; }
+.delay4 { animation-delay: 320ms; }
+.delay5 { animation-delay: 380ms; }
+
+/* Greeting */
 .greeting {
     margin-bottom: var(--space-2);
 }
@@ -28,90 +52,7 @@
     color: var(--text-secondary);
 }
 
-.statsGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-2);
-    margin-bottom: var(--space-6);
-}
-
-.statCard {
-    background-color: var(--bg-primary);
-    border-radius: var(--radius-md);
-    padding: var(--space-2);
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-fast);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-1);
-    border: 1px solid transparent;
-    text-align: center;
-}
-
-.statCard:hover {
-    box-shadow: var(--shadow-sm);
-    border-color: var(--primary-100);
-    transform: translateY(-1px);
-}
-
-.statIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-md);
-    flex-shrink: 0;
-}
-
-.blue {
-    background-color: var(--primary-50);
-    color: var(--primary-600);
-}
-
-.green {
-    background-color: #dcfce7;
-    /* green-100/50 approx */
-    color: #16a34a;
-    /* green-600 */
-}
-
-.orange {
-    background-color: var(--warning-50);
-    color: var(--warning-600);
-}
-
-.purple {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
-}
-
-.yellow {
-    background-color: #fffde7;
-    color: #fbc02d;
-}
-
-.statInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-.statValue {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-primary);
-    line-height: 1.2;
-    margin: 0;
-}
-
-.statLabel {
-    font-size: 10px;
-    color: var(--text-secondary);
-    line-height: 1.2;
-}
-
+/* Sections */
 .section {
     margin-bottom: var(--space-6);
 }
@@ -139,6 +80,7 @@
     text-decoration: underline;
 }
 
+/* Training list */
 .todayList {
     display: flex;
     flex-direction: column;
@@ -199,8 +141,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-full);
     background-color: var(--gray-100);
     color: var(--text-tertiary);
@@ -216,11 +158,16 @@
     background-color: var(--gray-200);
 }
 
+.trainingStatus:active {
+    transform: scale(0.95);
+}
+
 .trainingStatus.completed {
     background-color: var(--success-100);
     color: var(--success-500);
 }
 
+/* Empty state */
 .emptyState {
     text-align: center;
     padding: var(--space-10) var(--space-4);
@@ -241,6 +188,7 @@
     margin-bottom: var(--space-4);
 }
 
+/* Values & Goals cards */
 .valuesCard {
     background: var(--bg-primary);
     border-radius: var(--radius-lg);
@@ -263,6 +211,18 @@
     letter-spacing: 0.02em;
 }
 
+.valuesToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: var(--text-secondary);
+}
+
 .valuesContent {
     display: flex;
     flex-wrap: nowrap;
@@ -280,27 +240,39 @@
 .valueTag {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 4px 10px;
     background-color: var(--primary-50);
     color: var(--primary-700);
     border-radius: var(--radius-full);
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     border: 1px solid var(--primary-200);
     flex-shrink: 0;
     white-space: nowrap;
+    min-height: 28px;
 }
 
 .goalTag {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 4px 10px;
     background-color: var(--accent-100);
     color: var(--accent-700);
     border-radius: var(--radius-full);
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     border: 1px solid var(--accent-300);
     flex-shrink: 0;
     white-space: nowrap;
+    min-height: 28px;
+}
+
+.ctaLink {
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    font-weight: var(--font-weight-medium);
+}
+
+.ctaLink:hover {
+    text-decoration: underline;
 }

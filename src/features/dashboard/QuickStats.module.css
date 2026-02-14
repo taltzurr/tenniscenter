@@ -1,0 +1,107 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+}
+
+.card {
+    position: relative;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    border: 1px solid transparent;
+    text-align: center;
+    cursor: pointer;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-100);
+    transform: translateY(-1px);
+}
+
+.card:active {
+    transform: scale(0.95);
+}
+
+/* Attention state for pending trainings */
+.attention {
+    background-color: var(--warning-100);
+    border-color: var(--warning-500);
+}
+
+.attention:hover {
+    border-color: var(--warning-500);
+}
+
+.dot {
+    position: absolute;
+    top: 6px;
+    inset-inline-end: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--warning-500);
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.blue {
+    background-color: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.green {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.orange {
+    background-color: var(--warning-100);
+    color: var(--warning-500);
+}
+
+.purple {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.yellow {
+    background-color: #fffde7;
+    color: #fbc02d;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin: 0;
+}
+
+.label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}

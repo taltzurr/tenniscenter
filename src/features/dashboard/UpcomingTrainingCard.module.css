@@ -1,0 +1,109 @@
+.card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-md);
+    border-inline-start: 4px solid var(--primary-500);
+    margin-bottom: var(--space-4);
+}
+
+.content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.timeSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 64px;
+    flex-shrink: 0;
+}
+
+.time {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-700);
+    line-height: var(--line-height-tight);
+}
+
+.label {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    font-weight: var(--font-weight-medium);
+}
+
+.details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.groupName {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.metaItem {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.metaDot {
+    color: var(--gray-400);
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+/* Empty state */
+.emptyState {
+    text-align: center;
+    padding: var(--space-6) var(--space-4);
+}
+
+.emptyIcon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-2);
+}
+
+.emptyTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.emptySubtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Pulse animation when training is within 1 hour */
+.pulse {
+    animation: subtlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% {
+        box-shadow: var(--shadow-md);
+    }
+    50% {
+        box-shadow: var(--shadow-lg), 0 0 0 3px var(--primary-100);
+    }
+}
