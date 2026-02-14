@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { onAuthChange, signIn, signOut } from '../services/auth';
+import { onAuthChange, signIn, signOut, invalidatePendingAuthCallbacks } from '../services/auth';
 
 // Demo users for development (when Firebase is not configured)
 const DEMO_USERS = {
@@ -65,8 +65,6 @@ const useAuthStore = create((set, get) => ({
     isLoading: true,
     error: null,
     isDemoMode: isDemoMode(),
-    _isLoggingIn: false, // Prevents onAuthStateChanged from overwriting state mid-login
-
     // Actions
     initialize: () => {
         if (isDemoMode()) {
@@ -82,10 +80,8 @@ const useAuthStore = create((set, get) => ({
         }
 
         const unsubscribe = onAuthChange(({ user, userData }) => {
-            // Don't override state during an active login attempt
-            if (get()._isLoggingIn) return;
-
             // Don't override valid userData with null for the same user
+            // (safety net for edge cases where Firestore returns null transiently)
             const current = get();
             if (user && !userData && current.user && current.userData && current.user.uid === user.uid) {
                 return;
@@ -97,7 +93,7 @@ const useAuthStore = create((set, get) => ({
     },
 
     login: async (email, password) => {
-        set({ isLoading: true, error: null, _isLoggingIn: true });
+        set({ isLoading: true, error: null });
 
         // Demo users ONLY work in demo mode (no Firebase configured)
         if (isDemoMode()) {
@@ -110,7 +106,6 @@ const useAuthStore = create((set, get) => ({
                     user: { uid: userData.id },
                     userData,
                     isLoading: false,
-                    _isLoggingIn: false
                 });
                 return { success: true };
             }
@@ -119,14 +114,21 @@ const useAuthStore = create((set, get) => ({
             set({
                 error: 'במצב Demo, השתמש באחד מהמשתמשים הבאים:\n• coach@demo.com\n• manager@demo.com\n• supervisor@demo.com\nסיסמה: demo123',
                 isLoading: false,
-                _isLoggingIn: false
             });
             return { success: false, error: 'invalid-demo-credentials' };
         }
 
         try {
             // Sign in with Firebase - this will trigger onAuthStateChanged
+            // signIn() internally calls signInWithEmailAndPassword (which fires the listener)
+            // then fetches getUserData. The listener also fetches getUserData independently.
             const { user, userData } = await signIn(email, password);
+
+            // Invalidate any pending onAuthStateChanged callbacks that were triggered
+            // by signInWithEmailAndPassword. The listener's async getUserData() is still
+            // in-flight — when it completes, it will see the version has changed and
+            // discard its result. This eliminates the race condition permanently.
+            invalidatePendingAuthCallbacks();
 
             // Ensure userData exists before allowing navigation
             if (!userData) {
@@ -134,13 +136,11 @@ const useAuthStore = create((set, get) => ({
             }
 
             // Set the state with user and userData
-            // Keep _isLoggingIn true briefly so pending onAuthStateChanged callbacks are blocked
             set({ user, userData, isLoading: false });
-            setTimeout(() => set({ _isLoggingIn: false }), 1000);
 
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false, _isLoggingIn: false });
+            set({ error: error.message, isLoading: false });
             return { success: false, error: error.message };
         }
     },
