@@ -134,7 +134,9 @@ const useAuthStore = create((set, get) => ({
             }
 
             // Set the state with user and userData
-            set({ user, userData, isLoading: false, _isLoggingIn: false });
+            // Keep _isLoggingIn true briefly so pending onAuthStateChanged callbacks are blocked
+            set({ user, userData, isLoading: false });
+            setTimeout(() => set({ _isLoggingIn: false }), 1000);
 
             return { success: true };
         } catch (error) {

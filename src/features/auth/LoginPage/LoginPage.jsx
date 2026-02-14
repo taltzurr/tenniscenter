@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
@@ -16,11 +16,16 @@ function LoginPage() {
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [resetSent, setResetSent] = useState(false);
 
-    const { login } = useAuthStore();
+    const { login, user, userData } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
 
     const from = location.state?.from?.pathname || '/dashboard';
+
+    // Redirect if already authenticated (handles race condition on first login)
+    if (user && userData) {
+        return <Navigate to={from} replace />;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
