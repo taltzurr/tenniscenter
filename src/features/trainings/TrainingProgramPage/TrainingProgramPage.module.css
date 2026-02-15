@@ -198,6 +198,7 @@
     transition: all 0.2s ease;
     color: var(--text-primary);
     min-height: 32px;
+    flex-shrink: 0;
 }
 
 .filterChip:hover {

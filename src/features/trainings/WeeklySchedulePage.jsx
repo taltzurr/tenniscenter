@@ -19,7 +19,9 @@ import {
     AlertCircle,
     Info,
     CheckCircle,
-    Check
+    Check,
+    Plus,
+    Filter
 } from 'lucide-react';
 
 import useAuthStore from '../../stores/authStore';
@@ -157,7 +159,55 @@ const styles = {
         color: 'var(--text-tertiary)',
         padding: 'var(--space-4)',
         fontSize: 'var(--font-size-sm)',
+    },
+    filterContainer: {
+        marginBottom: 'var(--space-4)',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        gap: '8px',
+        paddingBottom: '4px',
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none',  // IE 10+
+        WebkitOverflowScrolling: 'touch',
+    },
+    filterChip: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '6px 12px',
+        borderRadius: '9999px',
+        fontSize: '0.85rem',
+        border: '1px solid var(--gray-200)',
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        gap: '6px',
+        transition: 'all 0.2s ease',
+    },
+    filterChipActive: {
+        backgroundColor: 'var(--primary-50)',
+        borderColor: 'var(--primary-500)',
+        color: 'var(--primary-700)',
+        fontWeight: '600',
+    },
+    dot: {
+        width: '6px',
+        height: '6px',
+        borderRadius: '50%',
+        backgroundColor: 'currentColor',
     }
+};
+
+const stringToColor = (str) => {
+    if (!str) return '#6b7280';
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return '#' + '00000'.substring(0, 6 - c.length) + c;
 };
 
 export default function WeeklySchedulePage() {
@@ -166,6 +216,7 @@ export default function WeeklySchedulePage() {
     const { trainings, fetchTrainings, editTraining, isLoading: isTrainingsLoading } = useTrainingsStore();
     const { events, fetchEvents, isLoading: isEventsLoading } = useEventsStore();
     const { groups, fetchGroups } = useGroupsStore();
+    const [selectedGroup, setSelectedGroup] = useState('all');
 
     // Calculate week range
     const today = new Date();
@@ -191,10 +242,13 @@ export default function WeeklySchedulePage() {
             return isSameDay(d, day);
         });
 
-        const dayTrainings = trainings.filter(t => {
-            const d = new Date(t.date);
-            return isSameDay(d, day);
-        }).sort((a, b) => new Date(a.date) - new Date(b.date));
+        const dayTrainings = trainings
+            .filter(t => {
+                if (selectedGroup !== 'all' && t.groupId !== selectedGroup) return false;
+                const d = new Date(t.date);
+                return isSameDay(d, day);
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
         return { dayEvents, dayTrainings };
     };
@@ -226,6 +280,41 @@ export default function WeeklySchedulePage() {
                         {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
                     </p>
                 </div>
+                <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
+                    <Plus size={20} />
+                </Button>
+            </div>
+
+            {/* Group Filter */}
+            <div style={styles.filterContainer} className="hide-scrollbar">
+                <button
+                    style={{
+                        ...styles.filterChip,
+                        ...(selectedGroup === 'all' ? styles.filterChipActive : {})
+                    }}
+                    onClick={() => setSelectedGroup('all')}
+                >
+                    <div style={{ ...styles.dot, backgroundColor: '#6b7280' }} />
+                    כל הקבוצות
+                </button>
+                {groups.map(group => {
+                    const isActive = selectedGroup === group.id;
+                    const color = group.color || stringToColor(group.name);
+                    return (
+                        <button
+                            key={group.id}
+                            style={{
+                                ...styles.filterChip,
+                                ...(isActive ? styles.filterChipActive : {}),
+                                ...(isActive ? { borderColor: color, backgroundColor: `${color}10`, color: color } : {})
+                            }}
+                            onClick={() => setSelectedGroup(group.id)}
+                        >
+                            <div style={{ ...styles.dot, backgroundColor: isActive ? 'currentColor' : color }} />
+                            {group.name}
+                        </button>
+                    );
+                })}
             </div>
 
             <div style={styles.listContainer}>
