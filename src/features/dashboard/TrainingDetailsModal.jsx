@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Calendar, Clock, MapPin, Users, Activity, FileText, CheckCircle, Target, Briefcase } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Users, Activity, FileText, CheckCircle, Target, Briefcase, Zap, Tag } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import useTrainingsStore from '../../stores/trainingsStore';
 import styles from './TrainingDetailsModal.module.css';
@@ -105,6 +105,7 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                     {/* Technical Specs */}
                     <h3 className={styles.sectionHeader} style={{ marginTop: '16px' }}>מפרט טכני ומקצועי</h3>
                     <div className={styles.grid}>
+                        {/* Topic */}
                         <div className={styles.gridItem}>
                             <Activity size={16} className={styles.gridIcon} />
                             <div>
@@ -113,13 +114,61 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        <div className={styles.gridItem}>
-                            <Target size={16} className={styles.gridIcon} />
-                            <div>
-                                <label className={styles.label}>מיקוד/מטרה</label>
-                                <div className={styles.value}>{training.focus || training.target || 'לא צוין'}</div>
+                        {/* Period Type */}
+                        {training.periodType && (
+                            <div className={styles.gridItem}>
+                                <Calendar size={16} className={styles.gridIcon} />
+                                <div>
+                                    <label className={styles.label}>סוג תקופה</label>
+                                    <div className={styles.value}>{training.periodType}</div>
+                                </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* Game Situation (State) */}
+                        {training.gameSituation && (
+                            <div className={styles.gridItem}>
+                                <Target size={16} className={styles.gridIcon} />
+                                <div>
+                                    <label className={styles.label}>מצב משחק</label>
+                                    <div className={styles.value}>{training.gameSituation}</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Game Component */}
+                        {training.gameComponent && (
+                            <div className={styles.gridItem}>
+                                <Zap size={16} className={styles.gridIcon} />
+                                <div>
+                                    <label className={styles.label}>מרכיב משחק</label>
+                                    <div className={styles.value}>{training.gameComponent}</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Tags */}
+                        {training.trainingTopics && training.trainingTopics.length > 0 && (
+                            <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
+                                <Tag size={16} className={styles.gridIcon} />
+                                <div>
+                                    <label className={styles.label}>תגיות</label>
+                                    <div className={styles.value} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                                        {training.trainingTopics.map((tag, idx) => (
+                                            <span key={idx} style={{
+                                                fontSize: '11px',
+                                                backgroundColor: 'var(--gray-100)',
+                                                padding: '2px 8px',
+                                                borderRadius: '12px',
+                                                color: 'var(--text-secondary)'
+                                            }}>
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {training.equipment && (
                             <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
@@ -145,12 +194,10 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                 </div>
 
                 <div className={styles.footer}>
+                    {/* Close button removed from here */}
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <Button variant="outline" onClick={handleStatusToggle}>
                             {training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                        </Button>
-                        <Button variant="ghost" onClick={onClose}>
-                            סגור
                         </Button>
                     </div>
                     <Button onClick={handleEdit}>

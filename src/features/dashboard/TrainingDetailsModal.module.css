@@ -51,18 +51,27 @@
     top: var(--space-4);
     left: var(--space-4);
     /* RTL override if needed, but absolute positioning usually needs explicit side */
-    background: none;
+    background-color: var(--gray-100);
+    /* Always visible bg */
     border: none;
     cursor: pointer;
-    color: var(--text-tertiary);
-    padding: var(--space-2);
+    color: var(--text-secondary);
+    width: 36px;
+    /* Larger hit area */
+    height: 36px;
     border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all var(--transition-fast);
+    z-index: 10;
 }
 
 .closeButton:hover {
-    background-color: var(--gray-100);
-    color: var(--text-primary);
+    background-color: var(--error-50);
+    color: var(--error-600);
+    transform: rotate(90deg);
+    /* Nice interaction */
 }
 
 .header {
