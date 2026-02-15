@@ -35,27 +35,32 @@
 }
 
 /* Attention state for pending trainings */
-/* Attention state for pending trainings - BOLD CTA */
+/* Attention state for pending trainings - SOFT CTA */
 .attention {
-    background-color: var(--warning-500) !important;
-    border-color: var(--warning-600) !important;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    background-color: #fff7ed !important;
+    /* Orange 50 */
+    border: 2px solid var(--warning-500) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
     transform: translateY(-2px);
 }
 
 .attention:hover {
-    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
     transform: translateY(-4px);
+    background-color: #ffedd5 !important;
+    /* Orange 100 on hover */
 }
 
 .attention .value,
 .attention .label {
-    color: white !important;
+    color: #9a3412 !important;
+    /* Dark orange text */
 }
 
 .attention .icon {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
+    background-color: rgba(249, 115, 22, 0.15) !important;
+    color: #c2410c !important;
+    /* Darker orange icon */
 }
 
 /* .dot removed as requested - only background/border highlight */
