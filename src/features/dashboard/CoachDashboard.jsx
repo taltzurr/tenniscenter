@@ -236,7 +236,7 @@ function CoachDashboard() {
                 </div>
             </div>
 
-            {/* 2. Quick Stats ("הריבועים") */}
+            {/* 2. Quick Stats ("הריבועים") - MOVED TO TOP */}
             <div className={`${styles.dashSection} ${styles.delay1}`}>
                 <QuickStats stats={stats} />
             </div>
