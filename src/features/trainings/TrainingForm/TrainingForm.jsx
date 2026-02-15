@@ -8,13 +8,13 @@ import Combobox from '../../../components/ui/Combobox/Combobox';
 import MultiSelect from '../../../components/ui/MultiSelect/MultiSelect';
 import RecurrencePicker from '../../../components/ui/RecurrencePicker/RecurrencePicker';
 import Spinner from '../../../components/ui/Spinner';
-import Comments from '../../../components/ui/Comments';
+
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useUIStore from '../../../stores/uiStore';
 import { NOTIFICATION_TYPES, notifyGroup } from '../../../services/notifications';
-import { ENTITY_TYPES } from '../../../services/comments';
+
 import { createRecurringTrainings } from '../../../services/trainings';
 import styles from './TrainingForm.module.css';
 
@@ -127,17 +127,7 @@ function TrainingForm() {
         }
     };
 
-    const handleCommentAdded = async () => {
-        if (!formData.groupId) return;
 
-        await notifyGroup(formData.groupId, {
-            type: NOTIFICATION_TYPES.INFO,
-            title: 'הערה חדשה באימון',
-            message: `נוספה הערה חדשה לאימון ${formData.topic || ''} בתאריך ${format(new Date(formData.date), 'dd/MM/yyyy')}`,
-            relatedEntityId: id,
-            relatedEntityType: 'training'
-        });
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -523,17 +513,7 @@ function TrainingForm() {
                 </div>
             </form>
 
-            {/* Comments Section - only in edit mode */}
-            {isEditMode && id && (
-                <div className={styles.commentsSection}>
-                    <Comments
-                        entityType={ENTITY_TYPES.TRAINING}
-                        entityId={id}
-                        title="הערות לאימון"
-                        onCommentAdded={handleCommentAdded}
-                    />
-                </div>
-            )}
+
         </div>
     );
 }

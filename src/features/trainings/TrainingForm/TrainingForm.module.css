@@ -151,7 +151,114 @@
     margin-top: var(--space-1);
 }
 
-/* Comments Section */
-.commentsSection {
-    margin-top: var(--space-6);
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+    /* Increased spacing */
+    padding-top: var(--space-6);
+    /* Increased padding */
+    border-top: 1px solid var(--border-color);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .row {
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .card {
+        padding: var(--space-4);
+    }
+}
+
+/* Field Group */
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+}
+
+/* Label */
+.label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+}
+
+/* Styled Select - Matching Input Component */
+.selectStyled {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    /* Matching Input padding */
+    padding-left: var(--space-10);
+    /* Space for arrow icon */
+    font-size: var(--font-size-base);
+    background-color: var(--bg-primary);
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    color: var(--text-primary);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+}
+
+.selectStyled:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.selectStyled:hover:not(:disabled) {
+    border-color: var(--gray-400);
+}
+
+.selectStyled:disabled {
+    background-color: var(--gray-100);
+    cursor: not-allowed;
+}
+
+/* Definition Grid */
+.definitionGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    /* Wider columns for form inputs */
+    gap: var(--space-6);
+    /* More breathing room */
+}
+
+.gridItem {
+    display: flex;
+    flex-direction: column;
+    /* gap handled by labelWrapper margin-bottom */
+}
+
+/* Recurrence Box */
+.recurrenceBox {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+/* Error States */
+.selectError {
+    border-color: var(--error-500) !important;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.15);
+}
+
+.fieldError {
+    color: var(--error-500);
+    font-size: var(--font-size-xs);
+    margin-top: var(--space-1);
 }
