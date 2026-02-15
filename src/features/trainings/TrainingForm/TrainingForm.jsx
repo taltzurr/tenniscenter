@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Clock, Users, Repeat } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, Users, Repeat, Activity, Target, Zap, Tag, Briefcase, FileText, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
@@ -49,6 +49,7 @@ function TrainingForm() {
         gameSituation: '',
         gameComponent: '',
         trainingTopics: [], // Tags
+        equipment: '',
         description: '',
         location: 'מגרש ראשי',
         recurrence: {
@@ -97,6 +98,7 @@ function TrainingForm() {
                         gameComponent: training.gameComponent || '',
                         trainingTopics: training.trainingTopics || [],
                         description: training.description || '',
+                        equipment: training.equipment || '',
                         location: training.location || '',
                     }));
                 }
@@ -172,6 +174,7 @@ function TrainingForm() {
                 gameComponent: formData.gameComponent,
                 trainingTopics: formData.trainingTopics,
                 description: formData.description,
+                equipment: formData.equipment,
                 location: formData.location,
                 exercises: [],
                 coachId: userData.id,
@@ -256,14 +259,21 @@ function TrainingForm() {
 
             <form onSubmit={handleSubmit} className={styles.card}>
                 <div className={styles.formGrid}>
-                    {/* Top Section: Date, Time & Group */}
+                    {/* SECTION 1: Logistics */}
                     <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>פרטים כלליים</h2>
+                        <div className={styles.sectionTitle}>
+                            <span>לוגיסטיקה ופרטים כלליים</span>
+                        </div>
 
-                        {/* Row 1: Group Selection */}
-                        <div className={styles.row}>
-                            <div className={styles.fieldGroup}>
-                                <label className={styles.label}>קבוצה *</label>
+                        <div className={styles.definitionGrid}>
+                            {/* Group Selection */}
+                            <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.blueBox}`}>
+                                        <Users size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>קבוצה *</span>
+                                </div>
                                 <select
                                     name="groupId"
                                     value={formData.groupId}
@@ -282,83 +292,121 @@ function TrainingForm() {
                                     <span className={styles.fieldError}>{errors.groupId}</span>
                                 )}
                             </div>
-                        </div>
 
-                        {/* Row 2: Date */}
-                        <div className={styles.row}>
-                            <div className={styles.fieldGroup}>
+                            {/* Training Name (Topic) */}
+                            <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.purpleBox}`}>
+                                        <Activity size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>נושא האימון (כותרת) *</span>
+                                </div>
+                                <Input
+                                    name="topic"
+                                    value={formData.topic}
+                                    onChange={handleChange}
+                                    placeholder="למשל: אימון הכנה לתחרות ארצית"
+                                    error={errors.topic}
+                                    required
+                                />
+                            </div>
+
+                            {/* Date */}
+                            <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.blueBox}`}>
+                                        <Calendar size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>תאריך *</span>
+                                </div>
                                 <Input
                                     type="date"
                                     name="date"
-                                    label="תאריך *"
                                     value={formData.date}
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
-                        </div>
 
-                        {/* Row 3: Start & End Time */}
-                        <div className={styles.row}>
-                            <div className={styles.fieldGroup}>
-                                <Input
-                                    type="time"
-                                    name="startTime"
-                                    label="שעת התחלה *"
-                                    value={formData.startTime}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div className={styles.fieldGroup}>
-                                <Input
-                                    type="time"
-                                    name="endTime"
-                                    label="שעת סיום *"
-                                    value={formData.endTime}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* Row 4: Recurrence (Create Only) */}
-                        {!isEditMode && (
-                            <div className={styles.row}>
-                                <div className={styles.fieldGroup}>
-                                    <label className={styles.label}>חזרתיות</label>
-                                    <RecurrencePicker
-                                        value={formData.recurrence}
-                                        startDate={new Date(formData.date)}
-                                        onChange={(newRecurrence) => setFormData(prev => ({ ...prev, recurrence: newRecurrence }))}
+                            {/* Time */}
+                            <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.blueBox}`}>
+                                        <Clock size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>שעות (התחלה - סיום) *</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <Input
+                                        type="time"
+                                        name="startTime"
+                                        value={formData.startTime}
+                                        onChange={handleChange}
+                                        required
+                                        containerStyle={{ flex: 1 }}
+                                    />
+                                    <Input
+                                        type="time"
+                                        name="endTime"
+                                        value={formData.endTime}
+                                        onChange={handleChange}
+                                        required
+                                        containerStyle={{ flex: 1 }}
                                     />
                                 </div>
                             </div>
-                        )}
 
-                        {/* Row 5: Training Name */}
-                        <div className={styles.row}>
-                            <div className={styles.fieldGroup}>
+                            {/* Location */}
+                            <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                        <MapPin size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>מיקום</span>
+                                </div>
                                 <Input
-                                    name="topic"
-                                    label="שם האימון *"
-                                    value={formData.topic}
+                                    name="location"
+                                    value={formData.location}
                                     onChange={handleChange}
-                                    placeholder="למשל: אימון הכנה לתחרות ארצית"
-                                    required
+                                    placeholder="מגרש ראשי"
                                 />
                             </div>
                         </div>
+
+                        {/* Recurrence (Create Only) */}
+                        {!isEditMode && (
+                            <div style={{ marginTop: '24px' }}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                        <Repeat size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>חזרתיות</span>
+                                </div>
+                                <RecurrencePicker
+                                    value={formData.recurrence}
+                                    startDate={new Date(formData.date)}
+                                    onChange={(newRecurrence) => setFormData(prev => ({ ...prev, recurrence: newRecurrence }))}
+                                />
+                            </div>
+                        )}
                     </div>
 
-                    {/* Definition Section: Matching User Design */}
+                    {/* SECTION 2: Professional Definitions */}
                     <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>הגדרות אימון</h2>
+                        <div className={styles.sectionTitle}>
+                            <span>מפרט מקצועי</span>
+                        </div>
 
                         <div className={styles.definitionGrid}>
+                            {/* Period Type */}
                             <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.purpleBox}`}>
+                                        <Calendar size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>סוג תקופה</span>
+                                </div>
                                 <Combobox
-                                    label="סוג תקופה"
                                     options={PERIOD_TYPES}
                                     value={formData.periodType}
                                     onChange={(val) => setFormData(prev => ({ ...prev, periodType: val }))}
@@ -366,9 +414,15 @@ function TrainingForm() {
                                 />
                             </div>
 
+                            {/* Game Situation */}
                             <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.orangeBox}`}>
+                                        <Target size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>מצב משחק</span>
+                                </div>
                                 <Combobox
-                                    label="מצב משחק"
                                     options={GAME_SITUATIONS}
                                     value={formData.gameSituation}
                                     onChange={(val) => setFormData(prev => ({ ...prev, gameSituation: val }))}
@@ -376,9 +430,15 @@ function TrainingForm() {
                                 />
                             </div>
 
+                            {/* Game Component */}
                             <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.orangeBox}`}>
+                                        <Zap size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>מרכיב משחק</span>
+                                </div>
                                 <Combobox
-                                    label="מרכיב משחק"
                                     options={GAME_COMPONENTS}
                                     value={formData.gameComponent}
                                     onChange={(val) => setFormData(prev => ({ ...prev, gameComponent: val }))}
@@ -386,9 +446,31 @@ function TrainingForm() {
                                 />
                             </div>
 
-                            <div className={styles.gridItem} style={{ gridColumn: 'span 2' }}>
+                            {/* Equipment (New Field) */}
+                            <div className={styles.gridItem}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                        <Briefcase size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>ציוד נדרש</span>
+                                </div>
+                                <Input
+                                    name="equipment"
+                                    value={formData.equipment || ''}
+                                    onChange={handleChange}
+                                    placeholder="קונוסים, סולמות..."
+                                />
+                            </div>
+
+                            {/* Tags */}
+                            <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.greenBox}`}>
+                                        <Tag size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>נושאים ותגיות</span>
+                                </div>
                                 <MultiSelect
-                                    label="נושא האימון (תגיות)"
                                     options={TOPIC_SUGGESTIONS}
                                     value={formData.trainingTopics}
                                     onChange={(tags) => setFormData(prev => ({ ...prev, trainingTopics: tags }))}
@@ -397,15 +479,21 @@ function TrainingForm() {
                             </div>
                         </div>
 
-                        <div style={{ marginTop: '16px' }}>
+                        {/* Description */}
+                        <div style={{ marginTop: '24px' }}>
+                            <div className={styles.labelWrapper}>
+                                <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                    <FileText size={18} />
+                                </div>
+                                <span className={styles.labelText}>תיאור ומערך מלא</span>
+                            </div>
                             <Input
                                 name="description"
-                                label="פירוט"
                                 value={formData.description}
                                 onChange={handleChange}
                                 multiline
-                                rows={3}
-                                placeholder="עבודה על וולי..."
+                                rows={4}
+                                placeholder="פירוט מהלך האימון, דגשים מיוחדים..."
                             />
                         </div>
                     </div>

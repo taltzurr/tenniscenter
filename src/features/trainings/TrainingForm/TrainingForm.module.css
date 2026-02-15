@@ -45,99 +45,87 @@
 }
 
 .sectionTitle {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: var(--space-2);
-    margin-bottom: var(--space-4);
-}
-
-.row {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     display: flex;
-    gap: var(--space-4);
-}
-
-.row>* {
-    flex: 1;
-}
-
-.footer {
-    display: flex;
-    justify-content: flex-end;
+    align-items: center;
     gap: var(--space-3);
-    margin-top: var(--space-8);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--border-color);
+    margin-bottom: var(--space-6);
+    /* More space below header */
 }
 
-/* Mobile responsive */
-@media (max-width: 640px) {
-    .row {
-        flex-direction: column;
-        gap: var(--space-4);
-    }
-
-    .card {
-        padding: var(--space-4);
-    }
-}
-
-/* Field Group */
-.fieldGroup {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+.sectionTitle::after {
+    content: '';
     flex: 1;
+    height: 1px;
+    background-color: var(--gray-200);
 }
 
-/* Label */
-.label {
+/* Icon Box Variants for Form Labels */
+.iconBox {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.blueBox {
+    background-color: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.purpleBox {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+}
+
+.orangeBox {
+    background-color: #ffedd5;
+    color: #c2410c;
+}
+
+.greenBox {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.slateBox {
+    background-color: var(--gray-100);
+    color: var(--text-secondary);
+}
+
+.labelWrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.labelText {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
 }
 
-/* Styled Select */
-.selectStyled {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 14px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: left 12px center;
-    padding-left: 32px;
-}
-
-.selectStyled:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-color-alpha);
-}
-
-.selectStyled:hover {
-    border-color: var(--border-hover);
-}
-
 /* Definition Grid */
 .definitionGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    /* Wider columns for form inputs */
+    gap: var(--space-6);
+    /* More breathing room */
 }
 
 .gridItem {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    /* gap handled by labelWrapper margin-bottom */
 }
 
 /* Recurrence Box */
