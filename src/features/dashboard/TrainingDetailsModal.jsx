@@ -46,31 +46,15 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                 </div>
 
                 <div className={styles.content}>
-                    {/* Status Badge - Clickable */}
-                    <div
-                        className={`${styles.statusBadge} ${training.status === 'completed' ? styles.completed : ''}`}
-                        onClick={handleStatusToggle}
-                        style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
-                        title="לחץ לשינוי סטטוס"
-                    >
-                        {training.status === 'completed' ? (
-                            <>
-                                <CheckCircle size={14} />
-                                <span>בוצע</span>
-                            </>
-                        ) : (
-                            <>
-                                <Clock size={14} />
-                                <span>מתוכנן</span>
-                            </>
-                        )}
-                    </div>
-
                     {/* Logistics Grid */}
-                    <h3 className={styles.sectionHeader}>פרטי לוגיסטיקה</h3>
+                    <div className={styles.sectionHeader}>
+                        <span>לוגיסטיקה ופרטים כלליים</span>
+                    </div>
                     <div className={styles.grid}>
                         <div className={styles.gridItem}>
-                            <Calendar size={16} className={styles.gridIcon} />
+                            <div className={`${styles.iconBox} ${styles.blueBox}`}>
+                                <Calendar size={18} />
+                            </div>
                             <div>
                                 <label className={styles.label}>יום ותאריך</label>
                                 <div className={styles.value}>{training.day || '---'} | {training.time?.split(' ')[0] || '--:--'}</div>
@@ -78,7 +62,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         </div>
 
                         <div className={styles.gridItem}>
-                            <Clock size={16} className={styles.gridIcon} />
+                            <div className={`${styles.iconBox} ${styles.blueBox}`}>
+                                <Clock size={18} />
+                            </div>
                             <div>
                                 <label className={styles.label}>שעה ומשך</label>
                                 <div className={styles.value}>{training.time} ({training.duration})</div>
@@ -86,7 +72,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         </div>
 
                         <div className={styles.gridItem}>
-                            <Users size={16} className={styles.gridIcon} />
+                            <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                <Users size={18} />
+                            </div>
                             <div>
                                 <label className={styles.label}>קבוצה</label>
                                 <div className={styles.value}>{training.group}</div>
@@ -94,7 +82,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         </div>
 
                         <div className={styles.gridItem}>
-                            <MapPin size={16} className={styles.gridIcon} />
+                            <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                <MapPin size={18} />
+                            </div>
                             <div>
                                 <label className={styles.label}>מיקום</label>
                                 <div className={styles.value}>{training.location}</div>
@@ -103,11 +93,15 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                     </div>
 
                     {/* Technical Specs */}
-                    <h3 className={styles.sectionHeader} style={{ marginTop: '16px' }}>מפרט טכני ומקצועי</h3>
+                    <div className={styles.sectionHeader} style={{ marginTop: '24px' }}>
+                        <span>מפרט מקצועי</span>
+                    </div>
                     <div className={styles.grid}>
                         {/* Topic */}
                         <div className={styles.gridItem}>
-                            <Activity size={16} className={styles.gridIcon} />
+                            <div className={`${styles.iconBox} ${styles.purpleBox}`}>
+                                <Activity size={18} />
+                            </div>
                             <div>
                                 <label className={styles.label}>נושא האימון</label>
                                 <div className={styles.value}>{training.topic || 'לא צוין'}</div>
@@ -117,7 +111,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         {/* Period Type */}
                         {training.periodType && (
                             <div className={styles.gridItem}>
-                                <Calendar size={16} className={styles.gridIcon} />
+                                <div className={`${styles.iconBox} ${styles.purpleBox}`}>
+                                    <Calendar size={18} />
+                                </div>
                                 <div>
                                     <label className={styles.label}>סוג תקופה</label>
                                     <div className={styles.value}>{training.periodType}</div>
@@ -128,7 +124,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         {/* Game Situation (State) */}
                         {training.gameSituation && (
                             <div className={styles.gridItem}>
-                                <Target size={16} className={styles.gridIcon} />
+                                <div className={`${styles.iconBox} ${styles.orangeBox}`}>
+                                    <Target size={18} />
+                                </div>
                                 <div>
                                     <label className={styles.label}>מצב משחק</label>
                                     <div className={styles.value}>{training.gameSituation}</div>
@@ -139,7 +137,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         {/* Game Component */}
                         {training.gameComponent && (
                             <div className={styles.gridItem}>
-                                <Zap size={16} className={styles.gridIcon} />
+                                <div className={`${styles.iconBox} ${styles.orangeBox}`}>
+                                    <Zap size={18} />
+                                </div>
                                 <div>
                                     <label className={styles.label}>מרכיב משחק</label>
                                     <div className={styles.value}>{training.gameComponent}</div>
@@ -150,17 +150,20 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         {/* Tags */}
                         {training.trainingTopics && training.trainingTopics.length > 0 && (
                             <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
-                                <Tag size={16} className={styles.gridIcon} />
+                                <div className={`${styles.iconBox} ${styles.greenBox}`}>
+                                    <Tag size={18} />
+                                </div>
                                 <div>
-                                    <label className={styles.label}>תגיות</label>
-                                    <div className={styles.value} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                                    <label className={styles.label}>תגיות ואלמנטים</label>
+                                    <div className={styles.value} style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
                                         {training.trainingTopics.map((tag, idx) => (
                                             <span key={idx} style={{
                                                 fontSize: '11px',
                                                 backgroundColor: 'var(--gray-100)',
-                                                padding: '2px 8px',
-                                                borderRadius: '12px',
-                                                color: 'var(--text-secondary)'
+                                                padding: '4px 10px',
+                                                borderRadius: '6px',
+                                                color: 'var(--text-secondary)',
+                                                border: '1px solid var(--gray-200)'
                                             }}>
                                                 {tag}
                                             </span>
@@ -172,7 +175,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
 
                         {training.equipment && (
                             <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
-                                <Briefcase size={16} className={styles.gridIcon} />
+                                <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                    <Briefcase size={18} />
+                                </div>
                                 <div>
                                     <label className={styles.label}>ציוד נדרש</label>
                                     <div className={styles.value}>{training.equipment}</div>
@@ -183,7 +188,7 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
 
                     {/* Description if available */}
                     {training.description && (
-                        <div className={styles.section} style={{ marginTop: '16px' }}>
+                        <div className={styles.section} style={{ marginTop: '24px' }}>
                             <div className={styles.sectionTitle}>
                                 <FileText size={16} />
                                 <span>תיאור ומערך מלא</span>
@@ -194,14 +199,19 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                 </div>
 
                 <div className={styles.footer}>
-                    {/* Close button removed from here */}
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <Button variant="outline" onClick={handleStatusToggle}>
-                            {training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                        </Button>
-                    </div>
-                    <Button onClick={handleEdit}>
-                        ערוך אימון
+                    <Button variant="secondary" onClick={handleEdit}>
+                        ערוך פרטים
+                    </Button>
+
+                    <Button
+                        variant={training.status === 'completed' ? 'outline' : 'primary'}
+                        onClick={handleStatusToggle}
+                    >
+                        {training.status === 'completed' ? (
+                            <><CheckCircle size={16} style={{ marginLeft: '6px' }} /> סמן כלא בוצע</>
+                        ) : (
+                            <><CheckCircle size={16} style={{ marginLeft: '6px' }} /> סמן כבוצע</>
+                        )}
                     </Button>
                 </div>
             </div>
