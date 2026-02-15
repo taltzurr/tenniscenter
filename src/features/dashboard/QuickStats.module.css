@@ -44,15 +44,7 @@
     border-color: var(--warning-500);
 }
 
-.dot {
-    position: absolute;
-    top: 6px;
-    inset-inline-end: 6px;
-    width: 8px;
-    height: 8px;
-    border-radius: var(--radius-full);
-    background-color: var(--warning-500);
-}
+/* .dot removed as requested - only background/border highlight */
 
 .icon {
     display: flex;

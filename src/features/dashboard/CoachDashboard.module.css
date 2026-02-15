@@ -396,8 +396,22 @@
     }
 
     /* Ensure content isn't cut off at edges */
+    /* Ensure content isn't cut off at edges */
     .valuesCard {
         margin: 0 -4px;
         /* Negative margin to align scroll with edges if needed, or keep standard */
+    }
+}
+
+/* Mobile adjustments for spacing */
+@media (max-width: 768px) {
+    .dashSection {
+        margin-bottom: var(--space-8);
+        /* 32px - optimized for mobile */
+    }
+
+    .greeting {
+        margin-bottom: var(--space-4);
+        /* 16px - tighter greeting gap */
     }
 }
