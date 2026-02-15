@@ -92,6 +92,7 @@ function CoachDashboard() {
                 const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
                 return {
                     id: t.id,
+                    ...t, // Spread all original fields (description, focus, equipment, etc.)
                     time: tDate ? tDate.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--',
                     duration: `${t.durationMinutes || 60} דק'`,
                     topic: t.topic,
@@ -274,7 +275,7 @@ function CoachDashboard() {
                 </div>
 
                 {/* Hero Card */}
-                <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div style={{ marginBottom: 'var(--space-8)' }}>
                     <UpcomingTrainingCard
                         training={upcomingTraining}
                         nextTraining={weeklyTrainings[0] || null}
@@ -284,7 +285,7 @@ function CoachDashboard() {
 
                 {/* Today's Events */}
                 {todayEvents.length > 0 && (
-                    <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ marginBottom: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {todayEvents.map(event => (
                             <div key={event.id} style={{
                                 padding: '12px',

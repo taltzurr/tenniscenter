@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Calendar, Clock, MapPin, Users, Activity, FileText, CheckCircle } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Users, Activity, FileText, CheckCircle, Target, Briefcase } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import useTrainingsStore from '../../stores/trainingsStore';
 import styles from './TrainingDetailsModal.module.css';
@@ -66,7 +66,8 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         )}
                     </div>
 
-                    {/* Details Grid */}
+                    {/* Logistics Grid */}
+                    <h3 className={styles.sectionHeader}>פרטי לוגיסטיקה</h3>
                     <div className={styles.grid}>
                         <div className={styles.gridItem}>
                             <Calendar size={16} className={styles.gridIcon} />
@@ -101,12 +102,42 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         </div>
                     </div>
 
+                    {/* Technical Specs */}
+                    <h3 className={styles.sectionHeader} style={{ marginTop: '16px' }}>מפרט טכני ומקצועי</h3>
+                    <div className={styles.grid}>
+                        <div className={styles.gridItem}>
+                            <Activity size={16} className={styles.gridIcon} />
+                            <div>
+                                <label className={styles.label}>נושא האימון</label>
+                                <div className={styles.value}>{training.topic || 'לא צוין'}</div>
+                            </div>
+                        </div>
+
+                        <div className={styles.gridItem}>
+                            <Target size={16} className={styles.gridIcon} />
+                            <div>
+                                <label className={styles.label}>מיקוד/מטרה</label>
+                                <div className={styles.value}>{training.focus || training.target || 'לא צוין'}</div>
+                            </div>
+                        </div>
+
+                        {training.equipment && (
+                            <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
+                                <Briefcase size={16} className={styles.gridIcon} />
+                                <div>
+                                    <label className={styles.label}>ציוד נדרש</label>
+                                    <div className={styles.value}>{training.equipment}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Description if available */}
                     {training.description && (
-                        <div className={styles.section}>
+                        <div className={styles.section} style={{ marginTop: '16px' }}>
                             <div className={styles.sectionTitle}>
                                 <FileText size={16} />
-                                <span>תיאור האימון</span>
+                                <span>תיאור ומערך מלא</span>
                             </div>
                             <p className={styles.description}>{training.description}</p>
                         </div>
