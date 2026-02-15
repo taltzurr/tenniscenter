@@ -12,6 +12,8 @@
     /* Hide scrollbar Firefox */
     margin-bottom: var(--space-4);
     /* Maintained from original inline style */
+    max-width: 100%;
+    /* Force scrolling */
 }
 
 .groupChips::-webkit-scrollbar {

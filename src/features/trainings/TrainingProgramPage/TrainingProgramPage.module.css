@@ -176,6 +176,17 @@
     /* Smooth scroll on iOS */
     scrollbar-width: none;
     /* Hide scrollbar Firefox */
+    max-width: 100%;
+    /* Force scrolling on overflow */
+}
+
+/* Controls - Mobile First */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+    /* Allow flex child to shrink */
 }
 
 .groupChips::-webkit-scrollbar {
