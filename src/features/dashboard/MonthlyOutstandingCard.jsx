@@ -67,8 +67,11 @@ function MonthlyOutstandingCard() {
         return name.charAt(0);
     };
 
-    // Hide entirely if no selections exist
-    if (!hasAnySelection && !canManage) {
+    // Filter categories to only show selected ones
+    const visibleCategories = CATEGORIES.filter(({ type }) => !!getSelectedName(type));
+
+    // Hide entirely if no selections exist and user cannot manage
+    if (visibleCategories.length === 0 && !canManage) {
         return null;
     }
 
@@ -85,29 +88,27 @@ function MonthlyOutstandingCard() {
                 )}
             </div>
 
-            <div className={styles.categoriesRow}>
-                {CATEGORIES.map(({ type, label, iconClass, Icon }) => {
-                    const name = getSelectedName(type);
-                    const initial = getInitial(name);
+            <div className={styles.categoriesRow} style={{ justifyContent: visibleCategories.length > 0 ? 'space-around' : 'center' }}>
+                {visibleCategories.length > 0 ? (
+                    visibleCategories.map(({ type, label, iconClass, Icon }) => {
+                        const name = getSelectedName(type);
+                        const initial = getInitial(name);
 
-                    return (
-                        <div key={type} className={styles.categoryItem}>
-                            <div className={`${styles.categoryCircle} ${name ? styles[iconClass] : styles.empty}`}>
-                                {name ? (
-                                    initial
-                                ) : (
-                                    <Icon size={15} />
-                                )}
-                            </div>
-                            <div className={styles.categoryLabel}>{label}</div>
-                            {name ? (
+                        return (
+                            <div key={type} className={styles.categoryItem}>
+                                <div className={`${styles.categoryCircle} ${styles[iconClass]}`}>
+                                    {initial}
+                                </div>
+                                <div className={styles.categoryLabel}>{label}</div>
                                 <div className={styles.categoryName}>{name}</div>
-                            ) : (
-                                <div className={styles.emptyName}>טרם נבחר</div>
-                            )}
-                        </div>
-                    );
-                })}
+                            </div>
+                        );
+                    })
+                ) : (
+                    <div className={styles.emptyName} style={{ padding: '10px 0', width: '100%' }}>
+                        טרם נבחרו מצטיינים החודש
+                    </div>
+                )}
             </div>
         </div>
     );
