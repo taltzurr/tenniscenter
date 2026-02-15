@@ -401,6 +401,22 @@ export default function WeeklySchedulePage() {
                             {!hasContent && (
                                 <div style={styles.emptyText}>אין פעילות</div>
                             )}
+
+                            <Button
+                                variant="ghost"
+                                style={{
+                                    width: '100%',
+                                    marginTop: '8px',
+                                    justifyContent: 'center',
+                                    backgroundColor: 'var(--gray-50)',
+                                    color: 'var(--primary-600)',
+                                    border: '1px dashed var(--gray-200)',
+                                    height: '40px'
+                                }}
+                                onClick={() => navigate(`/trainings/new?date=${format(day, 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}
+                            >
+                                <Plus size={16} /> הוסף אימון
+                            </Button>
                         </div>
                     );
                 })}
