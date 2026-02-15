@@ -9,15 +9,7 @@ function UpcomingTrainingCard({ training, nextTraining, onConfirm }) {
             ? `האימון הבא: ${nextTraining.day} ב-${nextTraining.time}`
             : 'אין אימונים מתוכננים השבוע';
 
-        return (
-            <div className={styles.card}>
-                <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>🎉</div>
-                    <div className={styles.emptyTitle}>יום חופשי!</div>
-                    <div className={styles.emptySubtitle}>{nextInfo}</div>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     const isCompleted = training.status === 'completed';

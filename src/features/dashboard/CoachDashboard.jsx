@@ -367,82 +367,39 @@ function CoachDashboard() {
             </div>
 
             {/* 5. Monthly Values — collapsible, hidden when empty */}
-            {monthlyValues.length > 0 && (
-                <div className={`${styles.dashSection} ${styles.delay4}`}>
-                    <div className={styles.valuesCard}>
-                        <button
-                            className={styles.valuesToggle}
-                            onClick={() => setValuesExpanded(!valuesExpanded)}
-                            aria-expanded={valuesExpanded}
-                            aria-label="הצג/הסתר ערכי החודש"
-                        >
-                            <div className={styles.valuesTitle} style={{ color: 'var(--primary-700)' }}>
-                                <Heart size={14} style={{ display: 'inline', marginLeft: '4px' }} />
-                                ערכי החודש
-                            </div>
-                            {valuesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-                        {valuesExpanded && (
-                            <div className={styles.valuesContent}>
-                                {monthlyValues.map((value) => (
-                                    <span key={value.id} className={styles.valueTag}>
-                                        {value.name}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+            <div className={`${styles.dashSection} ${styles.delay4}`}>
+                <div className={styles.valuesCard}>
+                    <button
+                        className={styles.valuesToggle}
+                        onClick={() => setValuesExpanded(!valuesExpanded)}
+                        aria-expanded={valuesExpanded}
+                        aria-label="הצג/הסתר ערכי החודש"
+                    >
+                        <div className={styles.valuesTitle} style={{ color: 'var(--primary-700)' }}>
+                            <Heart size={14} style={{ display: 'inline', marginLeft: '4px' }} />
+                            ערכי החודש
+                        </div>
+                        {valuesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                    {valuesExpanded && (
+                        <div className={styles.valuesContent}>
+                            {monthlyValues.length > 0 ? monthlyValues.map((value) => (
+                                <span key={value.id} className={styles.valueTag}>
+                                    {value.name}
+                                </span>
+                            )) : (
+                                <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                    שאל את המנהל שלך על הערכים החודש
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
 
             {/* 6. Monthly Outstanding ("מצטיינים") */}
             <div className={`${styles.dashSection} ${styles.delay5}`}>
                 <MonthlyOutstandingCard />
-            </div>
-
-            {/* 7. Weekly Trainings (Rest of week) - Moved to bottom */}
-            <div className={`${styles.dashSection} ${styles.delay5}`}>
-                <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>
-                        <Calendar size={20} style={{ display: 'inline', marginLeft: '8px' }} />
-                        המשך השבוע
-                    </h2>
-                </div>
-
-                {weeklyTrainings.length > 0 ? (
-                    <div className={styles.todayList}>
-                        {weeklyTrainings.map((training) => (
-                            <div
-                                key={training.id}
-                                className={styles.trainingItem}
-                                onClick={() => handleTrainingClick(training)}
-                                role="button"
-                                tabIndex={0}
-                            >
-                                <div className={styles.trainingTime} style={{ minWidth: '60px' }}>
-                                    <span className={styles.trainingTimeValue} style={{ fontSize: '0.9rem' }}>{training.day}</span>
-                                    <span className={styles.trainingTimeDuration}>{training.time}</span>
-                                </div>
-                                <div className={styles.trainingDetails}>
-                                    <div className={styles.trainingGroup}>{training.group}</div>
-                                    <div className={styles.trainingMeta}>{training.location}</div>
-                                </div>
-                                <button
-                                    className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
-                                    onClick={(e) => handleStatusToggle(e, training.id, training.status)}
-                                    title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                                    aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
-                                >
-                                    <CheckCircle size={20} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={styles.emptyState} style={{ padding: 'var(--space-6) var(--space-4)' }}>
-                        <p className={styles.emptyText} style={{ marginBottom: 0 }}>אין אימונים נוספים השבוע</p>
-                    </div>
-                )}
             </div>
 
             {/* Details Modal */}
