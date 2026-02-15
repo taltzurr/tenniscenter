@@ -30,6 +30,7 @@ import useEventsStore from '../../stores/eventsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import TrainingDetailsModal from '../dashboard/TrainingDetailsModal';
 import classes from './WeeklySchedulePage.module.css';
 
 // Unified styles for list view
@@ -218,6 +219,7 @@ export default function WeeklySchedulePage() {
     const { events, fetchEvents, isLoading: isEventsLoading } = useEventsStore();
     const { groups, fetchGroups } = useGroupsStore();
     const [selectedGroup, setSelectedGroup] = useState('all');
+    const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Calculate week range
     const today = new Date();
@@ -362,7 +364,13 @@ export default function WeeklySchedulePage() {
                                     <div
                                         key={training.id}
                                         style={styles.card}
-                                        onClick={() => navigate(`/trainings/${training.id}`)}
+                                        onClick={() => setSelectedTraining({
+                                            ...training,
+                                            group: group?.name || training.groupName || 'קבוצה',
+                                            day: format(day, 'EEEE, d בMMMM', { locale: he }),
+                                            time: format(new Date(training.date), 'HH:mm'),
+                                            duration: `${training.durationMinutes || 60} דק'`
+                                        })}
                                     >
                                         <div style={styles.trainingTime}>
                                             <span style={styles.timeValue}>{format(new Date(training.date), 'HH:mm')}</span>
@@ -426,6 +434,13 @@ export default function WeeklySchedulePage() {
                     );
                 })}
             </div>
+
+            {/* Training Details Modal */}
+            <TrainingDetailsModal
+                isOpen={!!selectedTraining}
+                training={selectedTraining}
+                onClose={() => setSelectedTraining(null)}
+            />
         </div>
     );
 }
