@@ -71,17 +71,17 @@ function CoachDashboard() {
     // Today's trainings
     const todayTrainings = useMemo(() => {
         const today = new Date();
-        const startOfDay = new Date(today);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(today);
-        endOfDay.setHours(23, 59, 59, 999);
 
         return trainings
             .filter(t => {
                 if (!t.date) return false;
                 // Handle both Firestore Timestamp and JS Date objects
                 const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
-                return tDate >= startOfDay && tDate <= endOfDay;
+
+                // Strict date comparison (Day, Month, Year) to avoid timezone/time-range issues
+                return tDate.getDate() === today.getDate() &&
+                    tDate.getMonth() === today.getMonth() &&
+                    tDate.getFullYear() === today.getFullYear();
             })
             .map(t => {
                 const group = groups.find(g => g.id === t.groupId);
