@@ -34,11 +34,12 @@ function LoginPage() {
 
         const result = await login(email, password);
 
-        if (result.success) {
-            navigate(from, { replace: true });
-        } else {
+        if (!result.success) {
             setError(getErrorMessage(result.error));
         }
+
+        // No need to navigate manually - the Navigate component above 
+        // will redirect automatically when user/userData state updates
 
         setIsLoading(false);
     };

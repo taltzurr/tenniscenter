@@ -65,6 +65,8 @@ const useAuthStore = create((set, get) => ({
     isLoading: true,
     error: null,
     isDemoMode: isDemoMode(),
+    isLoggingIn: false, // Flag to suppress listener during manual login
+
     // Actions
     initialize: () => {
         if (isDemoMode()) {
@@ -80,9 +82,16 @@ const useAuthStore = create((set, get) => ({
         }
 
         const unsubscribe = onAuthChange(({ user, userData }) => {
-            // Don't override valid userData with null for the same user
-            // (safety net for edge cases where Firestore returns null transiently)
             const current = get();
+
+            // 1. If we are currently logging in manually, ignore listener updates
+            //    to avoid race conditions (the manual login will set the authoritative state)
+            if (current.isLoggingIn) {
+                return;
+            }
+
+            // 2. Don't override valid userData with null for the same user
+            //    (safety net for edge cases where Firestore returns null transiently)
             if (user && !userData && current.user && current.userData && current.user.uid === user.uid) {
                 return;
             }
@@ -93,7 +102,8 @@ const useAuthStore = create((set, get) => ({
     },
 
     login: async (email, password) => {
-        set({ isLoading: true, error: null });
+        // Start login - set flag to suppress listener
+        set({ isLoading: true, error: null, isLoggingIn: true });
 
         // Demo users ONLY work in demo mode (no Firebase configured)
         if (isDemoMode()) {
@@ -106,6 +116,7 @@ const useAuthStore = create((set, get) => ({
                     user: { uid: userData.id },
                     userData,
                     isLoading: false,
+                    isLoggingIn: false,
                 });
                 return { success: true };
             }
@@ -114,6 +125,7 @@ const useAuthStore = create((set, get) => ({
             set({
                 error: 'במצב Demo, השתמש באחד מהמשתמשים הבאים:\n• coach@demo.com\n• manager@demo.com\n• supervisor@demo.com\nסיסמה: demo123',
                 isLoading: false,
+                isLoggingIn: false,
             });
             return { success: false, error: 'invalid-demo-credentials' };
         }
@@ -135,12 +147,12 @@ const useAuthStore = create((set, get) => ({
                 throw new Error('לא נמצאו נתוני משתמש. אנא פנה למנהל המערכת.');
             }
 
-            // Set the state with user and userData
-            set({ user, userData, isLoading: false });
+            // Set the state with user and userData, clear login flag
+            set({ user, userData, isLoading: false, isLoggingIn: false });
 
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: error.message, isLoading: false, isLoggingIn: false });
             return { success: false, error: error.message };
         }
     },
