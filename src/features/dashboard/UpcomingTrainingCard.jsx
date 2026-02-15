@@ -2,7 +2,7 @@ import { CheckCircle, MapPin, Clock, CalendarDays, Users } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import styles from './UpcomingTrainingCard.module.css';
 
-function UpcomingTrainingCard({ training, nextTraining, onConfirm }) {
+function UpcomingTrainingCard({ training, nextTraining, onConfirm, onClick }) {
     if (!training) {
         // Empty state - no training today
         const nextInfo = nextTraining
@@ -20,7 +20,13 @@ function UpcomingTrainingCard({ training, nextTraining, onConfirm }) {
     const isWithinHour = trainingDate && (trainingDate - now) > 0 && (trainingDate - now) < 3600000;
 
     return (
-        <div className={`${styles.card} ${isWithinHour ? styles.pulse : ''}`}>
+        <div
+            className={`${styles.card} ${isWithinHour ? styles.pulse : ''}`}
+            onClick={onClick}
+            style={{ cursor: onClick ? 'pointer' : 'default' }}
+            role="button"
+            tabIndex={0}
+        >
             <div className={styles.content}>
                 <div className={styles.timeSection}>
                     <span className={styles.time}>{training.time}</span>
@@ -51,7 +57,10 @@ function UpcomingTrainingCard({ training, nextTraining, onConfirm }) {
                 <Button
                     variant={isCompleted ? 'secondary' : 'primary'}
                     size="medium"
-                    onClick={() => onConfirm(training.id, training.status)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onConfirm(training.id, training.status);
+                    }}
                     aria-label={isCompleted ? 'סמן אימון כלא בוצע' : 'אשר הגעה לאימון'}
                     style={{ width: '100%' }}
                 >

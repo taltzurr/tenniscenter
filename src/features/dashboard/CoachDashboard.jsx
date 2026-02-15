@@ -259,6 +259,7 @@ function CoachDashboard() {
                         training={upcomingTraining}
                         nextTraining={weeklyTrainings[0] || null}
                         onConfirm={handleHeroConfirm}
+                        onClick={() => handleTrainingClick(upcomingTraining)}
                     />
                 </div>
 

@@ -288,7 +288,7 @@ export default function TrainingProgramPage() {
                                 </span>
                             ))
                         ) : (
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>לא הוגדרו ערכים</span>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>שאל את המנהל שלך על הערכים החודש</span>
                         )}
                     </div>
                 </div>
@@ -307,7 +307,7 @@ export default function TrainingProgramPage() {
                                 </span>
                             ))
                         ) : (
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>לא הוגדרו מטרות</span>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>שאל את המנהל שלך על המטרות החודש</span>
                         )}
                     </div>
                 </div>
