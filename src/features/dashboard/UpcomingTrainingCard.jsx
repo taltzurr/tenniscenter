@@ -1,4 +1,4 @@
-import { CheckCircle, MapPin, Clock, CalendarDays } from 'lucide-react';
+import { CheckCircle, MapPin, Clock, CalendarDays, Users } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import styles from './UpcomingTrainingCard.module.css';
 
@@ -28,8 +28,12 @@ function UpcomingTrainingCard({ training, nextTraining, onConfirm }) {
                 </div>
 
                 <div className={styles.details}>
-                    <div className={styles.groupName}>{training.group}</div>
+                    <div className={styles.groupName}>{training.topic || training.group}</div>
                     <div className={styles.meta}>
+                        <span className={styles.metaItem}>
+                            <Users size={14} />
+                            {training.group}
+                        </span>
                         <span className={styles.metaItem}>
                             <MapPin size={14} />
                             {training.location}
