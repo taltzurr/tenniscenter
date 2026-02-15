@@ -1,10 +1,24 @@
 .card {
     background-color: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
     box-shadow: var(--shadow-md);
-    border-inline-start: 4px solid var(--primary-500);
-    margin-bottom: var(--space-4);
+    border: 1px solid var(--primary-200);
+    /* Definition instead of side border */
+    margin-bottom: var(--space-6);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Optional: Subtle top accent line */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-500), var(--primary-400));
 }
 
 .content {
@@ -100,9 +114,12 @@
 }
 
 @keyframes subtlePulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: var(--shadow-md);
     }
+
     50% {
         box-shadow: var(--shadow-lg), 0 0 0 3px var(--primary-100);
     }

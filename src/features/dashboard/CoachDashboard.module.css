@@ -111,15 +111,20 @@
     align-items: center;
     gap: var(--space-4);
     background-color: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
+    /* White card */
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
     box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    /* Definition */
     transition: all var(--transition-fast);
     cursor: pointer;
 }
 
 .trainingItem:hover {
     box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+    transform: translateY(-2px);
 }
 
 .trainingTime {
@@ -326,14 +331,17 @@
 /* Mobile-First / Responsive Overrides */
 @media (max-width: 768px) {
     .page {
-        padding-bottom: 80px;
-        /* Space for potential bottom safe area */
+        padding-bottom: 120px;
+        /* More space for potential bottom safe area */
     }
 
     /* Increase breathing room on mobile */
     .section {
-        margin-bottom: var(--space-8);
+        margin-bottom: var(--space-12);
+        /* 48px on mobile */
     }
+
+    /* ... existing styles ... */
 
     .greetingTitle {
         font-size: var(--font-size-xl);

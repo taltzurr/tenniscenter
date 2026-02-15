@@ -1,6 +1,10 @@
 .outstandingCard {
-    padding: 0;
-    margin-bottom: var(--space-2);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    margin-bottom: var(--space-6);
 }
 
 .cardHeader {
