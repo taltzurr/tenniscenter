@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { format, addYears, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -161,17 +162,8 @@ function RecurrencePicker({ value, startDate, onChange }) {
                         ללא חזרה
                     </div>
                     <div className={styles.separator} />
-                    <div className={styles.option} onClick={() => handleQuickSelect(FREQUENCIES.DAILY)}>
-                        יומי
-                    </div>
                     <div className={styles.option} onClick={() => handleQuickSelect(FREQUENCIES.WEEKLY)}>
                         שבועי ביום {dayName}
-                    </div>
-                    <div className={styles.option} onClick={() => handleQuickSelect(FREQUENCIES.MONTHLY)}>
-                        חודשי
-                    </div>
-                    <div className={styles.option} onClick={() => handleQuickSelect(FREQUENCIES.YEARLY)}>
-                        שנתי
                     </div>
                     <div className={styles.separator} />
                     <div className={styles.option} onClick={() => handleQuickSelect('CUSTOM')}>
@@ -180,7 +172,7 @@ function RecurrencePicker({ value, startDate, onChange }) {
                 </div>
             )}
 
-            {isCustomModalOpen && (
+            {isCustomModalOpen && createPortal(
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
                         <h3 className={styles.modalTitle}>חזרתיות מותאמת אישית</h3>
@@ -284,7 +276,8 @@ function RecurrencePicker({ value, startDate, onChange }) {
                             <Button onClick={handleCustomSave}>סיום</Button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
