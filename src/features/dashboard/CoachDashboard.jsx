@@ -358,9 +358,9 @@ function CoachDashboard() {
                                 {goal.name}
                             </span>
                         )) : (
-                            <Link to="/monthly-themes" className={styles.ctaLink}>
-                                הגדר מטרות לחודש הזה ←
-                            </Link>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                שאל את המנהל שלך על המטרות החודש
+                            </span>
                         )}
                     </div>
                 </div>
