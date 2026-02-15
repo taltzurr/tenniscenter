@@ -359,6 +359,20 @@ function CoachDashboard() {
                                     <div className={styles.trainingDetails}>
                                         <div className={styles.trainingGroup}>{training.group}</div>
                                         <div className={styles.trainingMeta}>{training.location}</div>
+
+                                        {/* Plan Preview / Action */}
+                                        <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                                            <span style={{
+                                                fontSize: '0.8rem',
+                                                color: 'var(--primary-600)',
+                                                backgroundColor: 'var(--primary-50)',
+                                                padding: '4px 8px',
+                                                borderRadius: '6px',
+                                                fontWeight: '500'
+                                            }}>
+                                                לצפייה בתוכנית ›
+                                            </span>
+                                        </div>
                                     </div>
                                     <button
                                         className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
@@ -366,7 +380,7 @@ function CoachDashboard() {
                                         title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
                                         aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
                                     >
-                                        <CheckCircle size={20} />
+                                        <CheckCircle size={24} />
                                     </button>
                                 </div>
                             ))}

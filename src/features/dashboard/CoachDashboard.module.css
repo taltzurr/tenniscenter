@@ -6,6 +6,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -17,6 +18,7 @@
         opacity: 0;
         transform: translateY(12px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -28,12 +30,29 @@
     animation: slideUp 0.3s ease forwards;
 }
 
-.delay0 { animation-delay: 0ms; }
-.delay1 { animation-delay: 80ms; }
-.delay2 { animation-delay: 160ms; }
-.delay3 { animation-delay: 240ms; }
-.delay4 { animation-delay: 320ms; }
-.delay5 { animation-delay: 380ms; }
+.delay0 {
+    animation-delay: 0ms;
+}
+
+.delay1 {
+    animation-delay: 80ms;
+}
+
+.delay2 {
+    animation-delay: 160ms;
+}
+
+.delay3 {
+    animation-delay: 240ms;
+}
+
+.delay4 {
+    animation-delay: 320ms;
+}
+
+.delay5 {
+    animation-delay: 380ms;
+}
 
 /* Greeting */
 .greeting {
@@ -275,4 +294,72 @@
 
 .ctaLink:hover {
     text-decoration: underline;
+}
+
+/* Mobile-First / Responsive Overrides */
+@media (max-width: 768px) {
+    .page {
+        padding-bottom: 80px;
+        /* Space for potential bottom safe area */
+    }
+
+    /* Increase breathing room on mobile */
+    .section {
+        margin-bottom: var(--space-8);
+    }
+
+    .greetingTitle {
+        font-size: var(--font-size-xl);
+    }
+
+    .greetingSubtitle {
+        font-size: var(--font-size-sm);
+    }
+
+    /* Training Cards - Spacious & Verified Touch Targets */
+    .trainingItem {
+        padding: var(--space-5);
+        /* More inner spacing */
+        gap: var(--space-5);
+    }
+
+    .trainingTime {
+        min-width: 60px;
+        /* Slightly wider for better legibility */
+    }
+
+    .trainingTimeValue {
+        font-size: var(--font-size-xl);
+        /* Larger time */
+    }
+
+    .trainingGroup {
+        font-size: var(--font-size-lg);
+        /* Larger group name */
+        margin-bottom: var(--space-2);
+    }
+
+    .trainingMeta {
+        font-size: var(--font-size-base);
+    }
+
+    /* Larger status button for easier tapping */
+    .trainingStatus {
+        width: 52px;
+        height: 52px;
+    }
+
+    /* Horizontal scrolling enhancement for mobile */
+    .valuesContent,
+    .goalsContent {
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scroll-padding: 0 var(--space-4);
+    }
+
+    /* Ensure content isn't cut off at edges */
+    .valuesCard {
+        margin: 0 -4px;
+        /* Negative margin to align scroll with edges if needed, or keep standard */
+    }
 }
