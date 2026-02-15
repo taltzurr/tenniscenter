@@ -22,7 +22,13 @@ import styles from './TrainingForm.module.css';
 const PERIOD_TYPES = ['הכנה כללית', 'הכנה ספציפית', 'תחרות', 'מעבר'];
 const GAME_SITUATIONS = ['שחקן מגיש', 'שחקן מקבל', 'משחק רשת', 'משחק קו אחורי', 'התקפה', 'הגנה'];
 const GAME_COMPONENTS = ['טכני', 'טקטי', 'פיזי', 'מנטלי'];
-const TOPIC_SUGGESTIONS = ['פורהנד', 'בקהנד', 'הגשה', 'וולי', 'סמאש', 'תנועת רגליים', 'יציבות', 'ריכוז', 'עקביות'];
+const TOPIC_SUGGESTIONS = [
+    'עמידת מוצא', 'תפנית', 'הנפה לאחור', 'המשך תנועה', 'אחיזות', 'תנועה ארוכה', 'תנועה משוחררת', 'הכנה מהירה לחבטה', 'התאמה של גובה ההנפה לחבטה', 'תנועה רציפה', 'תנועה רכה',
+    'בלאנס - שיווי משקל', 'ספליט', 'צעדי התאמה', 'חזרה למרכז אפשרויות', 'תנועה קדימה ואחורה', 'מרכז כובד נמוך', 'תנועת בריחה לפורהנד', 'קאורדינציה', 'קשר עין יד',
+    'יציבות עם גובה', 'יציבות עם ספין', 'יציבות עם עומק', 'יציבות עם כיוונים', 'יציבות עם עצמה', 'בנית נקודה דרך אלכסון', 'סרב + חבטה שלישית', 'ריטרן + חבטה רביעית',
+    'שפת גוף חיובית', 'גישת הגעה לכדור', 'התמודדות במצבי הובלה', 'התמודדות במצבי פיגור', 'להתמקד בעיקר ולא בתפל', 'רמת עוררות אופטימלית', 'ריכוז', 'רוטינה קבועה', 'דיבור עצמי חיובי', 'מיקוד מטרות ביצוע',
+    'נקודת מגע מס׳ 1', 'נקודת מגע מס׳ 2', 'נקודת מגע מס׳ 3', 'נקודת מגע מס׳ 4', 'זיהוי גובה הכדור', 'זיהוי עומק הכדור', 'זיהוי כיוון הכדור', 'זיהוי סיבוביות הכדור', 'זיהוי עוצמת הכדור'
+];
 
 function TrainingForm() {
     const navigate = useNavigate();
@@ -299,7 +305,7 @@ function TrainingForm() {
                                     <div className={`${styles.iconBox} ${styles.purpleBox}`}>
                                         <Activity size={18} />
                                     </div>
-                                    <span className={styles.labelText}>נושא האימון (כותרת) *</span>
+                                    <span className={styles.labelText}>שם האימון *</span>
                                 </div>
                                 <Input
                                     name="topic"
@@ -362,7 +368,7 @@ function TrainingForm() {
                                     <div className={`${styles.iconBox} ${styles.slateBox}`}>
                                         <MapPin size={18} />
                                     </div>
-                                    <span className={styles.labelText}>מיקום</span>
+                                    <span className={styles.labelText}>שם המגרש</span>
                                 </div>
                                 <Input
                                     name="location"
@@ -468,7 +474,7 @@ function TrainingForm() {
                                     <div className={`${styles.iconBox} ${styles.greenBox}`}>
                                         <Tag size={18} />
                                     </div>
-                                    <span className={styles.labelText}>נושאים ותגיות</span>
+                                    <span className={styles.labelText}>נושאי האימון</span>
                                 </div>
                                 <MultiSelect
                                     options={TOPIC_SUGGESTIONS}
