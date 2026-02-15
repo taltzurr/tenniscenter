@@ -470,7 +470,7 @@ function TrainingForm() {
                                     options={TOPIC_SUGGESTIONS}
                                     value={formData.trainingTopics}
                                     onChange={(tags) => setFormData(prev => ({ ...prev, trainingTopics: tags }))}
-                                    placeholder="הוסף נושאים..."
+                                    placeholder="בחר או הקלד נושאים..."
                                 />
                             </div>
                         </div>

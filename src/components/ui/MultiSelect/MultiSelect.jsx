@@ -96,7 +96,7 @@ function MultiSelect({ options = [], value = [], onChange, placeholder, label })
                 />
             </div>
 
-            {showSuggestions && inputValue && suggestions.length > 0 && (
+            {showSuggestions && suggestions.length > 0 && (
                 <div className={styles.suggestions}>
                     {suggestions.map((option, index) => (
                         <div
