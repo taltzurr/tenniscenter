@@ -60,7 +60,8 @@ export default function CalendarPage() {
     };
 
     const handleNewTraining = () => {
-        navigate('/trainings/new');
+        const dateStr = format(date, 'yyyy-MM-dd');
+        navigate(`/trainings/new?date=${dateStr}`);
     };
 
     if (isLoading && trainings.length === 0) {

@@ -360,7 +360,7 @@ function CoachDashboard() {
                     <div className={styles.emptyState}>
                         <CalendarDays className={styles.emptyIcon} />
                         <p className={styles.emptyText}>אין אימונים מתוכננים להיום</p>
-                        <Link to="/trainings/new">
+                        <Link to={`/trainings/new?date=${new Date().toISOString().split('T')[0]}`}>
                             <Button variant="outline">
                                 הוסף אימון
                             </Button>

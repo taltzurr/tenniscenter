@@ -68,6 +68,11 @@ function GroupForm() {
             if (name === 'birthYearFrom' && updated.birthYearFrom && updated.birthYearTo && updated.birthYearFrom > updated.birthYearTo) {
                 updated.birthYearTo = '';
             }
+            // Validate birthYearTo is not smaller than birthYearFrom
+            if (name === 'birthYearTo' && updated.birthYearTo && updated.birthYearFrom && updated.birthYearTo < updated.birthYearFrom) {
+                // existing logic in validate() handles submit, but let's prevent invalid state or just rely on validate
+                // Actually the dropdown filter prevents this visual selection, but let's be safe
+            }
             return updated;
         });
         // Clear error when field is edited

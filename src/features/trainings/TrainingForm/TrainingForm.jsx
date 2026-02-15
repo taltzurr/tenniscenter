@@ -145,6 +145,9 @@ function TrainingForm() {
             const selectedGroup = groups.find(g => g.id === formData.groupId);
 
             const newErrors = {};
+            if (durationMinutes <= 0) {
+                newErrors.endTime = 'שעת הסיום חייבת להיות אחרי שעת ההתחלה';
+            }
             if (!formData.groupId) {
                 newErrors.groupId = 'יש לבחור קבוצה';
             }
@@ -348,8 +351,12 @@ function TrainingForm() {
                                         onChange={handleChange}
                                         required
                                         containerStyle={{ flex: 1 }}
+                                        error={errors.endTime}
                                     />
                                 </div>
+                                {errors.endTime && (
+                                    <span style={{ color: 'var(--error)', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.endTime}</span>
+                                )}
                             </div>
 
                             {/* Location */}
