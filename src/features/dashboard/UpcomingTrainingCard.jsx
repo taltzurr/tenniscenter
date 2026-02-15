@@ -60,7 +60,7 @@ function UpcomingTrainingCard({ training, nextTraining, onConfirm }) {
                     style={{ width: '100%' }}
                 >
                     <CheckCircle size={18} />
-                    {isCompleted ? 'בוצע ✓' : 'אשר הגעה'}
+                    {isCompleted ? 'בוצע ✓' : 'סמן כבוצע'}
                 </Button>
             </div>
         </div>
