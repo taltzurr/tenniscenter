@@ -152,7 +152,6 @@ const useAuthStore = create((set, get) => ({
 
             return { success: true };
         } catch (error) {
-            console.error("Login error:", error);
             set({ error: error.message, isLoading: false, isLoggingIn: false });
             return { success: false, error: error.message };
         }
