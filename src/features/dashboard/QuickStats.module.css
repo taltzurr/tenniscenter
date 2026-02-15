@@ -35,13 +35,27 @@
 }
 
 /* Attention state for pending trainings */
+/* Attention state for pending trainings - BOLD CTA */
 .attention {
-    background-color: var(--warning-100);
-    border-color: var(--warning-500);
+    background-color: var(--warning-500) !important;
+    border-color: var(--warning-600) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px);
 }
 
 .attention:hover {
-    border-color: var(--warning-500);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+    transform: translateY(-4px);
+}
+
+.attention .value,
+.attention .label {
+    color: white !important;
+}
+
+.attention .icon {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
 }
 
 /* .dot removed as requested - only background/border highlight */
