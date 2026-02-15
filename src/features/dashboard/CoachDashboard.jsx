@@ -10,7 +10,8 @@ import {
     CalendarDays,
     Target,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    MapPin
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import useAuthStore from '../../stores/authStore';
