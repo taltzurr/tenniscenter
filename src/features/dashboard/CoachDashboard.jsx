@@ -34,7 +34,6 @@ function CoachDashboard() {
     const navigate = useNavigate();
 
     const [selectedTraining, setSelectedTraining] = useState(null);
-    const [valuesExpanded, setValuesExpanded] = useState(true);
 
     // Get greeting based on time
     const getGreeting = () => {
@@ -391,15 +390,18 @@ function CoachDashboard() {
             </div>
 
             {/* 4. Monthly Goals ("מטרות החודש") */}
+            {/* 4. Monthly Goals ("מטרות החודש") */}
             <div className={`${styles.dashSection} ${styles.delay3}`}>
-                <div className={styles.valuesCard}>
-                    <div className={styles.valuesTitle} style={{ color: 'var(--accent-600)' }}>
-                        <Target size={14} style={{ display: 'inline', marginLeft: '4px' }} />
-                        מטרות החודש
+                <div className={styles.dashboardCard}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.cardTitle} style={{ color: 'var(--accent-700)' }}>
+                            <Target size={18} />
+                            מטרות החודש
+                        </div>
                     </div>
-                    <div className={styles.valuesContent}>
+                    <div className={styles.cardContent}>
                         {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
-                            <span key={goal.id} className={styles.goalTag}>
+                            <span key={goal.id} className={`${styles.tag} ${styles.tagGoal}`}>
                                 {goal.name}
                             </span>
                         )) : (
@@ -411,34 +413,26 @@ function CoachDashboard() {
                 </div>
             </div>
 
-            {/* 5. Monthly Values — collapsible, hidden when empty */}
+            {/* 5. Monthly Values ("ערכי החודש") */}
             <div className={`${styles.dashSection} ${styles.delay4}`}>
-                <div className={styles.valuesCard}>
-                    <button
-                        className={styles.valuesToggle}
-                        onClick={() => setValuesExpanded(!valuesExpanded)}
-                        aria-expanded={valuesExpanded}
-                        aria-label="הצג/הסתר ערכי החודש"
-                    >
-                        <div className={styles.valuesTitle} style={{ color: 'var(--primary-700)' }}>
-                            <Heart size={14} style={{ display: 'inline', marginLeft: '4px' }} />
+                <div className={styles.dashboardCard}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.cardTitle} style={{ color: 'var(--primary-700)' }}>
+                            <Heart size={18} />
                             ערכי החודש
                         </div>
-                        {valuesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-                    {valuesExpanded && (
-                        <div className={styles.valuesContent}>
-                            {monthlyValues.length > 0 ? monthlyValues.map((value) => (
-                                <span key={value.id} className={styles.valueTag}>
-                                    {value.name}
-                                </span>
-                            )) : (
-                                <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                                    שאל את המנהל שלך על הערכים החודש
-                                </span>
-                            )}
-                        </div>
-                    )}
+                    </div>
+                    <div className={styles.cardContent}>
+                        {monthlyValues.length > 0 ? monthlyValues.map((value) => (
+                            <span key={value.id} className={`${styles.tag} ${styles.tagValue}`}>
+                                {value.name}
+                            </span>
+                        )) : (
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                שאל את המנהל שלך על הערכים החודש
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 

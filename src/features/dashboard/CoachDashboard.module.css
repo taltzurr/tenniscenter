@@ -207,49 +207,76 @@
     margin-bottom: var(--space-4);
 }
 
-/* Values & Goals cards */
-.valuesCard {
+/* Goals & Values Unified Card */
+.dashboardCard {
     background: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-3);
+    border-radius: var(--radius-xl);
+    /* More rounded */
+    padding: var(--space-5);
+    /* More internal padding */
     box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-3);
     height: 100%;
+    border: 1px solid var(--gray-100);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.valuesTitle {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+.dashboardCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-.valuesToggle {
+.cardHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
 }
 
-.valuesContent {
+.cardTitle {
+    font-size: var(--font-size-base);
+    /* Slightly larger */
+    font-weight: 700;
+    color: var(--text-primary);
     display: flex;
-    flex-wrap: nowrap;
-    gap: 4px;
     align-items: center;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    gap: var(--space-2);
+    letter-spacing: 0.01em;
+}
+
+.cardContent {
+    display: flex;
+    flex-wrap: wrap;
+    /* Allow wrapping */
+    gap: var(--space-2);
+    align-items: center;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+/* Specific Tag Colors */
+.tagGoal {
+    background-color: var(--accent-50);
+    color: var(--accent-700);
+    border-color: var(--accent-200);
+}
+
+.tagValue {
+    background-color: var(--primary-50);
+    color: var(--primary-700);
+    border-color: var(--primary-200);
 }
 
 .valuesContent::-webkit-scrollbar {
