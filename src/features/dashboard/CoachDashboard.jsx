@@ -167,7 +167,7 @@ function CoachDashboard() {
             { icon: Users, label: 'קבוצות', value: groupCount, color: 'blue', path: '/groups' },
             { icon: Calendar, label: 'אימונים השבוע', value: trainingsThisWeek, color: 'yellow', path: '/weekly-schedule' },
             { icon: CheckCircle, label: 'אימונים שבוצעו', value: completed, color: 'green', path: '/weekly-completed' },
-            { icon: Clock, label: 'אימונים ממתינים', value: pending, color: 'orange', path: '/weekly-pending', attention: true },
+            { icon: Clock, label: 'אימונים ממתינים', value: pending, color: 'orange', path: '/weekly-pending' },
         ];
     }, [groups, trainings]);
 

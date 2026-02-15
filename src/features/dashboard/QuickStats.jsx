@@ -19,7 +19,7 @@ function QuickStats({ stats }) {
                         aria-label={`${stat.label}: ${stat.value}`}
                         onKeyDown={(e) => e.key === 'Enter' && navigate(stat.path)}
                     >
-                        {isAttention && <span className={styles.dot} />}
+                        {/* isAttention && <span className={styles.dot} /> */}
                         <div className={`${styles.icon} ${styles[stat.color]}`}>
                             <stat.icon size={16} />
                         </div>
