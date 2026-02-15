@@ -236,21 +236,116 @@ function CoachDashboard() {
                 </div>
             </div>
 
-            {/* 2. Hero Training Card */}
+            {/* 2. Quick Stats ("הריבועים") */}
             <div className={`${styles.dashSection} ${styles.delay1}`}>
-                <UpcomingTrainingCard
-                    training={upcomingTraining}
-                    nextTraining={weeklyTrainings[0] || null}
-                    onConfirm={handleHeroConfirm}
-                />
-            </div>
-
-            {/* 3. Quick Stats */}
-            <div className={`${styles.dashSection} ${styles.delay2}`}>
                 <QuickStats stats={stats} />
             </div>
 
-            {/* 4. Monthly Goals */}
+            {/* 3. Today's Trainings ("אימוני היום") - Includes Hero & List */}
+            <div className={`${styles.dashSection} ${styles.delay2}`}>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                        <CalendarDays size={20} style={{ display: 'inline', marginLeft: '8px' }} />
+                        אימוני היום
+                    </h2>
+                    <Link to="/calendar" className={styles.sectionAction}>
+                        תכנית אימון מלאה
+                        <ChevronLeft size={16} style={{ display: 'inline' }} />
+                    </Link>
+                </div>
+
+                {/* Hero Card */}
+                <div style={{ marginBottom: 'var(--space-6)' }}>
+                    <UpcomingTrainingCard
+                        training={upcomingTraining}
+                        nextTraining={weeklyTrainings[0] || null}
+                        onConfirm={handleHeroConfirm}
+                    />
+                </div>
+
+                {/* Today's Events */}
+                {todayEvents.length > 0 && (
+                    <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {todayEvents.map(event => (
+                            <div key={event.id} style={{
+                                padding: '12px',
+                                borderRadius: '12px',
+                                backgroundColor: event.type === 'holiday' ? '#FEF2F2' : '#FFFBEB',
+                                border: `1px solid ${event.type === 'holiday' ? '#FEE2E2' : '#FEF3C7'}`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                color: event.type === 'holiday' ? '#DC2626' : '#D97706',
+                                fontWeight: '600',
+                                fontSize: '0.95rem'
+                            }}>
+                                <Target size={18} />
+                                {event.title}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Remaining Trainings List */}
+                {remainingTodayTrainings.length > 0 ? (
+                    <div className={styles.todayList}>
+                        {remainingTodayTrainings.map((training) => (
+                            <div
+                                key={training.id}
+                                className={styles.trainingItem}
+                                onClick={() => handleTrainingClick(training)}
+                                role="button"
+                                tabIndex={0}
+                            >
+                                <div className={styles.trainingTime}>
+                                    <span className={styles.trainingTimeValue}>{training.time}</span>
+                                    <span className={styles.trainingTimeDuration}>{training.duration}</span>
+                                </div>
+                                <div className={styles.trainingDetails}>
+                                    <div className={styles.trainingGroup}>{training.group}</div>
+                                    <div className={styles.trainingMeta}>{training.location}</div>
+
+                                    {/* Plan Preview / Action */}
+                                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                                        <span style={{
+                                            fontSize: '0.8rem',
+                                            color: 'var(--primary-600)',
+                                            backgroundColor: 'var(--primary-50)',
+                                            padding: '4px 8px',
+                                            borderRadius: '6px',
+                                            fontWeight: '500'
+                                        }}>
+                                            לצפייה בתוכנית ›
+                                        </span>
+                                    </div>
+                                </div>
+                                <button
+                                    className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
+                                    onClick={(e) => handleStatusToggle(e, training.id, training.status)}
+                                    title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
+                                    aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
+                                >
+                                    <CheckCircle size={24} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
+
+                {!upcomingTraining && remainingTodayTrainings.length === 0 && (
+                    <div className={styles.emptyState}>
+                        <CalendarDays className={styles.emptyIcon} />
+                        <p className={styles.emptyText}>אין אימונים מתוכננים להיום</p>
+                        <Link to="/trainings/new">
+                            <Button variant="outline">
+                                הוסף אימון
+                            </Button>
+                        </Link>
+                    </div>
+                )}
+            </div>
+
+            {/* 4. Monthly Goals ("מטרות החודש") */}
             <div className={`${styles.dashSection} ${styles.delay3}`}>
                 <div className={styles.valuesCard}>
                     <div className={styles.valuesTitle} style={{ color: 'var(--accent-600)' }}>
@@ -300,150 +395,54 @@ function CoachDashboard() {
                 </div>
             )}
 
-            {/* 6. Monthly Outstanding — conditional */}
+            {/* 6. Monthly Outstanding ("מצטיינים") */}
             <div className={`${styles.dashSection} ${styles.delay5}`}>
                 <MonthlyOutstandingCard />
             </div>
 
-            {/* 7. Today's Events + Remaining Trainings */}
+            {/* 7. Weekly Trainings (Rest of week) - Moved to bottom */}
             <div className={`${styles.dashSection} ${styles.delay5}`}>
-                <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <CalendarDays size={20} style={{ display: 'inline', marginLeft: '8px' }} />
-                            אימוני היום
-                        </h2>
-                        <Link to="/calendar" className={styles.sectionAction}>
-                            תכנית אימון מלאה
-                            <ChevronLeft size={16} style={{ display: 'inline' }} />
-                        </Link>
-                    </div>
-
-                    {/* Events */}
-                    {todayEvents.length > 0 && (
-                        <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {todayEvents.map(event => (
-                                <div key={event.id} style={{
-                                    padding: '12px',
-                                    borderRadius: '12px',
-                                    backgroundColor: event.type === 'holiday' ? '#FEF2F2' : '#FFFBEB',
-                                    border: `1px solid ${event.type === 'holiday' ? '#FEE2E2' : '#FEF3C7'}`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    color: event.type === 'holiday' ? '#DC2626' : '#D97706',
-                                    fontWeight: '600',
-                                    fontSize: '0.95rem'
-                                }}>
-                                    <Target size={18} />
-                                    {event.title}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {remainingTodayTrainings.length > 0 ? (
-                        <div className={styles.todayList}>
-                            {remainingTodayTrainings.map((training) => (
-                                <div
-                                    key={training.id}
-                                    className={styles.trainingItem}
-                                    onClick={() => handleTrainingClick(training)}
-                                    role="button"
-                                    tabIndex={0}
-                                >
-                                    <div className={styles.trainingTime}>
-                                        <span className={styles.trainingTimeValue}>{training.time}</span>
-                                        <span className={styles.trainingTimeDuration}>{training.duration}</span>
-                                    </div>
-                                    <div className={styles.trainingDetails}>
-                                        <div className={styles.trainingGroup}>{training.group}</div>
-                                        <div className={styles.trainingMeta}>{training.location}</div>
-
-                                        {/* Plan Preview / Action */}
-                                        <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                                            <span style={{
-                                                fontSize: '0.8rem',
-                                                color: 'var(--primary-600)',
-                                                backgroundColor: 'var(--primary-50)',
-                                                padding: '4px 8px',
-                                                borderRadius: '6px',
-                                                fontWeight: '500'
-                                            }}>
-                                                לצפייה בתוכנית ›
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
-                                        onClick={(e) => handleStatusToggle(e, training.id, training.status)}
-                                        title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                                        aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
-                                    >
-                                        <CheckCircle size={24} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : !upcomingTraining ? (
-                        <div className={styles.emptyState}>
-                            <CalendarDays className={styles.emptyIcon} />
-                            <p className={styles.emptyText}>אין אימונים מתוכננים להיום</p>
-                            <Link to="/trainings/new">
-                                <Button variant="outline">
-                                    הוסף אימון
-                                </Button>
-                            </Link>
-                        </div>
-                    ) : null}
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                        <Calendar size={20} style={{ display: 'inline', marginLeft: '8px' }} />
+                        המשך השבוע
+                    </h2>
                 </div>
-            </div>
 
-            {/* 8. Weekly Trainings */}
-            <div className={`${styles.dashSection} ${styles.delay5}`}>
-                <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <Calendar size={20} style={{ display: 'inline', marginLeft: '8px' }} />
-                            המשך השבוע
-                        </h2>
-                    </div>
-
-                    {weeklyTrainings.length > 0 ? (
-                        <div className={styles.todayList}>
-                            {weeklyTrainings.map((training) => (
-                                <div
-                                    key={training.id}
-                                    className={styles.trainingItem}
-                                    onClick={() => handleTrainingClick(training)}
-                                    role="button"
-                                    tabIndex={0}
-                                >
-                                    <div className={styles.trainingTime} style={{ minWidth: '60px' }}>
-                                        <span className={styles.trainingTimeValue} style={{ fontSize: '0.9rem' }}>{training.day}</span>
-                                        <span className={styles.trainingTimeDuration}>{training.time}</span>
-                                    </div>
-                                    <div className={styles.trainingDetails}>
-                                        <div className={styles.trainingGroup}>{training.group}</div>
-                                        <div className={styles.trainingMeta}>{training.location}</div>
-                                    </div>
-                                    <button
-                                        className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
-                                        onClick={(e) => handleStatusToggle(e, training.id, training.status)}
-                                        title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                                        aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
-                                    >
-                                        <CheckCircle size={20} />
-                                    </button>
+                {weeklyTrainings.length > 0 ? (
+                    <div className={styles.todayList}>
+                        {weeklyTrainings.map((training) => (
+                            <div
+                                key={training.id}
+                                className={styles.trainingItem}
+                                onClick={() => handleTrainingClick(training)}
+                                role="button"
+                                tabIndex={0}
+                            >
+                                <div className={styles.trainingTime} style={{ minWidth: '60px' }}>
+                                    <span className={styles.trainingTimeValue} style={{ fontSize: '0.9rem' }}>{training.day}</span>
+                                    <span className={styles.trainingTimeDuration}>{training.time}</span>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className={styles.emptyState} style={{ padding: 'var(--space-6) var(--space-4)' }}>
-                            <p className={styles.emptyText} style={{ marginBottom: 0 }}>אין אימונים נוספים השבוע</p>
-                        </div>
-                    )}
-                </div>
+                                <div className={styles.trainingDetails}>
+                                    <div className={styles.trainingGroup}>{training.group}</div>
+                                    <div className={styles.trainingMeta}>{training.location}</div>
+                                </div>
+                                <button
+                                    className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
+                                    onClick={(e) => handleStatusToggle(e, training.id, training.status)}
+                                    title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
+                                    aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
+                                >
+                                    <CheckCircle size={20} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className={styles.emptyState} style={{ padding: 'var(--space-6) var(--space-4)' }}>
+                        <p className={styles.emptyText} style={{ marginBottom: 0 }}>אין אימונים נוספים השבוע</p>
+                    </div>
+                )}
             </div>
 
             {/* Details Modal */}
