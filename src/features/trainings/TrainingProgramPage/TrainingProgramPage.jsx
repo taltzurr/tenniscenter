@@ -281,11 +281,15 @@ export default function TrainingProgramPage() {
                         ערכי החודש
                     </div>
                     <div className={styles.valuesContent}>
-                        {(currentTheme?.values?.length > 0 ? currentTheme.values : ['התמדה', 'משמעת עצמית', 'כבוד']).map((val, i) => (
-                            <span key={i} className={styles.valueTag}>
-                                {val}
-                            </span>
-                        ))}
+                        {currentTheme?.values?.length > 0 ? (
+                            currentTheme.values.map((val, i) => (
+                                <span key={i} className={styles.valueTag}>
+                                    {val}
+                                </span>
+                            ))
+                        ) : (
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>לא הוגדרו ערכים</span>
+                        )}
                     </div>
                 </div>
 
@@ -296,11 +300,15 @@ export default function TrainingProgramPage() {
                         מטרות החודש
                     </div>
                     <div className={styles.valuesContent}>
-                        {(currentTheme?.goals?.length > 0 ? currentTheme.goals : ['שיפור משחק רשת', 'עבודת רגליים', 'יציבות בהגשה']).map((goal, i) => (
-                            <span key={i} className={styles.goalTag}>
-                                {goal}
-                            </span>
-                        ))}
+                        {currentTheme?.goals?.length > 0 ? (
+                            currentTheme.goals.map((goal, i) => (
+                                <span key={i} className={styles.goalTag}>
+                                    {goal}
+                                </span>
+                            ))
+                        ) : (
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>לא הוגדרו מטרות</span>
+                        )}
                     </div>
                 </div>
             </div>
