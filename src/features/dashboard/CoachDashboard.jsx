@@ -315,46 +315,62 @@ function CoachDashboard() {
                                 onClick={() => handleTrainingClick(training)}
                                 role="button"
                                 tabIndex={0}
+                                style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: '1rem' }}
                             >
-                                <div className={styles.trainingTime}>
-                                    <span className={styles.trainingTimeValue}>{training.time}</span>
-                                    <span className={styles.trainingTimeDuration}>{training.duration}</span>
+                                {/* Time Section (Right Side) */}
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    minWidth: '60px',
+                                    borderLeft: '1px solid var(--gray-200)',
+                                    paddingLeft: '1rem'
+                                }}>
+                                    <span className={styles.trainingTimeValue} style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--primary-600)' }}>
+                                        {training.time}
+                                    </span>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>היום</span>
                                 </div>
-                                <div className={styles.trainingDetails}>
-                                    <div className={styles.trainingGroup} style={{ fontWeight: 'bold' }}>
+
+                                {/* Content Section */}
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div className={styles.trainingGroup} style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                                         {training.topic || training.group}
                                     </div>
-                                    <div className={styles.trainingMeta}>
+
+                                    <div className={styles.trainingMeta} style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Users size={12} />
+                                            <Users size={14} />
                                             {training.group}
                                         </span>
-                                        <span>•</span>
-                                        {training.location}
-                                    </div>
-
-                                    {/* Plan Preview / Action */}
-                                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                                        <span style={{
-                                            fontSize: '0.8rem',
-                                            color: 'var(--primary-600)',
-                                            backgroundColor: 'var(--primary-50)',
-                                            padding: '4px 8px',
-                                            borderRadius: '6px',
-                                            fontWeight: '500'
-                                        }}>
-                                            לצפייה בתוכנית ›
+                                        <span style={{ color: 'var(--gray-300)' }}>•</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <MapPin size={14} />
+                                            {training.location}
+                                        </span>
+                                        <span style={{ color: 'var(--gray-300)' }}>•</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Clock size={14} />
+                                            {training.duration}
                                         </span>
                                     </div>
                                 </div>
-                                <button
-                                    className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''}`}
-                                    onClick={(e) => handleStatusToggle(e, training.id, training.status)}
-                                    title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                                    aria-label={training.status === 'completed' ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
-                                >
-                                    <CheckCircle size={24} />
-                                </button>
+
+                                {/* Status Icon / Action (Left Side) */}
+                                <div>
+                                    <div style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'var(--gray-100)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'var(--gray-400)'
+                                    }}>
+                                        <CheckCircle size={18} />
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
