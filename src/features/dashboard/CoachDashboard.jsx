@@ -94,6 +94,7 @@ function CoachDashboard() {
                     id: t.id,
                     time: tDate ? tDate.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--',
                     duration: `${t.durationMinutes || 60} דק'`,
+                    topic: t.topic,
                     group: group?.name || t.groupName || 'קבוצה',
                     location: t.location || 'מגרש ראשי',
                     status: t.status || 'planned',
@@ -157,7 +158,9 @@ function CoachDashboard() {
             const now = new Date();
             const diff = upcomingTraining.rawDate - now;
             if (diff <= 0) {
-                return 'אימון מתחיל עכשיו! ⚡';
+                // User requested to remove this specific message
+                // return 'אימון מתחיל עכשיו! ⚡'; 
+                return `אימון בתהליך (${Math.abs(Math.round(diff / 60000))} דק')`;
             }
             const minutes = Math.round(diff / 60000);
             if (minutes < 60) {
@@ -318,8 +321,17 @@ function CoachDashboard() {
                                     <span className={styles.trainingTimeDuration}>{training.duration}</span>
                                 </div>
                                 <div className={styles.trainingDetails}>
-                                    <div className={styles.trainingGroup}>{training.group}</div>
-                                    <div className={styles.trainingMeta}>{training.location}</div>
+                                    <div className={styles.trainingGroup} style={{ fontWeight: 'bold' }}>
+                                        {training.topic || training.group}
+                                    </div>
+                                    <div className={styles.trainingMeta}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Users size={12} />
+                                            {training.group}
+                                        </span>
+                                        <span>•</span>
+                                        {training.location}
+                                    </div>
 
                                     {/* Plan Preview / Action */}
                                     <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
