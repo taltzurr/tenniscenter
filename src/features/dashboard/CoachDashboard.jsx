@@ -224,6 +224,8 @@ function CoachDashboard() {
         await editTraining(trainingId, { status: newStatus });
     };
 
+    console.log("Layout Debug: Stats First - " + new Date().toISOString());
+
     return (
         <div className={styles.page}>
             {/* 1. Greeting with context */}
