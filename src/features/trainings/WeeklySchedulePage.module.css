@@ -1,0 +1,58 @@
+/* Ported from TrainingProgramPage.module.css for consistency */
+
+.groupChips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll on iOS */
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+    margin-bottom: var(--space-4);
+    /* Maintained from original inline style */
+}
+
+.groupChips::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
+}
+
+.filterChip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-200);
+    background: var(--bg-primary);
+    border-radius: 9999px;
+    /* Pill shape */
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    min-height: 32px;
+    flex-shrink: 0;
+}
+
+.filterChip:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.filterChip.active {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    color: var(--primary-700);
+    font-weight: 600;
+}
+
+.groupDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+}

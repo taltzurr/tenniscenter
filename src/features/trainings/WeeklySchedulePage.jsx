@@ -30,6 +30,7 @@ import useEventsStore from '../../stores/eventsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import classes from './WeeklySchedulePage.module.css';
 
 // Unified styles for list view
 const styles = {
@@ -286,15 +287,15 @@ export default function WeeklySchedulePage() {
             </div>
 
             {/* Group Filter */}
-            <div style={styles.filterContainer} className="hide-scrollbar">
+            <div className={`${classes.groupChips} hide-scrollbar`}>
                 <button
-                    style={{
-                        ...styles.filterChip,
-                        ...(selectedGroup === 'all' ? styles.filterChipActive : {})
-                    }}
+                    className={`${classes.filterChip} ${selectedGroup === 'all' ? classes.active : ''}`}
                     onClick={() => setSelectedGroup('all')}
                 >
-                    <div style={{ ...styles.dot, backgroundColor: '#6b7280' }} />
+                    <div
+                        className={classes.groupDot}
+                        style={{ backgroundColor: '#6b7280' }}
+                    />
                     כל הקבוצות
                 </button>
                 {groups.map(group => {
@@ -303,14 +304,18 @@ export default function WeeklySchedulePage() {
                     return (
                         <button
                             key={group.id}
-                            style={{
-                                ...styles.filterChip,
-                                ...(isActive ? styles.filterChipActive : {}),
-                                ...(isActive ? { borderColor: color, backgroundColor: `${color}10`, color: color } : {})
-                            }}
+                            className={`${classes.filterChip} ${isActive ? classes.active : ''}`}
+                            style={isActive ? {
+                                borderColor: color,
+                                backgroundColor: `${color}10`,
+                                color: color
+                            } : undefined}
                             onClick={() => setSelectedGroup(group.id)}
                         >
-                            <div style={{ ...styles.dot, backgroundColor: isActive ? 'currentColor' : color }} />
+                            <div
+                                className={classes.groupDot}
+                                style={{ backgroundColor: isActive ? 'currentColor' : color }}
+                            />
                             {group.name}
                         </button>
                     );
