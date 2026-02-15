@@ -51,17 +51,7 @@
     /* Orange 100 on hover */
 }
 
-.attention .value,
-.attention .label {
-    color: #9a3412 !important;
-    /* Dark orange text */
-}
-
-.attention .icon {
-    background-color: rgba(249, 115, 22, 0.15) !important;
-    color: #c2410c !important;
-    /* Darker orange icon */
-}
+/* Text and icon color overrides removed to match user mockup (standard text, standard icon) */
 
 /* .dot removed as requested - only background/border highlight */
 
