@@ -51,8 +51,12 @@ function CoachDashboard() {
             const today = new Date();
             const startOfWeek = new Date(today);
             startOfWeek.setDate(today.getDate() - today.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+
             const endOfWeek = new Date(today);
             endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+            endOfWeek.setHours(23, 59, 59, 999);
+
             fetchTrainings(userData.id, startOfWeek, endOfWeek);
 
             fetchEvents(today.getFullYear(), today.getMonth());
