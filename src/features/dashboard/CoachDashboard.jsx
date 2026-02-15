@@ -71,21 +71,33 @@ function CoachDashboard() {
     // Today's trainings
     const todayTrainings = useMemo(() => {
         const today = new Date();
-        return getTrainingsByDate(today).map(t => {
-            const group = groups.find(g => g.id === t.groupId);
-            return {
-                id: t.id,
-                time: t.date ? t.date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--',
-                duration: `${t.durationMinutes || 60} דק'`,
-                group: group?.name || t.groupName || 'קבוצה',
-                location: t.location || 'מגרש ראשי',
-                status: t.status || 'planned',
-                groupId: t.groupId,
-                rawDate: t.date
-            };
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [getTrainingsByDate, trainings, groups]);
+        const startOfDay = new Date(today);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(today);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        return trainings
+            .filter(t => {
+                if (!t.date) return false;
+                // Handle both Firestore Timestamp and JS Date objects
+                const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
+                return tDate >= startOfDay && tDate <= endOfDay;
+            })
+            .map(t => {
+                const group = groups.find(g => g.id === t.groupId);
+                const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
+                return {
+                    id: t.id,
+                    time: tDate ? tDate.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--',
+                    duration: `${t.durationMinutes || 60} דק'`,
+                    group: group?.name || t.groupName || 'קבוצה',
+                    location: t.location || 'מגרש ראשי',
+                    status: t.status || 'planned',
+                    groupId: t.groupId,
+                    rawDate: tDate
+                };
+            });
+    }, [trainings, groups]);
 
     // Upcoming (next) training = first non-completed training today sorted by time
     const upcomingTraining = useMemo(() => {
