@@ -1,13 +1,35 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Building2, Calendar, Settings, ShieldCheck, BarChart2, Trophy } from 'lucide-react';
+import { Users, Building2, Calendar, Settings, ShieldCheck, BarChart2, Trophy, Heart, Target } from 'lucide-react';
 import useAuthStore from '../../stores/authStore';
+import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
 import MonthlyOutstandingCard from './MonthlyOutstandingCard';
 import styles from './ManagerDashboard.module.css';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
     const { userData, isSupervisor } = useAuthStore();
+    const { fetchTheme, currentTheme } = useMonthlyThemesStore();
+
+    useEffect(() => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        fetchTheme(currentYear, currentMonth);
+    }, [fetchTheme]);
+
+    const monthlyValues = useMemo(() => {
+        if (currentTheme?.values && currentTheme.values.length > 0) {
+            return currentTheme.values.map((val, i) => ({ id: `v-${i}`, name: val }));
+        }
+        return [];
+    }, [currentTheme]);
+
+    const monthlyGoals = useMemo(() => {
+        if (currentTheme?.goals && currentTheme.goals.length > 0) {
+            return currentTheme.goals.map((g, i) => ({ id: `g-${i}`, name: g }));
+        }
+        return [];
+    }, [currentTheme]);
 
     const getGreeting = () => {
         const hour = new Date().getHours();
@@ -74,6 +96,51 @@ const ManagerDashboard = () => {
 
             {/* Monthly Outstanding Widget */}
             <MonthlyOutstandingCard />
+
+            {/* Monthly Context (Values & Goals) */}
+            <div className={styles.contextGrid}>
+                {/* Values */}
+                <div className={styles.dashboardCard}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.contextTitle} style={{ color: 'var(--primary-700)' }}>
+                            <Heart size={18} />
+                            ערכי החודש
+                        </div>
+                    </div>
+                    <div className={styles.cardContent}>
+                        {monthlyValues.length > 0 ? monthlyValues.map((value) => (
+                            <span key={value.id} className={`${styles.tag} ${styles.tagValue}`}>
+                                {value.name}
+                            </span>
+                        )) : (
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                טרם הוגדרו ערכים לחודש זה
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Goals */}
+                <div className={styles.dashboardCard}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.contextTitle} style={{ color: 'var(--accent-700)' }}>
+                            <Target size={18} />
+                            מטרות החודש
+                        </div>
+                    </div>
+                    <div className={styles.cardContent}>
+                        {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
+                            <span key={goal.id} className={`${styles.tag} ${styles.tagGoal}`}>
+                                {goal.name}
+                            </span>
+                        )) : (
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                טרם הוגדרו מטרות לחודש זה
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             <main>
                 <h2 className={styles.sectionTitle}>
