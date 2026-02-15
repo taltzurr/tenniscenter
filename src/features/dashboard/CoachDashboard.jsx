@@ -154,27 +154,7 @@ function CoachDashboard() {
     }, [trainings, groups]);
 
     // Contextual greeting subtitle
-    const greetingContext = useMemo(() => {
-        if (upcomingTraining && upcomingTraining.rawDate) {
-            const now = new Date();
-            const diff = upcomingTraining.rawDate - now;
-            if (diff <= 0) {
-                // User requested to remove this specific message
-                // return 'אימון מתחיל עכשיו! ⚡'; 
-                return `אימון בתהליך (${Math.abs(Math.round(diff / 60000))} דק')`;
-            }
-            const minutes = Math.round(diff / 60000);
-            if (minutes < 60) {
-                return `אימון מתחיל בקרוב! עוד ${minutes} דקות ⚡`;
-            }
-            const hours = Math.round(minutes / 60);
-            return `יש לך אימון עוד ${hours === 1 ? 'שעה' : `${hours} שעות`} ⚡`;
-        }
-        if (todayTrainings.length > 0) {
-            return `${todayTrainings.length} אימונים היום`;
-        }
-        return 'אין אימונים היום, יום מנוחה 🧘';
-    }, [upcomingTraining, todayTrainings]);
+
 
     // Stats
     const stats = useMemo(() => {
@@ -246,13 +226,12 @@ function CoachDashboard() {
 
     return (
         <div className={styles.page}>
-            {/* 1. Greeting with context */}
+            {/* 1. Greeting */}
             <div className={`${styles.dashSection} ${styles.delay0}`}>
                 <div className={styles.greeting}>
                     <h1 className={styles.greetingTitle}>
                         {getGreeting()}, {(userData?.displayName || userData?.name || 'מאמן').split(' ')[0]}! 👋
                     </h1>
-                    <p className={styles.greetingSubtitle}>{greetingContext}</p>
                 </div>
             </div>
 
