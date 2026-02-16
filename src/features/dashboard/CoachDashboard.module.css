@@ -1,5 +1,8 @@
 .page {
     animation: fadeIn 0.3s ease;
+    background-color: var(--bg-secondary);
+    padding: var(--space-4);
+    min-height: 100vh;
 }
 
 @keyframes fadeIn {

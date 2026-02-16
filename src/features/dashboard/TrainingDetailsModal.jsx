@@ -40,17 +40,27 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         <Activity size={24} color="var(--primary-600)" />
                     </div>
                     <div>
-                        <h2 className={styles.title}>{training.group}</h2>
-                        <span className={styles.subtitle}>{training.location}</span>
+                        <h2 className={styles.title}>{training.topic || training.group}</h2>
+                        <span className={styles.subtitle}>{training.group} | {training.location}</span>
                     </div>
                 </div>
 
                 <div className={styles.content}>
-                    {/* Logistics Grid */}
+                    {/* Logistics Grid - Reordered */}
                     <div className={styles.sectionHeader}>
                         <span>לוגיסטיקה ופרטים כלליים</span>
                     </div>
                     <div className={styles.grid}>
+                        <div className={styles.gridItem}>
+                            <div className={`${styles.iconBox} ${styles.blueBox}`}>
+                                <Users size={18} />
+                            </div>
+                            <div>
+                                <label className={styles.label}>קבוצה</label>
+                                <div className={styles.value}>{training.group}</div>
+                            </div>
+                        </div>
+
                         <div className={styles.gridItem}>
                             <div className={`${styles.iconBox} ${styles.blueBox}`}>
                                 <Calendar size={18} />
@@ -73,16 +83,6 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
 
                         <div className={styles.gridItem}>
                             <div className={`${styles.iconBox} ${styles.slateBox}`}>
-                                <Users size={18} />
-                            </div>
-                            <div>
-                                <label className={styles.label}>קבוצה</label>
-                                <div className={styles.value}>{training.group}</div>
-                            </div>
-                        </div>
-
-                        <div className={styles.gridItem}>
-                            <div className={`${styles.iconBox} ${styles.slateBox}`}>
                                 <MapPin size={18} />
                             </div>
                             <div>
@@ -97,17 +97,6 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         <span>מפרט מקצועי</span>
                     </div>
                     <div className={styles.grid}>
-                        {/* Topic */}
-                        <div className={styles.gridItem}>
-                            <div className={`${styles.iconBox} ${styles.purpleBox}`}>
-                                <Activity size={18} />
-                            </div>
-                            <div>
-                                <label className={styles.label}>נושא האימון</label>
-                                <div className={styles.value}>{training.topic || 'לא צוין'}</div>
-                            </div>
-                        </div>
-
                         {/* Period Type */}
                         {training.periodType && (
                             <div className={styles.gridItem}>

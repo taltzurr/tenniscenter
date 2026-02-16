@@ -61,7 +61,7 @@ function UpcomingTrainingCard({ training, nextTraining, onConfirm, onClick }) {
                         e.stopPropagation();
                         onConfirm(training.id, training.status);
                     }}
-                    aria-label={isCompleted ? 'סמן אימון כלא בוצע' : 'אשר הגעה לאימון'}
+                    aria-label={isCompleted ? 'סמן אימון כלא בוצע' : 'סמן אימון כבוצע'}
                     style={{ width: '100%' }}
                 >
                     <CheckCircle size={18} />

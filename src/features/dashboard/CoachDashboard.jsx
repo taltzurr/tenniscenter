@@ -120,11 +120,10 @@ function CoachDashboard() {
         return upcoming[0] || null;
     }, [todayTrainings]);
 
-    // Remaining today's trainings (exclude the hero card one)
+    // Remaining today's trainings (show all, not just those not in hero)
     const remainingTodayTrainings = useMemo(() => {
-        if (!upcomingTraining) return todayTrainings;
-        return todayTrainings.filter(t => t.id !== upcomingTraining.id);
-    }, [todayTrainings, upcomingTraining]);
+        return todayTrainings;
+    }, [todayTrainings]);
 
     // Weekly trainings (future days only)
     const weeklyTrainings = useMemo(() => {
