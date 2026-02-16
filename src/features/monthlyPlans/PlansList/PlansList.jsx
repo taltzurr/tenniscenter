@@ -33,6 +33,7 @@ import Modal from '../../../components/ui/Modal'; // Import Modal
 
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
+import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
 import styles from './PlansList.module.css';
 
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 07:00 - 21:00
@@ -106,6 +107,7 @@ function PlansList() {
 
     const [selectedGroupId, setSelectedGroupId] = useState('all');
     const [selectedDateModal, setSelectedDateModal] = useState(null); // Modal State
+    const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Stats for Header
     const stats = useMemo(() => {
@@ -157,6 +159,20 @@ function PlansList() {
 
     const handleDayClick = (date) => {
         setSelectedDateModal(date); // Open Modal
+    };
+
+    const openTrainingModal = (training) => {
+        const tDate = parseDateSafe(training.date);
+        const group = groups.find(g => g.id === training.groupId);
+        setSelectedTraining({
+            ...training,
+            day: tDate ? format(tDate, 'EEEE', { locale: he }) : '---',
+            fullDate: tDate ? format(tDate, 'd בMMMM', { locale: he }) : '---',
+            time: tDate ? format(tDate, 'HH:mm') : '--:--',
+            duration: `${training.durationMinutes || 60} דק'`,
+            group: group?.name || training.groupName || 'קבוצה',
+            location: training.location || 'מגרש ראשי',
+        });
     };
 
     const handleToggleStatus = async (e, training) => {
@@ -334,7 +350,7 @@ function PlansList() {
                                                 key={training.id}
                                                 className={`${styles.listTrainingCard} ${isCompleted ? styles.performed : ''}`}
                                                 style={{ '--indicator-color': TRAINING_TYPE_COLORS[training.type || 'technical'] }}
-                                                onClick={() => navigate(`/trainings/${training.id}`)}
+                                                onClick={() => openTrainingModal(training)}
                                             >
                                                 {/* Checkbox for Status */}
                                                 <div
@@ -447,7 +463,7 @@ function PlansList() {
                                                 style={{ backgroundColor: color, cursor: 'pointer' }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    navigate(`/trainings/${training.id}`);
+                                                    openTrainingModal(training);
                                                 }}
                                             >
                                                 <span className={styles.timeText}>
@@ -549,7 +565,7 @@ function PlansList() {
                                             <div
                                                 key={training.id}
                                                 className={styles.modalCard}
-                                                onClick={() => navigate(`/trainings/${training.id}`)}
+                                                onClick={() => openTrainingModal(training)}
                                                 style={{ cursor: 'pointer', borderRight: `4px solid ${group?.color || stringToColor(group?.name)}` }}
                                             >
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -577,6 +593,12 @@ function PlansList() {
                     </Modal.Footer>
                 </Modal>
             )}
+
+            <TrainingDetailsModal
+                training={selectedTraining}
+                isOpen={!!selectedTraining}
+                onClose={() => setSelectedTraining(null)}
+            />
         </div>
     );
 }

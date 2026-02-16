@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     format,
@@ -22,6 +22,7 @@ import useTrainingsStore from '../../stores/trainingsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import TrainingDetailsModal from '../dashboard/TrainingDetailsModal';
 
 const styles = {
     page: {
@@ -125,6 +126,7 @@ export default function WeeklyStatusPage({ status }) {
     const { trainings, fetchTrainings, editTraining, isLoading } = useTrainingsStore();
     const { groups, fetchGroups } = useGroupsStore();
 
+    const [selectedTraining, setSelectedTraining] = useState(null);
     const isCompletedView = status === 'completed';
     const pageTitle = isCompletedView ? 'בוצעו השבוע' : 'ממתינים השבוע';
     const emptyMessage = isCompletedView ? 'אין אימונים שבוצעו השבוע' : 'אין אימונים ממתינים השבוע';
@@ -188,7 +190,18 @@ export default function WeeklyStatusPage({ status }) {
                             <div
                                 key={training.id}
                                 style={styles.card}
-                                onClick={() => navigate(`/trainings/${training.id}`)}
+                                onClick={() => {
+                                    const tDate = new Date(training.date);
+                                    setSelectedTraining({
+                                        ...training,
+                                        day: format(tDate, 'EEEE', { locale: he }),
+                                        fullDate: format(tDate, 'd בMMMM', { locale: he }),
+                                        time: format(tDate, 'HH:mm'),
+                                        duration: `${training.durationMinutes || 60} דק'`,
+                                        group: group?.name || training.groupName || 'קבוצה',
+                                        location: training.location || 'מגרש ראשי',
+                                    });
+                                }}
                             >
                                 <div style={styles.dateBox}>
                                     <span style={styles.dayName}>{format(dateObj, 'EEE', { locale: he })}</span>
@@ -235,6 +248,12 @@ export default function WeeklyStatusPage({ status }) {
                     </div>
                 )}
             </div>
+
+            <TrainingDetailsModal
+                training={selectedTraining}
+                isOpen={!!selectedTraining}
+                onClose={() => setSelectedTraining(null)}
+            />
         </div>
     );
 }

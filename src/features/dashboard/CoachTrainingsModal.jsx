@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Calendar, MapPin, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import Avatar from '../../components/ui/Avatar';
-import Button from '../../components/ui/Button'; // Assuming Button component exists
-import styles from './ManagerAnalyticsDashboard.module.css'; // Reusing styles or creating inline?
+import Button from '../../components/ui/Button';
+import TrainingDetailsModal from './TrainingDetailsModal';
+import useGroupsStore from '../../stores/groupsStore';
+import styles from './ManagerAnalyticsDashboard.module.css';
 
 // Inline styles for Modal to avoid modifying CSS module too much if not needed, 
 // or I can append to the module. Let's use inline for simplicity of this sub-component.
@@ -72,6 +75,8 @@ const modalStyles = {
 
 const CoachTrainingsModal = ({ isOpen, onClose, coach, trainings }) => {
     const navigate = useNavigate();
+    const { groups } = useGroupsStore();
+    const [selectedTraining, setSelectedTraining] = useState(null);
 
     if (!isOpen || !coach) return null;
 
@@ -80,8 +85,18 @@ const CoachTrainingsModal = ({ isOpen, onClose, coach, trainings }) => {
         .filter(t => t.coachId === coach.id)
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const handleTrainingClick = (trainingId) => {
-        navigate(`/trainings/${trainingId}`);
+    const handleTrainingClick = (training) => {
+        const tDate = training.date instanceof Date ? training.date : new Date(training.date);
+        const group = groups.find(g => g.id === training.groupId);
+        setSelectedTraining({
+            ...training,
+            day: format(tDate, 'EEEE', { locale: he }),
+            fullDate: format(tDate, 'd בMMMM', { locale: he }),
+            time: format(tDate, 'HH:mm'),
+            duration: `${training.durationMinutes || 60} דק'`,
+            group: group?.name || training.groupName || 'קבוצה',
+            location: training.location || 'מגרש ראשי',
+        });
     };
 
     return (
@@ -112,7 +127,7 @@ const CoachTrainingsModal = ({ isOpen, onClose, coach, trainings }) => {
                                 <div
                                     key={training.id}
                                     style={modalStyles.item}
-                                    onClick={() => handleTrainingClick(training.id)}
+                                    onClick={() => handleTrainingClick(training)}
                                 // Note: Hover state handling in inline styles is tricky without state,
                                 // but we accept standard look for now.
                                 >
@@ -149,6 +164,12 @@ const CoachTrainingsModal = ({ isOpen, onClose, coach, trainings }) => {
                     )}
                 </div>
             </div>
+
+            <TrainingDetailsModal
+                training={selectedTraining}
+                isOpen={!!selectedTraining}
+                onClose={() => setSelectedTraining(null)}
+            />
         </div>
     );
 };
