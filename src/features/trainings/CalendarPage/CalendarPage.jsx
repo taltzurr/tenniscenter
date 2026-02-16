@@ -11,8 +11,10 @@ import '../../../styles/calendar.css';
 
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
+import useGroupsStore from '../../../stores/groupsStore';
 import Spinner from '../../../components/ui/Spinner';
 import Button from '../../../components/ui/Button';
+import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
 import { Plus } from 'lucide-react';
 
 const locales = {
@@ -31,8 +33,10 @@ export default function CalendarPage() {
     const navigate = useNavigate();
     const { userData } = useAuthStore();
     const { trainings, fetchTrainings, isLoading } = useTrainingsStore();
+    const { groups } = useGroupsStore();
     const [view, setView] = useState('month');
     const [date, setDate] = useState(new Date());
+    const [selectedTraining, setSelectedTraining] = useState(null);
 
     useEffect(() => {
         if (userData?.id) {
@@ -55,8 +59,18 @@ export default function CalendarPage() {
     }));
 
     const handleSelectEvent = (event) => {
-        // Navigate to training edit page
-        navigate(`/trainings/${event.id}/edit`);
+        const t = event.resource;
+        const tDate = t.date instanceof Date ? t.date : new Date(t.date);
+        const group = groups.find(g => g.id === t.groupId);
+        setSelectedTraining({
+            ...t,
+            day: format(tDate, 'EEEE', { locale: he }),
+            fullDate: format(tDate, 'd בMMMM', { locale: he }),
+            time: format(tDate, 'HH:mm'),
+            duration: `${t.durationMinutes || 60} דק'`,
+            group: group?.name || t.groupName || 'קבוצה',
+            location: t.location || 'מגרש ראשי',
+        });
     };
 
     const handleNewTraining = () => {
@@ -107,6 +121,12 @@ export default function CalendarPage() {
                     }}
                 />
             </div>
+
+            <TrainingDetailsModal
+                training={selectedTraining}
+                isOpen={!!selectedTraining}
+                onClose={() => setSelectedTraining(null)}
+            />
         </div>
     );
 }

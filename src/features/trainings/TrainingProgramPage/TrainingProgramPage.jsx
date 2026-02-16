@@ -43,6 +43,7 @@ import { PLAN_STATUS } from '../../../config/constants';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import Badge from '../../../components/ui/Badge';
+import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
 import styles from './TrainingProgramPage.module.css';
 
 const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
@@ -88,6 +89,7 @@ export default function TrainingProgramPage() {
     });
     const [selectedGroup, setSelectedGroup] = useState('all');
     const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Initial Data Load
     useEffect(() => {
@@ -478,7 +480,19 @@ export default function TrainingProgramPage() {
                             const group = groups?.find(g => g.id === training.groupId);
                             const color = group?.color || stringToColor(group?.name);
                             return (
-                                <div key={training.id} className={styles.listRow} onClick={() => navigate(`/trainings/${training.id}/edit`)}>
+                                <div key={training.id} className={styles.listRow} onClick={() => {
+                                            const tDate = training.date instanceof Date ? training.date : new Date(training.date);
+                                            const group = groups?.find(g => g.id === training.groupId);
+                                            setSelectedTraining({
+                                                ...training,
+                                                day: format(tDate, 'EEEE', { locale: he }),
+                                                fullDate: format(tDate, 'd בMMMM', { locale: he }),
+                                                time: format(tDate, 'HH:mm'),
+                                                duration: `${training.durationMinutes || 60} דק'`,
+                                                group: group?.name || training.groupName || 'קבוצה',
+                                                location: training.location || 'מגרש ראשי',
+                                            });
+                                        }}>
                                     <div className={styles.listRowHeader}>
                                         <div className={styles.listDate}>
                                             <span className={styles.listDay}>{format(training.date, 'd')}</span>
@@ -507,6 +521,12 @@ export default function TrainingProgramPage() {
                     )}
                 </div>
             </div>
+
+            <TrainingDetailsModal
+                training={selectedTraining}
+                isOpen={!!selectedTraining}
+                onClose={() => setSelectedTraining(null)}
+            />
 
             {/* Day Interaction Modal */}
             {selectedDate && (

@@ -367,9 +367,11 @@ export default function WeeklySchedulePage() {
                                         onClick={() => setSelectedTraining({
                                             ...training,
                                             group: group?.name || training.groupName || 'קבוצה',
-                                            day: format(day, 'EEEE, d בMMMM', { locale: he }),
+                                            day: format(day, 'EEEE', { locale: he }),
+                                            fullDate: format(day, 'd בMMMM', { locale: he }),
                                             time: format(new Date(training.date), 'HH:mm'),
-                                            duration: `${training.durationMinutes || 60} דק'`
+                                            duration: `${training.durationMinutes || 60} דק'`,
+                                            location: training.location || 'מגרש ראשי'
                                         })}
                                     >
                                         <div style={styles.trainingTime}>

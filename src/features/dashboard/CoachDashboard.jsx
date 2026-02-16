@@ -93,6 +93,8 @@ function CoachDashboard() {
                 return {
                     id: t.id,
                     ...t, // Spread all original fields (description, focus, equipment, etc.)
+                    day: tDate.toLocaleDateString('he-IL', { weekday: 'long' }),
+                    fullDate: tDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' }),
                     time: tDate ? tDate.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--',
                     duration: `${t.durationMinutes || 60} דק'`,
                     topic: t.topic,

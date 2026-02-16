@@ -67,7 +67,7 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                             </div>
                             <div>
                                 <label className={styles.label}>יום ותאריך</label>
-                                <div className={styles.value}>{training.day || '---'} | {training.time?.split(' ')[0] || '--:--'}</div>
+                                <div className={styles.value}>{training.day || '---'} | {training.fullDate || training.time?.split(' ')[0] || '--:--'}</div>
                             </div>
                         </div>
 
