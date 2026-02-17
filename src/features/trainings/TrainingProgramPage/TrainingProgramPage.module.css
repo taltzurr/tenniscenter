@@ -148,6 +148,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    min-width: 0;
+    /* Allow flex child to shrink */
+}
+
+.groupSelector {
+    min-width: 0;
+    overflow: hidden;
 }
 
 .sectionLabel {
@@ -178,15 +185,8 @@
     /* Hide scrollbar Firefox */
     max-width: 100%;
     /* Force scrolling on overflow */
-}
-
-/* Controls - Mobile First */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    min-width: 0;
-    /* Allow flex child to shrink */
+    touch-action: pan-x;
+    /* Better mobile touch scrolling */
 }
 
 .groupChips::-webkit-scrollbar {
