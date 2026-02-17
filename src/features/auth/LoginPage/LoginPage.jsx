@@ -154,7 +154,7 @@ function LoginPage() {
                             onError={(e) => e.target.style.display = 'none'}
                         />
                         <h1 className={styles.title}>מרכזי הטניס</h1>
-                        <p className={styles.subtitle}>מערכת ניהול אימונים</p>
+                        <p className={styles.subtitle}>אפליקציית ניהול אימונים</p>
                     </div>
 
                     <form className={styles.form} onSubmit={handleSubmit}>

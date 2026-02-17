@@ -74,11 +74,11 @@
 
 /* With icon */
 .hasIconStart .input {
-    padding-inline-end: var(--space-10);
+    padding-inline-start: var(--space-10);
 }
 
 .hasIconEnd .input {
-    padding-inline-start: var(--space-10);
+    padding-inline-end: var(--space-10);
 }
 
 .iconStart,
@@ -92,11 +92,11 @@
 }
 
 .iconStart {
-    right: var(--space-3);
+    inset-inline-start: var(--space-3);
 }
 
 .iconEnd {
-    left: var(--space-3);
+    inset-inline-end: var(--space-3);
 }
 
 /* Textarea */
