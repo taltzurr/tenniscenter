@@ -20,7 +20,8 @@ function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const from = location.state?.from?.pathname || '/dashboard';
+    const rawFrom = location.state?.from?.pathname || '/dashboard';
+    const from = rawFrom === '/login' ? '/dashboard' : rawFrom;
 
     // Redirect if already authenticated (handles race condition on first login)
     if (user && userData) {

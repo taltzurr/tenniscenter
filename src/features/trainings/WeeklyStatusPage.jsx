@@ -8,11 +8,6 @@ import {
 } from 'date-fns';
 import { he } from 'date-fns/locale';
 import {
-    MapPin,
-    ChevronRight,
-    CheckCircle,
-    Check,
-    Calendar,
     CalendarDays,
     ArrowRight
 } from 'lucide-react';
@@ -22,6 +17,8 @@ import useTrainingsStore from '../../stores/trainingsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
+import { normalizeDate } from '../../utils/dateUtils';
 import TrainingDetailsModal from '../dashboard/TrainingDetailsModal';
 
 const styles = {
@@ -72,8 +69,8 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: '60px',
-        paddingRight: 'var(--space-3)',
-        borderRight: '1px solid var(--gray-100)',
+        paddingInlineEnd: 'var(--space-3)',
+        borderInlineEnd: '1px solid var(--gray-100)',
         color: 'var(--text-primary)',
         textAlign: 'center',
     },
@@ -155,7 +152,7 @@ export default function WeeklyStatusPage({ status }) {
             const isCompleted = t.status === 'completed';
             return isCompletedView ? isCompleted : !isCompleted;
         })
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
+        .sort((a, b) => (normalizeDate(a.date) || 0) - (normalizeDate(b.date) || 0));
 
     const handleStatusToggle = async (e, trainingId, currentStatus) => {
         e.stopPropagation();
@@ -184,61 +181,29 @@ export default function WeeklyStatusPage({ status }) {
                 {filteredTrainings.length > 0 ? (
                     filteredTrainings.map(training => {
                         const group = groups.find(g => g.id === training.groupId);
-                        const dateObj = new Date(training.date);
 
                         return (
-                            <div
+                            <TrainingCard
                                 key={training.id}
-                                style={styles.card}
-                                onClick={() => {
-                                    const tDate = new Date(training.date);
+                                training={training}
+                                group={group}
+                                variant="compact"
+                                clickable
+                                toggleable
+                                onClick={(t) => {
+                                    const tDate = normalizeDate(t.date);
                                     setSelectedTraining({
-                                        ...training,
+                                        ...t,
                                         day: format(tDate, 'EEEE', { locale: he }),
                                         fullDate: format(tDate, 'd בMMMM', { locale: he }),
                                         time: format(tDate, 'HH:mm'),
-                                        duration: `${training.durationMinutes || 60} דק'`,
-                                        group: group?.name || training.groupName || 'קבוצה',
-                                        location: training.location || 'מגרש ראשי',
+                                        duration: `${t.durationMinutes || 60} דק'`,
+                                        group: group?.name || t.groupName || 'קבוצה',
+                                        location: t.location || 'מגרש ראשי',
                                     });
                                 }}
-                            >
-                                <div style={styles.dateBox}>
-                                    <span style={styles.dayName}>{format(dateObj, 'EEE', { locale: he })}</span>
-                                    <span style={styles.timeValue}>{format(dateObj, 'HH:mm')}</span>
-                                </div>
-
-                                <div style={styles.cardContent}>
-                                    <div style={styles.groupName}>
-                                        {group?.name || training.groupName || 'קבוצה'}
-                                    </div>
-                                    <div style={styles.location}>
-                                        <MapPin size={14} />
-                                        {training.location || 'מגרש ראשי'}
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={(e) => handleStatusToggle(e, training.id, training.status)}
-                                    style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        borderRadius: '9999px',
-                                        background: training.status === 'completed' ? '#dcfce7' : 'var(--gray-100)',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: training.status === 'completed' ? '#16a34a' : '#9ca3af',
-                                        transition: 'all 0.2s ease',
-                                        transform: training.status === 'completed' ? 'scale(1.1)' : 'scale(1)'
-                                    }}
-                                    title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                                >
-                                    {training.status === 'completed' ? <CheckCircle size={20} /> : <CheckCircle size={20} />}
-                                </button>
-                            </div>
+                                onStatusToggle={handleStatusToggle}
+                            />
                         );
                     })
                 ) : (

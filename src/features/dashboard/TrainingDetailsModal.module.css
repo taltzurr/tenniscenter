@@ -49,16 +49,13 @@
 .closeButton {
     position: absolute;
     top: var(--space-4);
-    left: var(--space-4);
-    /* RTL override if needed, but absolute positioning usually needs explicit side */
+    inset-inline-start: var(--space-4);
     background-color: var(--gray-100);
-    /* Always visible bg */
     border: none;
     cursor: pointer;
     color: var(--text-secondary);
-    width: 36px;
-    /* Larger hit area */
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
@@ -251,5 +248,5 @@
     flex: 1;
     height: 1px;
     background-color: var(--gray-200);
-    margin-right: var(--space-2);
+    margin-inline-end: var(--space-2);
 }

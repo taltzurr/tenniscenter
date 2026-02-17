@@ -4,6 +4,27 @@
 @import './reset.css';
 @import './typography.css';
 
+/* Focus-visible for accessibility (keyboard navigation) */
+:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Remove focus outline for mouse clicks */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 /* Utility classes */
 .container {
     width: 100%;

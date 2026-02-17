@@ -30,8 +30,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
     color: white;
     transition: all var(--transition-fast);
@@ -69,8 +69,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-full);
     color: rgba(255, 255, 255, 0.7);
     transition: all var(--transition-fast);
@@ -85,7 +85,7 @@
 .notificationBadge {
     position: absolute;
     top: 6px;
-    left: 6px;
+    inset-inline-start: 6px;
     width: 8px;
     height: 8px;
     background-color: var(--error-500);

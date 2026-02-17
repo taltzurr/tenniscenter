@@ -34,14 +34,31 @@
   --gray-50: #fafafa;
 
   /* Semantic */
+  --success-700: #388e3c;
   --success-500: #4caf50;
+  --success-200: #a5d6a7;
   --success-100: #e8f5e9;
+  --warning-700: #f57c00;
   --warning-500: #ff9800;
+  --warning-200: #ffe0b2;
   --warning-100: #fff3e0;
+  --error-700: #d32f2f;
   --error-500: #f44336;
+  --error-200: #ef9a9a;
   --error-100: #ffebee;
   --info-500: #2196f3;
   --info-100: #e3f2fd;
+
+  /* Semantic Aliases (shorthand) */
+  --success: var(--success-500);
+  --success-bg: var(--success-100);
+  --warning: var(--warning-500);
+  --warning-bg: var(--warning-100);
+  --warning-border: var(--warning-200);
+  --warning-text: var(--warning-700);
+  --error: var(--error-500);
+  --error-bg: var(--error-100);
+  --error-border: var(--error-200);
 
   --ring-success: var(--success-500);
   --ring-warning: var(--warning-500);

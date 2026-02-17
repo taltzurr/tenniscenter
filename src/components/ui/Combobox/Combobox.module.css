@@ -12,7 +12,7 @@
 .input {
     width: 100%;
     padding: 10px 12px;
-    padding-left: 36px;
+    padding-inline-start: 36px;
     /* Space for chevron */
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);

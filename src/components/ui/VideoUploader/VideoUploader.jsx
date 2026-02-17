@@ -88,7 +88,7 @@ function VideoUploader({ value, onChange, exerciseId = 'temp' }) {
                 />
                 <div className={styles.previewInfo}>
                     <span className={styles.fileName}>
-                        <Video size={14} style={{ display: 'inline', marginLeft: '4px' }} />
+                        <Video size={14} style={{ display: 'inline', marginInlineStart: '4px' }} />
                         וידאו הועלה בהצלחה
                     </span>
                     <span className={styles.fileSize}>לחץ להסרה ולהעלאה מחדש</span>

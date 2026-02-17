@@ -11,17 +11,9 @@ import {
 } from 'date-fns';
 import { he } from 'date-fns/locale';
 import {
-    Calendar,
-    Clock,
-    MapPin,
-    Users,
     ChevronRight,
     AlertCircle,
-    Info,
-    CheckCircle,
-    Check,
     Plus,
-    Filter
 } from 'lucide-react';
 
 import useAuthStore from '../../stores/authStore';
@@ -30,7 +22,9 @@ import useEventsStore from '../../stores/eventsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
 import TrainingDetailsModal from '../dashboard/TrainingDetailsModal';
+import { normalizeDate } from '../../utils/dateUtils';
 import classes from './WeeklySchedulePage.module.css';
 
 // Unified styles for list view
@@ -111,8 +105,8 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: '50px',
-        paddingRight: 'var(--space-3)',
-        borderRight: '1px solid var(--gray-100)',
+        paddingInlineEnd: 'var(--space-3)',
+        borderInlineEnd: '1px solid var(--gray-100)',
         color: 'var(--text-primary)',
     },
     timeValue: {
@@ -203,7 +197,7 @@ const styles = {
 };
 
 const stringToColor = (str) => {
-    if (!str) return '#6b7280';
+    if (!str) return 'var(--text-secondary)';
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -241,17 +235,17 @@ export default function WeeklySchedulePage() {
 
     const getDayContent = (day) => {
         const dayEvents = events.filter(e => {
-            const d = e.date?.seconds ? new Date(e.date.seconds * 1000) : new Date(e.date);
+            const d = normalizeDate(e.date);
             return isSameDay(d, day);
         });
 
         const dayTrainings = trainings
             .filter(t => {
                 if (selectedGroup !== 'all' && t.groupId !== selectedGroup) return false;
-                const d = new Date(t.date);
+                const d = normalizeDate(t.date);
                 return isSameDay(d, day);
             })
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
+            .sort((a, b) => (normalizeDate(a.date) || 0) - (normalizeDate(b.date) || 0));
 
         return { dayEvents, dayTrainings };
     };
@@ -296,7 +290,7 @@ export default function WeeklySchedulePage() {
                 >
                     <div
                         className={classes.groupDot}
-                        style={{ backgroundColor: '#6b7280' }}
+                        style={{ backgroundColor: 'var(--text-secondary)' }}
                     />
                     כל הקבוצות
                 </button>
@@ -361,55 +355,24 @@ export default function WeeklySchedulePage() {
                             {dayTrainings.map(training => {
                                 const group = groups.find(g => g.id === training.groupId);
                                 return (
-                                    <div
+                                    <TrainingCard
                                         key={training.id}
-                                        style={styles.card}
-                                        onClick={() => setSelectedTraining({
-                                            ...training,
-                                            group: group?.name || training.groupName || 'קבוצה',
+                                        training={training}
+                                        group={group}
+                                        variant="compact"
+                                        clickable
+                                        toggleable
+                                        onClick={(t) => setSelectedTraining({
+                                            ...t,
+                                            group: group?.name || t.groupName || 'קבוצה',
                                             day: format(day, 'EEEE', { locale: he }),
                                             fullDate: format(day, 'd בMMMM', { locale: he }),
-                                            time: format(new Date(training.date), 'HH:mm'),
-                                            duration: `${training.durationMinutes || 60} דק'`,
-                                            location: training.location || 'מגרש ראשי'
+                                            time: format(normalizeDate(t.date), 'HH:mm'),
+                                            duration: `${t.durationMinutes || 60} דק'`,
+                                            location: t.location || 'מגרש ראשי'
                                         })}
-                                    >
-                                        <div style={styles.trainingTime}>
-                                            <span style={styles.timeValue}>{format(new Date(training.date), 'HH:mm')}</span>
-                                            <span style={styles.durationValue}>{training.durationMinutes || 60} דק'</span>
-                                        </div>
-
-                                        <div style={styles.cardContent}>
-                                            <div style={styles.groupName}>
-                                                {group?.name || training.groupName || 'קבוצה'}
-                                            </div>
-                                            <div style={styles.location}>
-                                                <MapPin size={14} />
-                                                {training.location || 'מגרש ראשי'}
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={(e) => handleStatusToggle(e, training.id, training.status)}
-                                            style={{
-                                                width: '32px',
-                                                height: '32px',
-                                                borderRadius: '9999px',
-                                                background: training.status === 'completed' ? '#dcfce7' : 'var(--gray-100)',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: training.status === 'completed' ? '#16a34a' : '#9ca3af',
-                                                transition: 'all 0.2s ease',
-                                                transform: training.status === 'completed' ? 'scale(1.1)' : 'scale(1)'
-                                            }}
-                                            title={training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
-                                        >
-                                            {training.status === 'completed' ? <CheckCircle size={20} /> : <CheckCircle size={20} />}
-                                        </button>
-                                    </div>
+                                        onStatusToggle={handleStatusToggle}
+                                    />
                                 );
                             })}
 

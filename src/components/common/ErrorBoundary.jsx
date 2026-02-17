@@ -27,22 +27,23 @@ class ErrorBoundary extends Component {
                     padding: '2rem',
                     direction: 'rtl',
                 }}>
-                    <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#1f2937' }}>
+                    <h1 style={{ fontSize: 'var(--font-size-xl)', marginBottom: 'var(--space-4)', color: 'var(--text-primary)' }}>
                         משהו השתבש
                     </h1>
-                    <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)' }}>
                         אירעה שגיאה בלתי צפויה. נסה לרענן את הדף.
                     </p>
                     <button
                         onClick={() => window.location.reload()}
                         style={{
-                            padding: '0.75rem 1.5rem',
-                            backgroundColor: '#2563eb',
+                            padding: 'var(--space-3) var(--space-6)',
+                            backgroundColor: 'var(--primary-600)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-md)',
                             cursor: 'pointer',
-                            fontSize: '1rem',
+                            fontSize: 'var(--font-size-base)',
+                            minHeight: '44px',
                         }}
                     >
                         רענן את הדף

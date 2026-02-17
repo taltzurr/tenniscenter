@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Target, Calendar, Save, Trash2, AlertTriangle, Send, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowRight, Target, Calendar, Save, Trash2, AlertTriangle, Send, Clock } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
@@ -9,18 +9,16 @@ import { HEBREW_MONTHS, WEEK_STRUCTURE } from '../../../services/monthlyPlans';
 import { PLAN_STATUS } from '../../../config/constants';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
+import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
 import styles from './PlanForm.module.css';
 
-const getStatusBadge = (status) => {
+// Maps plan status to StatusIndicator status key
+const getPlanStatusKey = (status) => {
     switch (status) {
-        case PLAN_STATUS.APPROVED:
-            return { color: 'var(--success-500)', bg: 'var(--success-50)', text: 'מאושר', icon: CheckCircle };
-        case PLAN_STATUS.REJECTED:
-            return { color: 'var(--error)', bg: 'var(--error-bg)', text: 'נדחה', icon: XCircle };
-        case PLAN_STATUS.SUBMITTED:
-            return { color: 'var(--warning-500)', bg: 'var(--warning-50)', text: 'ממתין לאישור', icon: Clock };
-        default:
-            return { color: 'var(--text-secondary)', bg: 'var(--gray-100)', text: 'טיוטה', icon: null };
+        case PLAN_STATUS.APPROVED: return 'approved';
+        case PLAN_STATUS.SUBMITTED: return 'submitted';
+        case 'rejected': return 'rejected';
+        default: return 'draft';
     }
 };
 
@@ -144,6 +142,16 @@ function PlanForm() {
             return;
         }
 
+        // Validate plan has at least some content
+        const hasGoals = formData.monthlyGoals?.some(g => g.trim());
+        const hasWeeklyContent = Object.values(formData.weeks || {}).some(week =>
+            week.topic?.trim() || week.drills?.trim() || week.focus?.trim()
+        );
+        if (!hasGoals && !hasWeeklyContent) {
+            addToast({ type: 'error', message: 'נא למלא לפחות מטרה אחת או תוכן שבועי' });
+            return;
+        }
+
         const group = groups.find(g => g.id === selectedGroup);
 
         const result = await savePlan({
@@ -214,8 +222,7 @@ function PlanForm() {
         return 'יצירת תכנית חדשה';
     };
 
-    const statusBadge = getStatusBadge(planStatus);
-    const StatusIcon = statusBadge.icon;
+    const statusKey = getPlanStatusKey(planStatus);
 
     return (
         <div className={styles.page}>
@@ -229,21 +236,8 @@ function PlanForm() {
                     חזרה לתכניות
                 </button>
 
-                {existingPlanId && statusBadge.icon && (
-                    <div className={styles.statusBadge} style={{
-                        backgroundColor: statusBadge.bg,
-                        color: statusBadge.color,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                    }}>
-                        <StatusIcon size={16} />
-                        {statusBadge.text}
-                    </div>
+                {existingPlanId && planStatus && (
+                    <StatusIndicator status={statusKey} />
                 )}
             </div>
 
@@ -255,7 +249,7 @@ function PlanForm() {
             {isLocked && (
                 <div className={styles.alertInfo} style={{ marginBottom: '16px', backgroundColor: 'var(--primary-50)', color: 'var(--primary-700)', padding: '12px', borderRadius: '8px', display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <Clock size={20} />
-                    <span>תכנית זו נמצאת בסטטוס <strong>{statusBadge.text}</strong> ואינה ניתנת לעריכה כרגע.</span>
+                    <span>תכנית זו נמצאת בסטטוס <strong><StatusIndicator status={statusKey} /></strong> ואינה ניתנת לעריכה כרגע.</span>
                 </div>
             )}
 
@@ -293,13 +287,13 @@ function PlanForm() {
                             }}
                             disabled={(!isEditing && existingPlanId) || isLocked}
                             style={selectedGroup === group.id ? {
-                                borderColor: group.color || '#2563eb',
-                                backgroundColor: `${group.color || '#2563eb'}15`
+                                borderColor: group.color || 'var(--primary-600)',
+                                backgroundColor: group.color ? `${group.color}15` : 'var(--primary-50)'
                             } : undefined}
                         >
                             <span
                                 className={styles.groupDot}
-                                style={{ backgroundColor: group.color || '#2563eb' }}
+                                style={{ backgroundColor: group.color || 'var(--primary-600)' }}
                             />
                             {group.name}
                         </button>

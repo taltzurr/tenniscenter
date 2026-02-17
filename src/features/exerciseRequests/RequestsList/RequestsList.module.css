@@ -70,7 +70,7 @@
     border-radius: var(--radius-lg);
     padding: var(--space-5);
     box-shadow: var(--shadow-sm);
-    border-right: 4px solid var(--gray-300);
+    border-inline-end: 4px solid var(--gray-300);
     transition: all 0.2s ease;
 }
 
@@ -79,19 +79,19 @@
 }
 
 .requestCard.pending {
-    border-right-color: var(--warning-500);
+    border-inline-end-color: var(--warning-500);
 }
 
 .requestCard.approved {
-    border-right-color: var(--success-500);
+    border-inline-end-color: var(--success-500);
 }
 
 .requestCard.rejected {
-    border-right-color: var(--error-500);
+    border-inline-end-color: var(--error-500);
 }
 
 .requestCard.in_progress {
-    border-right-color: var(--primary-500);
+    border-inline-end-color: var(--primary-500);
 }
 
 .requestHeader {

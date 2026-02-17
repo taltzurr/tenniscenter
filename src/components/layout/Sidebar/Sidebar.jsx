@@ -93,7 +93,7 @@ function Sidebar() {
                     { to: '/users', icon: UserCog, label: 'משתמשים' },
                     { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
                     { to: '/goals', icon: Target, label: 'מטרות' },
-                    { to: '/values', icon: Heart, label: 'ערכים' },
+                    { to: '/goals', icon: Heart, label: 'ערכים' },
                 ]
             });
         }

@@ -128,7 +128,7 @@ function GoalsPage() {
         ? centerGoals
         : (selectedGroupId ? groupGoals[selectedGroupId] || [] : []);
 
-    const canEdit = userData?.role === 'supervisor' || userData?.role === 'center_manager' || userData?.role === 'coach';
+    const canEdit = userData?.role === 'supervisor';
 
     const currentCategories = isValueTab ? VALUE_CATEGORIES : GOAL_CATEGORIES;
 
@@ -283,7 +283,7 @@ function GoalsPage() {
                                         <p className={styles.goalDescription}>{goal.description}</p>
                                         {goal.category && (
                                             <span className={styles.goalCategory}>
-                                                {GOAL_CATEGORIES[goal.category.toUpperCase()]?.label || goal.category}
+                                                {GOAL_CATEGORIES[goal.category]?.label || goal.category}
                                             </span>
                                         )}
                                     </div>

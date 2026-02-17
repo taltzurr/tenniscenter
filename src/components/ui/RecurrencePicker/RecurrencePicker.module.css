@@ -133,7 +133,7 @@
 .daysGrid {
     display: flex;
     gap: 8px;
-    margin-left: 80px;
+    margin-inline-start: 80px;
     /* Offset for label alignment */
     flex-wrap: wrap;
 }
@@ -177,7 +177,7 @@
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    margin-left: 24px;
+    margin-inline-start: 24px;
     font-size: 13px;
     color: var(--text-primary);
 }

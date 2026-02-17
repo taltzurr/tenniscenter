@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, CalendarDays, UserCog } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, CalendarDays, UserCog, Target } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import { ROLES } from '../../../config/constants';
 import styles from './BottomNav.module.css';
@@ -18,7 +18,17 @@ function BottomNav() {
             ];
         }
 
-        // Coach and Supervisor navigation (original)
+        // Supervisor navigation
+        if (userData?.role === ROLES.SUPERVISOR) {
+            return [
+                { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
+                { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
+                { to: '/goals', icon: Target, label: 'מטרות' },
+                { to: '/users', icon: UserCog, label: 'משתמשים' },
+            ];
+        }
+
+        // Coach navigation
         return [
             { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
             { to: '/monthly-plans', icon: CalendarDays, label: 'לוז אימונים' },

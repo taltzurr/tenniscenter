@@ -9,6 +9,7 @@ import { HEBREW_MONTHS } from '../../../services/monthlyPlans';
 import { PLAN_STATUS, ROLES } from '../../../config/constants';
 import Spinner from '../../../components/ui/Spinner';
 import Button from '../../../components/ui/Button';
+import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
 import { seedManagerDashboardData } from '../../../utils/seedDashboardData';
 import styles from './ManagerPlansReview.module.css';
 
@@ -243,15 +244,9 @@ function ManagerPlansReview() {
                                         </td>
                                         <td>
                                             {stats.isComplete ? (
-                                                <span className={styles.statusBadge} style={{ background: 'var(--success-50)', color: 'var(--success-600)' }}>
-                                                    <CheckCircle size={14} />
-                                                    מלא
-                                                </span>
+                                                <StatusIndicator status="approved" customText="מלא" />
                                             ) : (
-                                                <span className={styles.statusBadge} style={{ background: 'var(--warning-50)', color: 'var(--warning-600)' }}>
-                                                    <Clock size={14} />
-                                                    חסר {stats.totalGroups - stats.submittedCount}
-                                                </span>
+                                                <StatusIndicator status="missing" customText={`חסר ${stats.totalGroups - stats.submittedCount}`} />
                                             )}
                                         </td>
                                         <td>
@@ -276,21 +271,7 @@ function ManagerPlansReview() {
                                                         >
                                                             <span className={styles.groupName}>{group.name}</span>
 
-                                                            {status === 'missing' && (
-                                                                <span className={`${styles.groupStatus} ${styles.rejected}`}>טרם הוגש</span>
-                                                            )}
-                                                            {status === PLAN_STATUS.DRAFT && (
-                                                                <span className={styles.groupStatus}>טיוטה</span>
-                                                            )}
-                                                            {status === PLAN_STATUS.SUBMITTED && (
-                                                                <span className={`${styles.groupStatus} ${styles.submitted}`}>ממתין לאישור</span>
-                                                            )}
-                                                            {status === PLAN_STATUS.APPROVED && (
-                                                                <span className={`${styles.groupStatus} ${styles.approved}`}>אושר</span>
-                                                            )}
-                                                            {status === PLAN_STATUS.REJECTED && (
-                                                                <span className={`${styles.groupStatus} ${styles.rejected}`}>נדחה</span>
-                                                            )}
+                                                            <StatusIndicator status={status === 'missing' ? 'missing' : status} />
                                                         </div>
                                                     ))}
                                                 </div>

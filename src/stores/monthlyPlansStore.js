@@ -133,6 +133,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             await approveMonthlyPlan(id, coachId, groupName);
             set(state => ({
                 pendingPlans: state.pendingPlans ? state.pendingPlans.filter(p => p.id !== id) : [],
+                plans: state.plans.map(p => p.id === id ? { ...p, status: 'approved' } : p),
+                currentPlan: state.currentPlan?.id === id ? { ...state.currentPlan, status: 'approved' } : state.currentPlan,
                 isLoading: false
             }));
             return { success: true };
@@ -149,6 +151,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             await rejectMonthlyPlan(id, feedback, groupName);
             set(state => ({
                 pendingPlans: state.pendingPlans ? state.pendingPlans.filter(p => p.id !== id) : [],
+                plans: state.plans.map(p => p.id === id ? { ...p, status: 'rejected' } : p),
+                currentPlan: state.currentPlan?.id === id ? { ...state.currentPlan, status: 'rejected' } : state.currentPlan,
                 isLoading: false
             }));
             return { success: true };

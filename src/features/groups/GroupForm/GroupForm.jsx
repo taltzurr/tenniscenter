@@ -114,7 +114,7 @@ function GroupForm() {
             birthYearTo: formData.birthYearTo || null,
             groupTypeName: groupType?.name || formData.groupTypeId,
             coachId: userData.id,
-            centerId: userData.centerIds?.[0] || userData.managedCenterId || 'center-1',
+            centerId: userData.centerIds?.[0] || userData.managedCenterId || userData.centerId,
         };
 
         let result;

@@ -149,8 +149,8 @@
     justify-content: center;
     min-width: 45px;
     text-align: center;
-    border-left: 1px solid var(--gray-100);
-    padding-left: 12px;
+    border-inline-start: 1px solid var(--gray-100);
+    padding-inline-start: 12px;
 }
 
 .cardTime {
@@ -316,7 +316,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-right: 4px;
+    padding-inline-end: 4px;
     z-index: 2;
     /* Clickable */
 }
@@ -593,13 +593,13 @@
     position: sticky;
     left: 0;
     z-index: 10;
-    border-right: 1px solid var(--gray-100);
+    border-inline-end: 1px solid var(--gray-100);
 }
 
 .weekDayHeader {
     padding: 8px 2px;
     text-align: center;
-    border-right: 1px solid var(--gray-100);
+    border-inline-end: 1px solid var(--gray-100);
     background: var(--gray-50);
 }
 
@@ -628,11 +628,11 @@
     position: sticky;
     left: 0;
     z-index: 10;
-    border-right: 1px solid var(--gray-50);
+    border-inline-end: 1px solid var(--gray-50);
 }
 
 .weekGridCell {
-    border-right: 1px solid var(--gray-50);
+    border-inline-end: 1px solid var(--gray-50);
     border-bottom: 1px solid var(--gray-50);
     height: 50px;
     position: relative;
@@ -709,7 +709,7 @@
         height: auto;
         background: transparent;
         border-radius: 2px;
-        border-right: 3px solid transparent;
+        border-inline-end: 3px solid transparent;
         background: var(--gray-50);
         padding: 2px 6px;
         display: flex;

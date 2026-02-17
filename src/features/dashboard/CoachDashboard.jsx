@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     Users,
@@ -9,16 +9,17 @@ import {
     Heart,
     CalendarDays,
     Target,
-    ChevronDown,
-    ChevronUp,
-    MapPin
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import Spinner from '../../components/ui/Spinner';
+import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
 import useAuthStore from '../../stores/authStore';
 import useTrainingsStore from '../../stores/trainingsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import useEventsStore from '../../stores/eventsStore';
 import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
+import { normalizeDate, formatHebrewTime, isSameDay } from '../../utils/dateUtils';
+import { getGreeting } from '../../utils/greeting';
 import TrainingDetailsModal from './TrainingDetailsModal';
 import MonthlyOutstandingCard from './MonthlyOutstandingCard';
 import UpcomingTrainingCard from './UpcomingTrainingCard';
@@ -34,36 +35,42 @@ function CoachDashboard() {
     const navigate = useNavigate();
 
     const [selectedTraining, setSelectedTraining] = useState(null);
-
-    // Get greeting based on time
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'בוקר טוב';
-        if (hour < 17) return 'צהריים טובים';
-        if (hour < 21) return 'ערב טוב';
-        return 'לילה טוב';
-    };
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (userData?.id) {
-            fetchGroups(userData.id);
+        const loadData = async () => {
+            if (!userData?.id) return;
+            try {
+                setIsLoading(true);
+                setError(null);
 
-            const today = new Date();
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay());
-            startOfWeek.setHours(0, 0, 0, 0);
+                const today = new Date();
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                startOfWeek.setHours(0, 0, 0, 0);
 
-            const endOfWeek = new Date(today);
-            endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
-            endOfWeek.setHours(23, 59, 59, 999);
+                const endOfWeek = new Date(today);
+                endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+                endOfWeek.setHours(23, 59, 59, 999);
 
-            fetchTrainings(userData.id, startOfWeek, endOfWeek);
+                await Promise.all([
+                    fetchGroups(userData.id),
+                    fetchTrainings(userData.id, startOfWeek, endOfWeek),
+                    fetchEvents(today.getFullYear(), today.getMonth()),
+                ]);
 
-            fetchEvents(today.getFullYear(), today.getMonth());
-            if (endOfWeek.getMonth() !== today.getMonth()) {
-                fetchEvents(endOfWeek.getFullYear(), endOfWeek.getMonth());
+                if (endOfWeek.getMonth() !== today.getMonth()) {
+                    await fetchEvents(endOfWeek.getFullYear(), endOfWeek.getMonth());
+                }
+            } catch (err) {
+                console.error('Failed to load dashboard data:', err);
+                setError('שגיאה בטעינת הנתונים. נסה לרענן את הדף.');
+            } finally {
+                setIsLoading(false);
             }
-        }
+        };
+        loadData();
     }, [userData, fetchTrainings, fetchGroups, fetchEvents]);
 
     useEffect(() => {
@@ -79,23 +86,16 @@ function CoachDashboard() {
         return trainings
             .filter(t => {
                 if (!t.date) return false;
-                // Handle both Firestore Timestamp and JS Date objects
-                const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
-
-                // Strict date comparison (Day, Month, Year) to avoid timezone/time-range issues
-                return tDate.getDate() === today.getDate() &&
-                    tDate.getMonth() === today.getMonth() &&
-                    tDate.getFullYear() === today.getFullYear();
+                const tDate = normalizeDate(t.date);
+                return isSameDay(tDate, today);
             })
             .map(t => {
                 const group = groups.find(g => g.id === t.groupId);
-                const tDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
+                const tDate = normalizeDate(t.date);
                 return {
                     id: t.id,
-                    ...t, // Spread all original fields (description, focus, equipment, etc.)
-                    day: tDate.toLocaleDateString('he-IL', { weekday: 'long' }),
-                    fullDate: tDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' }),
-                    time: tDate ? tDate.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) : '--:--',
+                    ...t,
+                    time: formatHebrewTime(tDate),
                     duration: `${t.durationMinutes || 60} דק'`,
                     topic: t.topic,
                     group: group?.name || t.groupName || 'קבוצה',
@@ -129,22 +129,22 @@ function CoachDashboard() {
 
     // Weekly trainings (future days only)
     const weeklyTrainings = useMemo(() => {
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
 
         return trainings
             .filter(t => {
                 if (!t.date) return false;
-                const tDate = new Date(t.date);
-                return tDate > today;
+                const tDate = normalizeDate(t.date);
+                return tDate && tDate > todayEnd;
             })
-            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .sort((a, b) => (normalizeDate(a.date) || 0) - (normalizeDate(b.date) || 0))
             .map(t => {
                 const group = groups.find(g => g.id === t.groupId);
+                const tDate = normalizeDate(t.date);
                 return {
                     id: t.id,
-                    day: t.date.toLocaleDateString('he-IL', { weekday: 'long' }),
-                    time: t.date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+                    time: formatHebrewTime(tDate),
                     duration: `${t.durationMinutes || 60} דק'`,
                     group: group?.name || t.groupName || 'קבוצה',
                     location: t.location || 'מגרש ראשי',
@@ -176,11 +176,8 @@ function CoachDashboard() {
     const todayEvents = useMemo(() => {
         const today = new Date();
         return events.filter(e => {
-            const d = e.date?.seconds ? new Date(e.date.seconds * 1000) : new Date(e.date);
-            if (!d || isNaN(d)) return false;
-            return d.getDate() === today.getDate() &&
-                d.getMonth() === today.getMonth() &&
-                d.getFullYear() === today.getFullYear();
+            const d = normalizeDate(e.date);
+            return isSameDay(d, today);
         });
     }, [events]);
 
@@ -210,20 +207,45 @@ function CoachDashboard() {
         setSelectedTraining(fullDetails);
     };
 
-    const handleStatusToggle = async (e, trainingId, currentStatus) => {
+    const handleStatusToggle = useCallback(async (e, trainingId, currentStatus) => {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
 
         const newStatus = currentStatus === 'completed' ? 'planned' : 'completed';
-        await editTraining(trainingId, { status: newStatus });
-    };
+        try {
+            await editTraining(trainingId, { status: newStatus });
+        } catch (err) {
+            console.error('Failed to toggle training status:', err);
+        }
+    }, [editTraining]);
 
-    const handleHeroConfirm = async (trainingId, currentStatus) => {
+    const handleHeroConfirm = useCallback(async (trainingId, currentStatus) => {
         const newStatus = currentStatus === 'completed' ? 'planned' : 'completed';
-        await editTraining(trainingId, { status: newStatus });
-    };
+        try {
+            await editTraining(trainingId, { status: newStatus });
+        } catch (err) {
+            console.error('Failed to toggle training status:', err);
+        }
+    }, [editTraining]);
+
+    if (isLoading) {
+        return (
+            <div className={styles.page} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <Spinner />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.page} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', gap: 'var(--space-4)' }}>
+                <p style={{ color: 'var(--error-600)', fontSize: 'var(--font-size-base)' }}>{error}</p>
+                <Button variant="outline" onClick={() => window.location.reload()}>נסה שוב</Button>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.page}>
@@ -245,7 +267,7 @@ function CoachDashboard() {
             <div className={`${styles.dashSection} ${styles.delay2}`}>
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>
-                        <CalendarDays size={20} style={{ display: 'inline', marginLeft: '8px' }} />
+                        <CalendarDays size={20} style={{ display: 'inline', marginInlineStart: '8px' }} />
                         אימוני היום
                     </h2>
                     <Link to="/calendar" className={styles.sectionAction}>
@@ -255,7 +277,7 @@ function CoachDashboard() {
                 </div>
 
                 {/* Hero Card */}
-                <div style={{ marginBottom: 'var(--space-8)' }}>
+                <div className={styles.section}>
                     <UpcomingTrainingCard
                         training={upcomingTraining}
                         nextTraining={weeklyTrainings[0] || null}
@@ -266,20 +288,12 @@ function CoachDashboard() {
 
                 {/* Today's Events */}
                 {todayEvents.length > 0 && (
-                    <div style={{ marginBottom: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className={styles.eventsContainer}>
                         {todayEvents.map(event => (
-                            <div key={event.id} style={{
-                                padding: '12px',
-                                borderRadius: '12px',
-                                backgroundColor: event.type === 'holiday' ? '#FEF2F2' : '#FFFBEB',
-                                border: `1px solid ${event.type === 'holiday' ? '#FEE2E2' : '#FEF3C7'}`,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                color: event.type === 'holiday' ? '#DC2626' : '#D97706',
-                                fontWeight: '600',
-                                fontSize: '0.95rem'
-                            }}>
+                            <div
+                                key={event.id}
+                                className={`${styles.eventCard} ${event.type === 'holiday' ? styles.eventHoliday : styles.eventDefault}`}
+                            >
                                 <Target size={18} />
                                 {event.title}
                             </div>
@@ -291,69 +305,15 @@ function CoachDashboard() {
                 {remainingTodayTrainings.length > 0 ? (
                     <div className={styles.todayList}>
                         {remainingTodayTrainings.map((training) => (
-                            <div
+                            <TrainingCard
                                 key={training.id}
-                                className={styles.trainingItem}
-                                onClick={() => handleTrainingClick(training)}
-                                role="button"
-                                tabIndex={0}
-                                style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: '1rem' }}
-                            >
-                                {/* Time Section (Right Side) */}
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    minWidth: '60px',
-                                    borderLeft: '1px solid var(--gray-200)',
-                                    paddingLeft: '1rem'
-                                }}>
-                                    <span className={styles.trainingTimeValue} style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--primary-600)' }}>
-                                        {training.time}
-                                    </span>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>היום</span>
-                                </div>
-
-                                {/* Content Section */}
-                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <div className={styles.trainingGroup} style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                                        {training.topic || training.group}
-                                    </div>
-
-                                    <div className={styles.trainingMeta} style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Users size={14} />
-                                            {training.group}
-                                        </span>
-                                        <span style={{ color: 'var(--gray-300)' }}>•</span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <MapPin size={14} />
-                                            {training.location}
-                                        </span>
-                                        <span style={{ color: 'var(--gray-300)' }}>•</span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Clock size={14} />
-                                            {training.duration}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Status Icon / Action (Left Side) */}
-                                <div>
-                                    <div style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        borderRadius: '50%',
-                                        backgroundColor: 'var(--gray-100)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'var(--gray-400)'
-                                    }}>
-                                        <CheckCircle size={18} />
-                                    </div>
-                                </div>
-                            </div>
+                                training={training}
+                                variant="full"
+                                clickable
+                                toggleable
+                                onClick={handleTrainingClick}
+                                onStatusToggle={handleStatusToggle}
+                            />
                         ))}
                     </div>
                 ) : null}

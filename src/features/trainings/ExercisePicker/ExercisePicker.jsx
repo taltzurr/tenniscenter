@@ -37,7 +37,8 @@ function ExercisePicker({ selectedExercises = [], onChange }) {
             } else {
                 return [...prev, {
                     id: exercise.id,
-                    title: exercise.title,
+                    name: exercise.title || exercise.name,
+                    title: exercise.title || exercise.name,
                     category: exercise.category,
                     duration: exercise.duration
                 }];
@@ -158,7 +159,7 @@ function ExercisePicker({ selectedExercises = [], onChange }) {
                                                         <div className={styles.exerciseMeta}>
                                                             {getCategoryLabel(exercise.category)}
                                                             {exercise.duration && (
-                                                                <span style={{ marginRight: '8px' }}>
+                                                                <span style={{ marginInlineEnd: '8px' }}>
                                                                     <Clock size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
                                                                     {' '}{exercise.duration} דק'
                                                                 </span>

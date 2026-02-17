@@ -19,6 +19,8 @@ import {
   getStatusText
 } from './utils/centerDashboardUtils';
 import Spinner from '../../components/ui/Spinner/Spinner';
+import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
+import { getGreeting } from '../../utils/greeting';
 import MonthlyOutstandingCard from '../dashboard/MonthlyOutstandingCard';
 import styles from './CenterManagerDashboard.module.css';
 
@@ -38,14 +40,6 @@ const CenterManagerDashboard = () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1; // 1-12
-
-  // Get greeting based on time of day
-  const getGreeting = () => {
-    const hour = currentDate.getHours();
-    if (hour < 12) return 'בוקר טוב';
-    if (hour < 18) return 'צהריים טובים';
-    return 'ערב טוב';
-  };
 
   // Fetch all data on mount
   useEffect(() => {
@@ -165,6 +159,16 @@ const CenterManagerDashboard = () => {
     return (
       <div className={styles.loadingContainer}>
         <Spinner />
+      </div>
+    );
+  }
+
+  if (!userData?.managedCenterId) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>לא הוקצה מרכז לניהול</p>
+        </div>
       </div>
     );
   }
@@ -315,30 +319,13 @@ const CenterManagerDashboard = () => {
         ) : (
           <div className={styles.trainingsList}>
             {todaysTrainingsList.map((training) => (
-              <div key={training.id} className={styles.trainingItem}>
-                <div className={styles.trainingTime}>
-                  <div className={styles.trainingTimeValue}>{training.time}</div>
-                  <div className={styles.trainingTimeDuration}>
-                    {training.durationMinutes}׳
-                  </div>
-                </div>
-                <div className={styles.trainingDetails}>
-                  <div className={styles.trainingGroup}>{training.groupName}</div>
-                  <div className={styles.trainingMeta}>
-                    מאמן: {training.coachName} • {training.location}
-                  </div>
-                </div>
-                <div
-                  className={`${styles.trainingStatus} ${training.status === 'completed' ? styles.completed : ''
-                    }`}
-                >
-                  {training.status === 'completed' ? (
-                    <CheckCircle size={18} />
-                  ) : (
-                    <Clock size={18} />
-                  )}
-                </div>
-              </div>
+              <TrainingCard
+                key={training.id}
+                training={training}
+                variant="compact"
+                showCoach
+                clickable={false}
+              />
             ))}
           </div>
         )}

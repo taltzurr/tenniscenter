@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import usePlayersStore from '../../../stores/playersStore';
 import useUIStore from '../../../stores/uiStore';
@@ -13,6 +14,7 @@ import { PlayerFormModal, PlayersList } from '../../players';
 export default function GroupDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { userData } = useAuthStore();
     const {
         groups,
         selectedGroup,
@@ -130,9 +132,9 @@ export default function GroupDetails() {
                     <div className={styles.badges}>
                         <span className={`${styles.badge} ${styles.typeBadge}`}>{groupType}</span>
                         {group.isActive ? (
-                            <span className={styles.badge} style={{ backgroundColor: '#dcfce7', color: '#166534' }}>פעיל</span>
+                            <span className={styles.badge} style={{ backgroundColor: 'var(--success-100)', color: 'var(--success-700)' }}>פעיל</span>
                         ) : (
-                            <span className={styles.badge} style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>לא פעיל</span>
+                            <span className={styles.badge} style={{ backgroundColor: 'var(--gray-100)', color: 'var(--text-primary)' }}>לא פעיל</span>
                         )}
                     </div>
                 </div>
@@ -212,12 +214,14 @@ export default function GroupDetails() {
             <section className={styles.section}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h2 className={styles.sectionTitle}>אימונים קרובים</h2>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <Link to={`/trainings/new?groupId=${id}`}>
-                            <Button variant="ghost" size="small" startIcon={<Plus size={16} />}>
-                                אימון חדש
-                            </Button>
-                        </Link>
+                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                        {(userData?.role === 'coach' && group?.coachId === userData?.id) && (
+                            <Link to={`/trainings/new?groupId=${id}`}>
+                                <Button variant="ghost" size="small" startIcon={<Plus size={16} />}>
+                                    אימון חדש
+                                </Button>
+                            </Link>
+                        )}
                         <Button variant="ghost" size="small" startIcon={<Calendar size={16} />}>
                             לוח שנה
                         </Button>

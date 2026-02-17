@@ -43,7 +43,7 @@ function TrainingBuilderPage() {
 
         // Fetch library
         fetchExercises();
-    }, [trainingId, trainings, fetchExercises, fetchTraining]);
+    }, [trainingId, fetchExercises, fetchTraining]); // removed trainings to prevent re-fetching on every store update
 
     const sensors = useSensors(
         useSensor(PointerSensor),

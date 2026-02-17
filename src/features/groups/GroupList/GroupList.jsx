@@ -54,7 +54,7 @@ function GroupList() {
     // Filter groups
     const filteredGroups = groups.filter(group => {
         const matchesSearch = group.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesType = selectedType === 'all' || group.groupTypeId === selectedType;
+        const matchesType = selectedType === 'all' || group.groupTypeName === selectedType;
         return matchesSearch && matchesType;
     });
 

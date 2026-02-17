@@ -4,12 +4,24 @@ import styles from './UpcomingTrainingCard.module.css';
 
 function UpcomingTrainingCard({ training, nextTraining, onConfirm, onClick }) {
     if (!training) {
-        // Empty state - no training today
         const nextInfo = nextTraining
-            ? `האימון הבא: ${nextTraining.day} ב-${nextTraining.time}`
+            ? `האימון הבא: ${nextTraining.group} ב-${nextTraining.time}`
             : 'אין אימונים מתוכננים השבוע';
 
-        return null;
+        return (
+            <div className={styles.card} style={{ opacity: 0.7 }}>
+                <div className={styles.content}>
+                    <div className={styles.details} style={{ textAlign: 'center', width: '100%' }}>
+                        <div className={styles.groupName} style={{ color: 'var(--text-secondary)' }}>
+                            אין אימונים קרובים להיום
+                        </div>
+                        <div className={styles.meta} style={{ justifyContent: 'center' }}>
+                            <span className={styles.metaItem}>{nextInfo}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const isCompleted = training.status === 'completed';

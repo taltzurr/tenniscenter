@@ -67,8 +67,15 @@ function MonthlyOutstandingCard() {
         return name.charAt(0);
     };
 
-    // Filter categories to only show selected ones
-    const visibleCategories = CATEGORIES.filter(({ type }) => !!getSelectedName(type));
+    // Filter categories based on role:
+    // - Supervisor sees all 3 categories
+    // - Center Manager sees only centerCoach (their center's outstanding coach)
+    // - Coach sees all visible categories (read-only)
+    const roleFilteredCategories = isCenterManager()
+        ? CATEGORIES.filter(({ type }) => type === 'centerCoach')
+        : CATEGORIES;
+
+    const visibleCategories = roleFilteredCategories.filter(({ type }) => !!getSelectedName(type));
 
     // Hide entirely if no selections exist and user cannot manage
     if (visibleCategories.length === 0 && !canManage) {

@@ -12,6 +12,7 @@ import '../../../styles/calendar.css';
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useGroupsStore from '../../../stores/groupsStore';
+import { normalizeDate } from '../../../utils/dateUtils';
 import Spinner from '../../../components/ui/Spinner';
 import Button from '../../../components/ui/Button';
 import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
@@ -49,18 +50,21 @@ export default function CalendarPage() {
         }
     }, [userData, date, view, fetchTrainings]);
 
-    const events = trainings.map(t => ({
-        id: t.id,
-        title: `${t.time ? format(t.date, 'HH:mm') + ' ' : ''}${t.groupName || 'אימון'}`,
-        start: t.date,
-        end: new Date(t.date.getTime() + (t.durationMinutes || 60) * 60000),
-        resource: t,
-        className: t.status // Use this for styling
-    }));
+    const events = trainings.map(t => {
+        const d = normalizeDate(t.date);
+        return {
+            id: t.id,
+            title: `${d ? format(d, 'HH:mm') + ' ' : ''}${t.groupName || 'אימון'}`,
+            start: d,
+            end: d ? new Date(d.getTime() + (t.durationMinutes || 60) * 60000) : d,
+            resource: t,
+            className: t.status
+        };
+    });
 
     const handleSelectEvent = (event) => {
         const t = event.resource;
-        const tDate = t.date instanceof Date ? t.date : new Date(t.date);
+        const tDate = normalizeDate(t.date);
         const group = groups.find(g => g.id === t.groupId);
         setSelectedTraining({
             ...t,

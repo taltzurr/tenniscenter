@@ -255,7 +255,7 @@ function RecurrencePicker({ value, startDate, onChange }) {
                                     />
                                     אחרי
                                     {customState.endType === 'count' && (
-                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginRight: '12px' }}>
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginInlineEnd: '12px' }}>
                                             <input
                                                 type="number"
                                                 min="1"

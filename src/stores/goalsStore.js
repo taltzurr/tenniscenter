@@ -3,9 +3,9 @@ import {
     getCenterGoals,
     getCenterValues,
     getGroupGoals,
-    saveGoal,
-    deleteGoal,
-    reorderGoals
+    saveGoal as saveGoalService,
+    deleteGoal as deleteGoalService,
+    reorderGoals as reorderGoalsService
 } from '../services/goals';
 
 const useGoalsStore = create((set, get) => ({

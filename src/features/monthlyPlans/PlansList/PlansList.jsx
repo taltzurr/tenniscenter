@@ -33,7 +33,9 @@ import Modal from '../../../components/ui/Modal'; // Import Modal
 
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
+import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
 import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
+import { normalizeDate } from '../../../utils/dateUtils';
 import styles from './PlansList.module.css';
 
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 07:00 - 21:00
@@ -68,16 +70,9 @@ const stringToColor = (str) => {
     return STABLE_COLORS[index];
 };
 
-// Helper to safely parse dates (Hoisted to be available in component scope if needed, or strictly defined inside)
+// Use normalizeDate from dateUtils for consistent Firestore Timestamp handling
 const parseDateSafe = (dateInput) => {
-    if (!dateInput) return null;
-    try {
-        if (dateInput?.seconds) return new Date(dateInput.seconds * 1000);
-        const date = new Date(dateInput);
-        return isNaN(date.getTime()) ? null : date;
-    } catch (e) {
-        return null;
-    }
+    return normalizeDate(dateInput);
 };
 
 function PlansList() {
@@ -483,7 +478,7 @@ function PlansList() {
 
                 {/* Dynamic Legend based on Active Groups + Events */}
                 <div className={styles.legendContainer}>
-                    <span style={{ fontSize: '11px', fontWeight: 'bold', marginLeft: '8px' }}>מקרא:</span>
+                    <span style={{ fontSize: '11px', fontWeight: 'bold', marginInlineStart: '8px' }}>מקרא:</span>
 
                     {/* Events Fixed */}
                     <div className={styles.legendItem}>
@@ -525,10 +520,10 @@ function PlansList() {
                                             <div
                                                 key={event.id}
                                                 className={styles.modalCard}
-                                                style={{ borderRight: `4px solid ${EVENT_COLORS[event.type] || EVENT_COLORS.OTHER}` }}
+                                                style={{ borderInlineEnd: `4px solid ${EVENT_COLORS[event.type] || EVENT_COLORS.OTHER}` }}
                                             >
                                                 <span style={{ fontWeight: 'bold' }}>{event.title}</span>
-                                                <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)' }}>
                                                     {EVENT_LABELS[event.type] || 'אירוע'}
                                                 </span>
                                             </div>
@@ -566,15 +561,15 @@ function PlansList() {
                                                 key={training.id}
                                                 className={styles.modalCard}
                                                 onClick={() => openTrainingModal(training)}
-                                                style={{ cursor: 'pointer', borderRight: `4px solid ${group?.color || stringToColor(group?.name)}` }}
+                                                style={{ cursor: 'pointer', borderInlineEnd: `4px solid ${group?.color || stringToColor(group?.name)}` }}
                                             >
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                                                     <span style={{ fontWeight: 'bold' }}>{training.topic || 'אימון ללא נושא'}</span>
                                                     <span style={{ fontWeight: 'bold' }}>{format(tDate, 'HH:mm')}</span>
                                                 </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)', marginTop: 'var(--space-1)' }}>
                                                     <span>{group?.name}</span>
-                                                    <span>{training.status === 'completed' ? '✅ בוצע' : '📅 מתוכנן'}</span>
+                                                    <StatusIndicator status={training.status === 'completed' ? 'completed' : 'planned'} showIcon={false} />
                                                 </div>
                                             </div>
                                         );

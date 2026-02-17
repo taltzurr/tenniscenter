@@ -1,0 +1,88 @@
+/* StatusIndicator - Unified status display */
+/* Mobile-first, RTL-aware */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+/* Dot variant */
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+/* Status colors */
+.completed {
+    background-color: var(--success-100);
+    color: var(--success-700);
+}
+
+.planned {
+    background-color: var(--gray-100);
+    color: var(--text-secondary);
+}
+
+.draft {
+    background-color: var(--gray-100);
+    color: var(--text-secondary);
+}
+
+.submitted {
+    background-color: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.approved {
+    background-color: var(--success-100);
+    color: var(--success-700);
+}
+
+.rejected {
+    background-color: var(--error-100);
+    color: var(--error-700);
+}
+
+.missing {
+    background-color: var(--warning-100);
+    color: var(--warning-700);
+}
+
+/* Dot colors */
+.dot.completed {
+    background-color: var(--success-500);
+}
+
+.dot.planned {
+    background-color: var(--gray-400);
+}
+
+.dot.draft {
+    background-color: var(--gray-400);
+}
+
+.dot.submitted {
+    background-color: var(--warning-500);
+}
+
+.dot.approved {
+    background-color: var(--success-500);
+}
+
+.dot.rejected {
+    background-color: var(--error-500);
+}
+
+.dot.missing {
+    background-color: var(--warning-500);
+}

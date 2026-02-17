@@ -197,7 +197,29 @@ export default function TrainingDetailsPage() {
         }
     }, [id, trainings]);
 
-    if (!training) return <div style={{ padding: '20px', textAlign: 'center' }}>אימון לא נמצא או בטעינה... <Spinner /></div>;
+    if (!training) {
+        // Check if trainings have been loaded (store has data)
+        const hasLoadedData = trainings.length > 0;
+
+        if (hasLoadedData) {
+            return (
+                <div style={{ padding: 'var(--space-10)', textAlign: 'center', direction: 'rtl' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-4)' }}>
+                        אימון לא נמצא
+                    </p>
+                    <Button variant="outline" onClick={() => navigate('/weekly-schedule')}>
+                        חזרה ללוח האימונים
+                    </Button>
+                </div>
+            );
+        }
+
+        return (
+            <div style={{ padding: 'var(--space-10)', textAlign: 'center' }}>
+                <Spinner />
+            </div>
+        );
+    }
 
 
 
@@ -211,9 +233,12 @@ export default function TrainingDetailsPage() {
 
     const handleStatusToggle = async () => {
         const newStatus = training.status === 'completed' ? 'planned' : 'completed';
-        await editTraining(id, { status: newStatus });
-        // Optimistic update local state
-        setTraining(prev => ({ ...prev, status: newStatus }));
+        try {
+            await editTraining(id, { status: newStatus });
+            setTraining(prev => ({ ...prev, status: newStatus }));
+        } catch (err) {
+            console.error('Failed to toggle training status:', err);
+        }
     };
 
     return (
@@ -311,7 +336,7 @@ export default function TrainingDetailsPage() {
                         {training.status === 'completed' ? 'סמן כלא בוצע' : 'סמן כבוצע'}
                     </Button>
                     <Button onClick={handleEdit}>
-                        <Edit2 size={18} style={{ marginLeft: '8px' }} />
+                        <Edit2 size={18} style={{ marginInlineStart: '8px' }} />
                         ערוך אימון
                     </Button>
                 </div>

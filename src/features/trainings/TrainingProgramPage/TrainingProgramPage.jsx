@@ -37,6 +37,7 @@ import useGroupsStore from '../../../stores/groupsStore';
 import useEventsStore from '../../../stores/eventsStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
+import { normalizeDate } from '../../../utils/dateUtils';
 import { EVENT_COLORS, EVENT_LABELS } from '../../../services/events';
 import { PLAN_STATUS } from '../../../config/constants';
 
@@ -159,17 +160,8 @@ export default function TrainingProgramPage() {
             const groupIds = new Set(
                 trainings
                     .filter(t => {
-                        // Ensure t.date is handled safely
-                        let d = t.date;
-                        if (t.date?.seconds) {
-                            d = new Date(t.date.seconds * 1000);
-                        } else if (typeof t.date === 'string') {
-                            d = new Date(t.date);
-                        }
-
-                        // Valid Date check
-                        if (!d || !(d instanceof Date) || isNaN(d)) return false;
-
+                        const d = normalizeDate(t.date);
+                        if (!d) return false;
                         return isSameMonth(d, currentDate);
                     })
                     .map(t => t.groupId)
@@ -208,9 +200,8 @@ export default function TrainingProgramPage() {
     const handleDayClick = (day) => {
         // Find events on this day
         const dayEvents = (events || []).filter(e => {
-            const d = e.date?.seconds ? new Date(e.date.seconds * 1000) : e.date;
-            // Check invalid date
-            if (!d || isNaN(d)) return false;
+            const d = normalizeDate(e.date);
+            if (!d) return false;
             return isSameDay(d, day);
         });
 
@@ -227,12 +218,12 @@ export default function TrainingProgramPage() {
     const getTrainingsForDay = (day) => {
         return (filteredTrainings || [])
             .filter(t => {
-                const d = t.date?.seconds ? new Date(t.date.seconds * 1000) : t.date;
-                return d && !isNaN(d) && isSameDay(d, day);
+                const d = normalizeDate(t.date);
+                return d && isSameDay(d, day);
             })
             .sort((a, b) => {
-                const dA = a.date?.seconds ? new Date(a.date.seconds * 1000) : a.date;
-                const dB = b.date?.seconds ? new Date(b.date.seconds * 1000) : b.date;
+                const dA = normalizeDate(a.date);
+                const dB = normalizeDate(b.date);
                 return (dA || 0) - (dB || 0);
             });
     };
@@ -420,8 +411,8 @@ export default function TrainingProgramPage() {
                         {calendarDays.map(day => {
                             const isCurrent = isSameMonth(day, currentDate);
                             const dayEvents = (events || []).filter(e => {
-                                const d = e.date?.seconds ? new Date(e.date.seconds * 1000) : e.date;
-                                if (!d || isNaN(d)) return false;
+                                const d = normalizeDate(e.date);
+                                if (!d) return false;
                                 return isSameDay(d, day);
                             });
                             const dayTrainings = getTrainingsForDay(day);
@@ -449,7 +440,7 @@ export default function TrainingProgramPage() {
                                         {dayTrainings.map(t => {
                                             const group = groups?.find(g => g.id === t.groupId);
                                             const color = group?.color || stringToColor(group?.name);
-                                            const d = t.date?.seconds ? new Date(t.date.seconds * 1000) : t.date;
+                                            const d = normalizeDate(t.date);
                                             return (
                                                 <div
                                                     key={t.id}
@@ -457,7 +448,7 @@ export default function TrainingProgramPage() {
                                                     title={t.groupName}
                                                     style={{ backgroundColor: color, color: 'white' }}
                                                 >
-                                                    {d && !isNaN(d) ? format(d, 'HH:mm') : '??:??'}
+                                                    {d ? format(d, 'HH:mm') : '??:??'}
                                                 </div>
                                             );
                                         })}
@@ -474,20 +465,19 @@ export default function TrainingProgramPage() {
                 <h3 className={styles.sectionTitle}>פירוט אימונים חודשי</h3>
                 <div className={styles.trainingsList}>
                     {filteredTrainings
-                        .filter(t => isSameMonth(t.date, currentDate))
-                        .sort((a, b) => a.date - b.date)
+                        .filter(t => { const d = normalizeDate(t.date); return d && isSameMonth(d, currentDate); })
+                        .sort((a, b) => (normalizeDate(a.date) || 0) - (normalizeDate(b.date) || 0))
                         .map(training => {
+                            const tDate = normalizeDate(training.date);
                             const group = groups?.find(g => g.id === training.groupId);
                             const color = group?.color || stringToColor(group?.name);
                             return (
                                 <div key={training.id} className={styles.listRow} onClick={() => {
-                                            const tDate = training.date instanceof Date ? training.date : new Date(training.date);
-                                            const group = groups?.find(g => g.id === training.groupId);
                                             setSelectedTraining({
                                                 ...training,
-                                                day: format(tDate, 'EEEE', { locale: he }),
-                                                fullDate: format(tDate, 'd בMMMM', { locale: he }),
-                                                time: format(tDate, 'HH:mm'),
+                                                day: tDate ? format(tDate, 'EEEE', { locale: he }) : '',
+                                                fullDate: tDate ? format(tDate, 'd בMMMM', { locale: he }) : '',
+                                                time: tDate ? format(tDate, 'HH:mm') : '--:--',
                                                 duration: `${training.durationMinutes || 60} דק'`,
                                                 group: group?.name || training.groupName || 'קבוצה',
                                                 location: training.location || 'מגרש ראשי',
@@ -495,12 +485,12 @@ export default function TrainingProgramPage() {
                                         }}>
                                     <div className={styles.listRowHeader}>
                                         <div className={styles.listDate}>
-                                            <span className={styles.listDay}>{format(training.date, 'd')}</span>
-                                            <span className={styles.listMonth}>{format(training.date, 'MMM', { locale: he })}</span>
+                                            <span className={styles.listDay}>{tDate ? format(tDate, 'd') : '-'}</span>
+                                            <span className={styles.listMonth}>{tDate ? format(tDate, 'MMM', { locale: he }) : ''}</span>
                                         </div>
                                         <div className={styles.listTime}>
                                             <Clock size={14} />
-                                            {format(training.date, 'HH:mm')}
+                                            {tDate ? format(tDate, 'HH:mm') : '--:--'}
                                         </div>
                                         <div className={styles.listActions}>
                                             <Edit2 size={16} />
@@ -514,7 +504,7 @@ export default function TrainingProgramPage() {
                             );
                         })}
 
-                    {filteredTrainings.filter(t => isSameMonth(t.date, currentDate)).length === 0 && (
+                    {filteredTrainings.filter(t => { const d = normalizeDate(t.date); return d && isSameMonth(d, currentDate); }).length === 0 && (
                         <div className={styles.emptyList}>
                             <p>אין אימונים מתוכננים לחודש זה</p>
                         </div>

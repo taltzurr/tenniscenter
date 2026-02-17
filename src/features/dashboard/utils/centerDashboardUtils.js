@@ -2,6 +2,7 @@
  * Utility functions for Center Manager Dashboard
  * These functions handle data filtering and calculations for center-specific views
  */
+import { normalizeDate, formatHebrewTime, isSameDay } from '../../../utils/dateUtils';
 
 /**
  * Filter coaches belonging to a specific center
@@ -78,41 +79,29 @@ export const getCoachExecutionRate = (coachId, trainings) => {
  */
 export const getTodaysTrainings = (trainings, centerGroups, users) => {
   const today = new Date();
-  const startOfToday = new Date(today.setHours(0, 0, 0, 0));
-  const endOfToday = new Date(today.setHours(23, 59, 59, 999));
-
   const centerGroupIds = centerGroups.map(g => g.id);
 
   return trainings
     .filter(t => {
-      // Check if training belongs to a group in this center
       const belongsToCenter = centerGroupIds.includes(t.groupId);
-
-      // Check if training is today
-      const trainingDate = t.date instanceof Date ? t.date : new Date(t.date);
-      const isToday = trainingDate >= startOfToday && trainingDate <= endOfToday;
-
-      return belongsToCenter && isToday;
+      const trainingDate = normalizeDate(t.date);
+      return belongsToCenter && isSameDay(trainingDate, today);
     })
     .map(training => {
       const coach = users.find(u => u.id === training.coachId);
       const group = centerGroups.find(g => g.id === training.groupId);
-      const trainingDate = training.date instanceof Date ? training.date : new Date(training.date);
 
       return {
         ...training,
         coachName: coach?.displayName || 'מאמן',
         groupName: group?.name || training.groupName || 'קבוצה',
-        time: trainingDate.toLocaleTimeString('he-IL', {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
+        time: formatHebrewTime(training.date)
       };
     })
     .sort((a, b) => {
-      const dateA = a.date instanceof Date ? a.date : new Date(a.date);
-      const dateB = b.date instanceof Date ? b.date : new Date(b.date);
-      return dateA - dateB;
+      const dateA = normalizeDate(a.date);
+      const dateB = normalizeDate(b.date);
+      return (dateA || 0) - (dateB || 0);
     });
 };
 

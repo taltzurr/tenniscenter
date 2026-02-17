@@ -66,8 +66,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-full);
     color: var(--gray-400);
     transition: all var(--transition-fast);
@@ -191,6 +191,6 @@
         transform: translateX(0);
         position: relative;
         box-shadow: none;
-        border-left: 1px solid var(--gray-200);
+        border-inline-start: 1px solid var(--gray-200);
     }
 }

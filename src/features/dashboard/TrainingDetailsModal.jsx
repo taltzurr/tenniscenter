@@ -29,9 +29,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
     };
 
     return (
-        <div className={styles.overlay} onClick={onClose}>
+        <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="פרטי אימון">
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                <button className={styles.closeButton} onClick={onClose}>
+                <button className={styles.closeButton} onClick={onClose} aria-label="סגור">
                     <X size={20} />
                 </button>
 
@@ -93,7 +93,7 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                     </div>
 
                     {/* Technical Specs */}
-                    <div className={styles.sectionHeader} style={{ marginTop: '24px' }}>
+                    <div className={styles.sectionHeader} style={{ marginTop: 'var(--space-6)' }}>
                         <span>מפרט מקצועי</span>
                     </div>
                     <div className={styles.grid}>
@@ -177,7 +177,7 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
 
                     {/* Description if available */}
                     {training.description && (
-                        <div className={styles.section} style={{ marginTop: '24px' }}>
+                        <div className={styles.section} style={{ marginTop: 'var(--space-6)' }}>
                             <div className={styles.sectionTitle}>
                                 <FileText size={16} />
                                 <span>תיאור ומערך מלא</span>
@@ -197,9 +197,9 @@ const TrainingDetailsModal = ({ training, isOpen, onClose }) => {
                         onClick={handleStatusToggle}
                     >
                         {training.status === 'completed' ? (
-                            <><CheckCircle size={16} style={{ marginLeft: '6px' }} /> סמן כלא בוצע</>
+                            <><CheckCircle size={16} style={{ marginInlineStart: '6px' }} /> סמן כלא בוצע</>
                         ) : (
-                            <><CheckCircle size={16} style={{ marginLeft: '6px' }} /> סמן כבוצע</>
+                            <><CheckCircle size={16} style={{ marginInlineStart: '6px' }} /> סמן כבוצע</>
                         )}
                     </Button>
                 </div>

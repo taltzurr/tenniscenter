@@ -93,7 +93,7 @@ function ExerciseForm() {
                 equipment: formData.equipment.split(',').map(s => s.trim()).filter(Boolean),
                 tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean),
                 createdBy: userData?.id,
-                createdByName: userData?.name || userData?.email || 'Unknown'
+                createdByName: userData?.displayName || userData?.name || userData?.email || 'Unknown'
             };
 
             // Check if user is supervisor or admin - they can create directly
@@ -114,7 +114,7 @@ function ExerciseForm() {
                 await createRequest({
                     ...payload,
                     requestedBy: userData?.id,
-                    requestedByName: userData?.name || userData?.email || 'Unknown'
+                    requestedByName: userData?.displayName || userData?.name || userData?.email || 'Unknown'
                 });
                 addToast({
                     type: 'success',

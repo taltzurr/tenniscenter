@@ -293,6 +293,6 @@
 
 /* Delete Button */
 .deleteButton {
-    margin-right: auto;
+    margin-inline-end: auto;
     /* Push to the left (RTL) or right (LTR) depending on flex direction, generally separates from save buttons */
 }

@@ -154,6 +154,17 @@ function TrainingForm() {
             if (!formData.topic) {
                 newErrors.topic = 'נא למלא שם אימון';
             }
+            if (!formData.date) {
+                newErrors.date = 'יש לבחור תאריך';
+            }
+            // Prevent scheduling in the past (only for new trainings)
+            if (!isEditMode && trainingDate < new Date()) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (trainingDate < today) {
+                    newErrors.date = 'לא ניתן לתזמן אימון בעבר';
+                }
+            }
             if (Object.keys(newErrors).length > 0) {
                 setErrors(newErrors);
                 addToast({ type: 'error', message: 'נא למלא שדות חובה' });

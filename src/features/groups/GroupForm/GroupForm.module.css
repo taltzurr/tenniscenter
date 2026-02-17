@@ -72,7 +72,7 @@
 
 .required {
     color: var(--error-500);
-    margin-right: var(--space-1);
+    margin-inline-end: var(--space-1);
 }
 
 .select {
@@ -88,7 +88,7 @@
     background-repeat: no-repeat;
     background-position: left 12px center;
     background-size: 16px;
-    padding-left: var(--space-10);
+    padding-inline-start: var(--space-10);
 }
 
 .select:focus {
