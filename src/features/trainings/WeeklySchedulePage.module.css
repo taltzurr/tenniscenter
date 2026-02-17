@@ -1,5 +1,117 @@
-/* Ported from TrainingProgramPage.module.css for consistency */
+/* WeeklySchedulePage - CSS Module */
 
+.page {
+    padding: var(--space-4);
+    min-height: 100vh;
+    background-color: var(--bg-secondary);
+    padding-bottom: 80px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-secondary);
+    z-index: 10;
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+}
+
+.title {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.daySection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.dayHeader {
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    color: var(--text-secondary);
+    padding: 0 var(--space-1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todayBadge {
+    font-size: 0.75rem;
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.eventCard {
+    background-color: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.eventCardHoliday {
+    background-color: var(--error-bg);
+    border-color: var(--error-border);
+}
+
+.eventTitle {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.eventTitleWarning {
+    color: var(--warning-text);
+}
+
+.eventTitleHoliday {
+    color: var(--error);
+}
+
+.emptyText {
+    text-align: center;
+    color: var(--text-tertiary);
+    padding: var(--space-4);
+    font-size: var(--font-size-sm);
+}
+
+.addTrainingButton {
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
+    background-color: var(--gray-50);
+    color: var(--primary-600);
+    border: 1px dashed var(--gray-200);
+    height: 40px;
+}
+
+.backButtonLabel {
+    display: none;
+}
+
+/* Group Filter Chips */
 .groupChips {
     display: flex;
     flex-wrap: nowrap;
@@ -7,22 +119,15 @@
     overflow-x: auto;
     padding-bottom: var(--space-2);
     -webkit-overflow-scrolling: touch;
-    /* Smooth scroll on iOS */
     scrollbar-width: none;
-    /* Hide scrollbar Firefox */
     margin-bottom: var(--space-4);
-    /* Maintained from original inline style */
     max-width: 100%;
     width: 100%;
-    /* Ensure full width */
     touch-action: pan-x;
-    /* Improve touch scrolling */
-    /* Force scrolling */
 }
 
 .groupChips::-webkit-scrollbar {
     display: none;
-    /* Hide scrollbar Chrome/Safari */
 }
 
 .filterChip {
@@ -33,7 +138,6 @@
     border: 1px solid var(--gray-200);
     background: var(--bg-primary);
     border-radius: 9999px;
-    /* Pill shape */
     cursor: pointer;
     font-size: 0.85rem;
     white-space: nowrap;

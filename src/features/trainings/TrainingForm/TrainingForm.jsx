@@ -106,6 +106,8 @@ function TrainingForm() {
                         description: training.description || '',
                         equipment: training.equipment || '',
                         location: training.location || '',
+                        recurrence: training.recurrence || prev.recurrence,
+                        recurrenceGroupId: training.recurrenceGroupId || null,
                     }));
                 }
             }
@@ -387,8 +389,8 @@ function TrainingForm() {
                             </div>
                         </div>
 
-                        {/* Recurrence (Create Only) */}
-                        {!isEditMode && (
+                        {/* Recurrence */}
+                        {!isEditMode ? (
                             <div style={{ marginTop: '24px' }}>
                                 <div className={styles.labelWrapper}>
                                     <div className={`${styles.iconBox} ${styles.slateBox}`}>
@@ -401,6 +403,25 @@ function TrainingForm() {
                                     startDate={new Date(formData.date)}
                                     onChange={(newRecurrence) => setFormData(prev => ({ ...prev, recurrence: newRecurrence }))}
                                 />
+                            </div>
+                        ) : formData.recurrenceGroupId && (
+                            <div style={{ marginTop: '24px' }}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.slateBox}`}>
+                                        <Repeat size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>חזרתיות</span>
+                                </div>
+                                <div style={{
+                                    padding: '10px 14px',
+                                    backgroundColor: 'var(--gray-50)',
+                                    borderRadius: 'var(--radius-md)',
+                                    fontSize: 'var(--font-size-sm)',
+                                    color: 'var(--text-secondary)',
+                                    border: '1px solid var(--gray-200)'
+                                }}>
+                                    אימון זה הוא חלק מסדרת אימונים חוזרת
+                                </div>
                             </div>
                         )}
                     </div>

@@ -206,6 +206,7 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
     if (isDemoMode()) {
         const trainings = getMockTrainings();
         const created = [];
+        const recurrenceGroupId = `recurrence-${Date.now()}`;
         let currentDate = new Date(baseData.date);
         const interval = recurrence.interval || 1;
         const freq = recurrence.frequency;
@@ -223,6 +224,7 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
                 ...baseData,
                 id: `training-${Date.now()}-${count}`,
                 date: new Date(currentDate),
+                recurrenceGroupId,
                 status: 'planned',
                 createdAt: new Date(),
                 updatedAt: new Date(),

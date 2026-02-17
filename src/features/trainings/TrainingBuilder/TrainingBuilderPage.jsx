@@ -72,6 +72,13 @@ function TrainingBuilderPage() {
     };
 
     const handleSave = async () => {
+        // Validate exercises before saving
+        const invalidExercises = sessionExercises.filter(ex => !ex.name?.trim());
+        if (invalidExercises.length > 0) {
+            alert('יש תרגילים ללא שם. נא למלא שם לכל תרגיל לפני שמירה.');
+            return;
+        }
+
         setIsSaving(true);
         try {
             await editTraining(trainingId, { exercises: sessionExercises });
