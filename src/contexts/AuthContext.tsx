@@ -79,7 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      await signIn(email, password);
+      const credential = await signIn(email, password);
+      // Verify user has a Firestore profile document
+      const userData = await getUserData(credential.user.uid);
+      if (!userData) {
+        // Firebase Auth succeeded but no Firestore profile exists
+        await authSignOut();
+        const error = new Error('User profile not found in database');
+        (error as { code?: string }).code = 'auth/user-profile-not-found';
+        throw error;
+      }
       // Auth state listener will handle the rest
     } catch (error) {
       setIsLoading(false);

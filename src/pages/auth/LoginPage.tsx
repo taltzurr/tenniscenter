@@ -60,6 +60,9 @@ export function LoginPage() {
         case 'auth/user-disabled':
           setError('החשבון הושבת. פנה למנהל המערכת');
           break;
+        case 'auth/user-profile-not-found':
+          setError('החשבון לא נמצא במערכת. פנה למנהל המערכת');
+          break;
         default:
           setError('שגיאה בהתחברות. נסה שוב');
       }
