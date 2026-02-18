@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>יצירת משתמש - מרכזי הטניס</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    h1 { color: #1e3a5f; margin-bottom: 4px; }
+    .subtitle { color: #666; margin-bottom: 20px; font-size: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; margin-top: 14px; color: #333; font-size: 14px; }
+    input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+    input[dir=ltr] { direction: ltr; }
+    button { margin-top: 24px; width: 100%; padding: 14px; background: #1e3a5f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    button:hover { background: #2a4f7f; }
+    button:disabled { background: #999; cursor: not-allowed; }
+    #log { margin-top: 20px; padding: 16px; background: #1a1a2e; border-radius: 8px; font-family: monospace; font-size: 13px; direction: ltr; white-space: pre-wrap; min-height: 80px; color: #e0e0e0; }
+    .s { color: #4caf50; }
+    .e { color: #f44336; }
+    .i { color: #64b5f6; }
+    hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+    h3 { color: #1e3a5f; margin: 0 0 4px; }
+    .warning { background: #fff8e1; border: 1px solid #ffc107; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; color: #856404; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎾 יצירת משתמש מאמן</h1>
+    <p class="subtitle">הוספת טל צור כמאמן במרכז יפו</p>
+
+    <div class="warning">
+      כדי להריץ את הסקריפט, צריך <strong>Firebase Web API Key</strong> שנמצא ב:<br>
+      Firebase Console → Project Settings → General → Your apps → Web API Key
+    </div>
+
+    <hr>
+    <h3>🔑 הגדרות Firebase</h3>
+
+    <label>Firebase Web API Key</label>
+    <input type="text" id="apiKey" placeholder="AIzaSy..." dir="ltr" />
+
+    <hr>
+    <h3>👑 פרטי מנהל מקצועי (Supervisor)</h3>
+    <label>אימייל</label>
+    <input type="email" id="adminEmail" value="admin@test.com" dir="ltr" />
+    <label>סיסמה</label>
+    <input type="password" id="adminPassword" value="Test123!" dir="ltr" />
+
+    <hr>
+    <h3>👤 פרטי המאמן החדש</h3>
+    <label>אימייל</label>
+    <input type="email" id="coachEmail" value="talzur07@gmail.com" dir="ltr" />
+    <label>סיסמה (לצורך קבלת UID בלבד)</label>
+    <input type="password" id="coachPassword" value="Aa123456" dir="ltr" />
+    <label>שם מלא</label>
+    <input type="text" id="coachName" value="טל צור" dir="rtl" />
+    <label>מרכז</label>
+    <input type="text" id="centerName" value="מרכז יפו" dir="rtl" />
+
+    <button id="createBtn" onclick="createUser()">🚀 צור משתמש</button>
+
+    <div id="log">ממתין...</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, deleteApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    window.createUser = async function() {
+      const log = document.getElementById('log');
+      const btn = document.getElementById('createBtn');
+
+      const apiKey       = document.getElementById('apiKey').value.trim();
+      const adminEmail   = document.getElementById('adminEmail').value.trim();
+      const adminPass    = document.getElementById('adminPassword').value.trim();
+      const coachEmail   = document.getElementById('coachEmail').value.trim();
+      const coachPass    = document.getElementById('coachPassword').value.trim();
+      const coachName    = document.getElementById('coachName').value.trim();
+      const centerName   = document.getElementById('centerName').value.trim();
+      const centerId     = 'center-yafo';
+
+      if (!apiKey) { log.innerHTML = '<span class="e">❌ חסר API Key</span>'; return; }
+
+      btn.disabled = true;
+      log.innerHTML = '<span class="i">🚀 Starting...</span>\n';
+
+      const add = (msg, cls='') => log.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+
+      let app;
+      try {
+        app = initializeApp({
+          apiKey,
+          authDomain: 'tennis-training-app-75fd1.firebaseapp.com',
+          projectId:  'tennis-training-app-75fd1',
+        });
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+        add('✓ Firebase initialized', 's');
+
+        // Step 1: Sign in as coach to get their UID
+        add(`\n[1/5] Getting coach UID for ${coachEmail}...`, 'i');
+        const coachCred = await signInWithEmailAndPassword(auth, coachEmail, coachPass);
+        const coachUid  = coachCred.user.uid;
+        add(`✓ Coach UID: ${coachUid}`, 's');
+        await signOut(auth);
+
+        // Step 2: Sign in as supervisor
+        add(`\n[2/5] Signing in as supervisor (${adminEmail})...`, 'i');
+        await signInWithEmailAndPassword(auth, adminEmail, adminPass);
+        add(`✓ Signed in as supervisor`, 's');
+
+        // Step 3: Create center if needed
+        add(`\n[3/5] Checking center "${centerName}"...`, 'i');
+        const centerRef = doc(db, 'centers', centerId);
+        const centerSnap = await getDoc(centerRef);
+        if (!centerSnap.exists()) {
+          await setDoc(centerRef, {
+            name: centerName, isActive: true,
+            createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+          });
+          add(`✓ Created center: ${centerName}`, 's');
+        } else {
+          add(`✓ Center already exists: ${centerName}`, 's');
+        }
+
+        // Step 4: Create user document
+        add(`\n[4/5] Creating user document...`, 'i');
+        await setDoc(doc(db, 'users', coachUid), {
+          email: coachEmail, displayName: coachName,
+          role: 'coach', centerIds: [centerId],
+          isActive: true, fcmTokens: [],
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+          createdBy: 'admin-script',
+        }, { merge: true });
+        add(`✓ users/${coachUid} created`, 's');
+
+        // Step 5: Create coach document
+        add(`\n[5/5] Creating coach document...`, 'i');
+        await setDoc(doc(db, 'coaches', coachUid), {
+          userId: coachUid, email: coachEmail, displayName: coachName,
+          centerIds: [centerId], isActive: true, isArchived: false,
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+        }, { merge: true });
+        add(`✓ coaches/${coachUid} created`, 's');
+
+        add(`\n✅ SUCCESS! ${coachName} is now a coach in ${centerName}`, 's');
+        add(`   Login: ${coachEmail}`, 's');
+
+      } catch (err) {
+        add(`\n❌ Error: ${err.code || err.message}`, 'e');
+        if (err.code === 'auth/invalid-credential') {
+          add('   Wrong email or password', 'e');
+        } else if (err.code === 'permission-denied') {
+          add('   Supervisor credentials may be wrong, or supervisor role not in Firestore', 'e');
+        }
+      } finally {
+        if (app) { try { await deleteApp(app); } catch {} }
+        btn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
