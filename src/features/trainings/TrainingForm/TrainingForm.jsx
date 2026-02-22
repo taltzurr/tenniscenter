@@ -37,6 +37,7 @@ function TrainingForm() {
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+    const [isEndTimeUserModified, setIsEndTimeUserModified] = useState(false);
 
     const [formData, setFormData] = useState({
         groupId: searchParams.get('groupId') || '',
@@ -85,6 +86,7 @@ function TrainingForm() {
                         endTimeStr = format(new Date(trainingDateObj.getTime() + 60 * 60000), 'HH:mm');
                     }
 
+                    setIsEndTimeUserModified(true); // Don't auto-override stored end time in edit mode
                     setFormData(prev => ({
                         ...prev,
                         groupId: training.groupId,
@@ -113,6 +115,9 @@ function TrainingForm() {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+        if (name === 'endTime') {
+            setIsEndTimeUserModified(true);
+        }
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
@@ -120,6 +125,22 @@ function TrainingForm() {
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: null }));
         }
+    };
+
+    const handleStartTimeChange = (e) => {
+        const newStartTime = e.target.value;
+        setFormData(prev => {
+            const updated = { ...prev, startTime: newStartTime };
+            if (!isEndTimeUserModified && newStartTime) {
+                const [h, m] = newStartTime.split(':').map(Number);
+                const endDate = new Date(2000, 0, 1, h, m + 60);
+                const endH = String(endDate.getHours()).padStart(2, '0');
+                const endM = String(endDate.getMinutes()).padStart(2, '0');
+                updated.endTime = `${endH}:${endM}`;
+            }
+            return updated;
+        });
+        if (errors.startTime) setErrors(prev => ({ ...prev, startTime: null }));
     };
 
 
@@ -341,7 +362,7 @@ function TrainingForm() {
                                         type="time"
                                         name="startTime"
                                         value={formData.startTime}
-                                        onChange={handleChange}
+                                        onChange={handleStartTimeChange}
                                         required
                                         containerStyle={{ flex: 1 }}
                                     />
