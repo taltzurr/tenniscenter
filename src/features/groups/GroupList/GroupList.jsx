@@ -14,6 +14,7 @@ import Spinner from '../../../components/ui/Spinner';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useUIStore from '../../../stores/uiStore';
+import { ROLES } from '../../../config/constants';
 import styles from './GroupList.module.css';
 
 function GroupList() {
@@ -26,9 +27,12 @@ function GroupList() {
 
     useEffect(() => {
         if (userData) {
-            const isSupervisor = userData.role === 'supervisor';
-            const isCenterManager = userData.role === 'centerManager';
+            const isSupervisor = userData.role === ROLES.SUPERVISOR;
+            const isCenterManager = userData.role === ROLES.CENTER_MANAGER;
             const centerId = isCenterManager ? userData.managedCenterId : null;
+            if (isCenterManager && !centerId) {
+                console.warn('[GroupList] centerManager has no managedCenterId — groups may not load correctly');
+            }
             fetchGroups(userData.id, isSupervisor, centerId);
         }
     }, [userData, fetchGroups]);
