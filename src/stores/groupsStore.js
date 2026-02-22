@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import {
     getGroups,
     getAllGroups,
+    getGroupsByCenter,
     getGroup,
     createGroup,
     updateGroup,
@@ -16,12 +17,17 @@ const useGroupsStore = create((set, get) => ({
     error: null,
 
     // Fetch groups for current user
-    fetchGroups: async (coachId, isSupervisor = false) => {
+    fetchGroups: async (coachId, isSupervisor = false, centerId = null) => {
         set({ isLoading: true, error: null });
         try {
-            const groups = isSupervisor
-                ? await getAllGroups()
-                : await getGroups(coachId);
+            let groups;
+            if (isSupervisor) {
+                groups = await getAllGroups();
+            } else if (centerId) {
+                groups = await getGroupsByCenter(centerId);
+            } else {
+                groups = await getGroups(coachId);
+            }
             set({ groups, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });

@@ -27,7 +27,9 @@ function GroupList() {
     useEffect(() => {
         if (userData) {
             const isSupervisor = userData.role === 'supervisor';
-            fetchGroups(userData.id, isSupervisor);
+            const isCenterManager = userData.role === 'centerManager';
+            const centerId = isCenterManager ? userData.managedCenterId : null;
+            fetchGroups(userData.id, isSupervisor, centerId);
         }
     }, [userData, fetchGroups]);
 
