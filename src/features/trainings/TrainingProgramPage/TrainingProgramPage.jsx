@@ -34,6 +34,7 @@ import { he } from 'date-fns/locale';
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useGroupsStore from '../../../stores/groupsStore';
+import useUsersStore from '../../../stores/usersStore';
 import useEventsStore from '../../../stores/eventsStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
@@ -76,6 +77,8 @@ export default function TrainingProgramPage() {
     const { userData } = useAuthStore();
     const { trainings, fetchTrainings, isLoading: trainingsLoading } = useTrainingsStore();
     const { groups, fetchGroups } = useGroupsStore();
+    const { users, fetchUsers } = useUsersStore();
+    const isCenterManager = userData?.role === 'centerManager';
 
     // New Stores
     const { events, fetchEvents } = useEventsStore();
@@ -97,10 +100,15 @@ export default function TrainingProgramPage() {
         if (userData?.id) {
             // Fetch Groups
             if (!groups || groups.length === 0) {
-                fetchGroups(userData.id, userData.role === 'supervisor');
+                if (isCenterManager) {
+                    fetchGroups(userData.id, false, userData.managedCenterId);
+                    fetchUsers();
+                } else {
+                    fetchGroups(userData.id, userData.role === 'supervisor');
+                }
             }
         }
-    }, [userData, fetchGroups, groups?.length]);
+    }, [userData, fetchGroups, groups?.length, isCenterManager]);
 
     // Data Load on Month Change
     useEffect(() => {
@@ -111,8 +119,10 @@ export default function TrainingProgramPage() {
                 const start = startOfMonth(subMonths(safeDate, 1));
                 const end = endOfMonth(addMonths(safeDate, 1));
 
-                // 1. Fetch Trainings
-                fetchTrainings(userData.id, start, end);
+                // 1. Fetch Trainings (coaches only; center manager trainings fetched separately)
+                if (!isCenterManager) {
+                    fetchTrainings(userData.id, start, end);
+                }
 
                 // 2. Fetch Events (Organizational)
                 fetchEvents(safeDate.getFullYear(), safeDate.getMonth());
@@ -128,7 +138,21 @@ export default function TrainingProgramPage() {
                 console.error('CRITICAL ERROR IN TRAINING PAGE DATA LOAD:', err);
             }
         }
-    }, [userData, currentDate, selectedGroup, fetchTrainings, fetchEvents, fetchTheme, fetchPlan]);
+    }, [userData, currentDate, selectedGroup, fetchTrainings, fetchEvents, fetchTheme, fetchPlan, isCenterManager]);
+
+    // For center managers: fetch trainings for all center coaches once users are loaded
+    const currentMonth = currentDate;
+    useEffect(() => {
+        if (!isCenterManager || !users || users.length === 0) return;
+        const centerId = userData?.managedCenterId;
+        const coachIds = users
+            .filter(u => u.role === 'coach' && u.centerIds?.includes(centerId))
+            .map(u => u.id);
+        const safeDate = (!currentMonth || isNaN(currentMonth)) ? new Date() : currentMonth;
+        const monthStart = startOfMonth(subMonths(safeDate, 1));
+        const monthEnd = endOfMonth(addMonths(safeDate, 1));
+        useTrainingsStore.getState().fetchCenterTrainings(coachIds, monthStart, monthEnd);
+    }, [isCenterManager, users?.length, currentMonth]);
 
     const calendarDays = useMemo(() => {
         const monthStart = startOfMonth(currentDate);
@@ -525,12 +549,14 @@ export default function TrainingProgramPage() {
                     <div className={styles.dayModal}>
                         <h3>{format(selectedDate, 'd בMMMM', { locale: he })}</h3>
                         <div className={styles.modalActions}>
+                            {!isCenterManager && (
                             <Button onClick={() => {
                                 const dateStr = format(selectedDate, 'yyyy-MM-dd');
                                 navigate(`/trainings/new?date=${dateStr}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`);
                             }}>
                                 <Plus size={16} /> הוסף אימון
                             </Button>
+                            )}
                         </div>
                     </div>
                 </>
