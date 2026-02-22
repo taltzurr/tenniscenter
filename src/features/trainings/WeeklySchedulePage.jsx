@@ -50,10 +50,10 @@ export default function WeeklySchedulePage() {
     const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Calculate week range
-    const today = new Date();
-    const weekStart = startOfWeek(today, { weekStartsOn: 0 }); // Sunday
-    const weekEnd = endOfWeek(today, { weekStartsOn: 0 }); // Saturday
-    const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+    const today = useMemo(() => new Date(), []);
+    const weekStart = useMemo(() => startOfWeek(today, { weekStartsOn: 0 }), [today]); // Sunday
+    const weekEnd = useMemo(() => endOfWeek(today, { weekStartsOn: 0 }), [today]); // Saturday
+    const days = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd]);
 
     useEffect(() => {
         if (!userData?.id) return;
