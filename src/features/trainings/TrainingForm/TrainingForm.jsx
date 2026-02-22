@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Combobox from '../../../components/ui/Combobox/Combobox';
-import MultiSelect from '../../../components/ui/MultiSelect/MultiSelect';
+import TopicsPicker from '../../../components/ui/TopicsPicker';
 import RecurrencePicker from '../../../components/ui/RecurrencePicker/RecurrencePicker';
 import Spinner from '../../../components/ui/Spinner';
 
@@ -22,13 +22,6 @@ import styles from './TrainingForm.module.css';
 const PERIOD_TYPES = ['הכנה כללית', 'הכנה ספציפית', 'תחרות', 'מעבר'];
 const GAME_SITUATIONS = ['שחקן מגיש', 'שחקן מקבל', 'משחק רשת', 'משחק קו אחורי', 'התקפה', 'הגנה'];
 const GAME_COMPONENTS = ['טכני', 'טקטי', 'פיזי', 'מנטלי'];
-const TOPIC_SUGGESTIONS = [
-    'עמידת מוצא', 'תפנית', 'הנפה לאחור', 'המשך תנועה', 'אחיזות', 'תנועה ארוכה', 'תנועה משוחררת', 'הכנה מהירה לחבטה', 'התאמה של גובה ההנפה לחבטה', 'תנועה רציפה', 'תנועה רכה',
-    'בלאנס - שיווי משקל', 'ספליט', 'צעדי התאמה', 'חזרה למרכז אפשרויות', 'תנועה קדימה ואחורה', 'מרכז כובד נמוך', 'תנועת בריחה לפורהנד', 'קאורדינציה', 'קשר עין יד',
-    'יציבות עם גובה', 'יציבות עם ספין', 'יציבות עם עומק', 'יציבות עם כיוונים', 'יציבות עם עצמה', 'בנית נקודה דרך אלכסון', 'סרב + חבטה שלישית', 'ריטרן + חבטה רביעית',
-    'שפת גוף חיובית', 'גישת הגעה לכדור', 'התמודדות במצבי הובלה', 'התמודדות במצבי פיגור', 'להתמקד בעיקר ולא בתפל', 'רמת עוררות אופטימלית', 'ריכוז', 'רוטינה קבועה', 'דיבור עצמי חיובי', 'מיקוד מטרות ביצוע',
-    'נקודת מגע מס׳ 1', 'נקודת מגע מס׳ 2', 'נקודת מגע מס׳ 3', 'נקודת מגע מס׳ 4', 'זיהוי גובה הכדור', 'זיהוי עומק הכדור', 'זיהוי כיוון הכדור', 'זיהוי סיבוביות הכדור', 'זיהוי עוצמת הכדור'
-];
 
 function TrainingForm() {
     const navigate = useNavigate();
@@ -481,7 +474,21 @@ function TrainingForm() {
                                 />
                             </div>
 
-                            {/* Equipment (New Field) */}
+                            {/* Training Topics — TopicsPicker (full width, above equipment) */}
+                            <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
+                                <div className={styles.labelWrapper}>
+                                    <div className={`${styles.iconBox} ${styles.greenBox}`}>
+                                        <Tag size={18} />
+                                    </div>
+                                    <span className={styles.labelText}>נושאי האימון</span>
+                                </div>
+                                <TopicsPicker
+                                    value={formData.trainingTopics}
+                                    onChange={(topics) => setFormData(prev => ({ ...prev, trainingTopics: topics }))}
+                                />
+                            </div>
+
+                            {/* Equipment */}
                             <div className={styles.gridItem}>
                                 <div className={styles.labelWrapper}>
                                     <div className={`${styles.iconBox} ${styles.slateBox}`}>
@@ -494,22 +501,6 @@ function TrainingForm() {
                                     value={formData.equipment || ''}
                                     onChange={handleChange}
                                     placeholder="קונוסים, סולמות..."
-                                />
-                            </div>
-
-                            {/* Tags */}
-                            <div className={styles.gridItem} style={{ gridColumn: '1 / -1' }}>
-                                <div className={styles.labelWrapper}>
-                                    <div className={`${styles.iconBox} ${styles.greenBox}`}>
-                                        <Tag size={18} />
-                                    </div>
-                                    <span className={styles.labelText}>נושאי האימון</span>
-                                </div>
-                                <MultiSelect
-                                    options={TOPIC_SUGGESTIONS}
-                                    value={formData.trainingTopics}
-                                    onChange={(tags) => setFormData(prev => ({ ...prev, trainingTopics: tags }))}
-                                    placeholder="בחר או הקלד נושאים..."
                                 />
                             </div>
                         </div>
