@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import useAuthStore from '../../stores/authStore';
 import useCentersStore from '../../stores/centersStore';
 import styles from './ProfileForm.module.css';
+import { ROLES } from '../../config/constants';
 
 function ProfileForm({ onClose }) {
     const { userData, updateProfile } = useAuthStore();
@@ -26,12 +27,15 @@ function ProfileForm({ onClose }) {
         e.preventDefault();
         setIsSaving(true);
         try {
-            await updateProfile({
+            const updateData = {
                 displayName: formData.displayName,
                 phone: formData.phone,
-                centerIds: [formData.centerId],
-                centerName: centers.find(c => c.id === formData.centerId)?.name || ''
-            });
+            };
+            if (userData?.role !== ROLES.CENTER_MANAGER) {
+                updateData.centerIds = [formData.centerId];
+                updateData.centerName = centers.find(c => c.id === formData.centerId)?.name || '';
+            }
+            await updateProfile(updateData);
             onClose();
         } catch (error) {
             console.error('Failed to update profile', error);
@@ -74,18 +78,28 @@ function ProfileForm({ onClose }) {
 
                     <div className={styles.formGroup}>
                         <label className={styles.label}>מרכז טניס</label>
-                        <select
-                            className={styles.input}
-                            value={formData.centerId}
-                            onChange={e => setFormData({ ...formData, centerId: e.target.value })}
-                        >
-                            <option value="">בחר מרכז...</option>
-                            {centers.map(center => (
-                                <option key={center.id} value={center.id}>
-                                    {center.name}
-                                </option>
-                            ))}
-                        </select>
+                        {userData?.role === ROLES.CENTER_MANAGER ? (
+                            <input
+                                type="text"
+                                className={`${styles.input} ${styles.disabled}`}
+                                value={centers.find(c => c.id === (userData?.managedCenterId || userData?.centerIds?.[0]))?.name || 'לא מוגדר'}
+                                readOnly
+                                aria-label="מרכז טניס (לקריאה בלבד)"
+                            />
+                        ) : (
+                            <select
+                                className={styles.input}
+                                value={formData.centerId}
+                                onChange={e => setFormData({ ...formData, centerId: e.target.value })}
+                            >
+                                <option value="">בחר מרכז...</option>
+                                {centers.map(center => (
+                                    <option key={center.id} value={center.id}>
+                                        {center.name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>

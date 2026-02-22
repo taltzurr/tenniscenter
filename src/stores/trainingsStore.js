@@ -48,6 +48,24 @@ const useTrainingsStore = create((set, get) => ({
         }
     },
 
+
+    // Fetch all trainings for a list of coach IDs (for center manager read-only view)
+    fetchCenterTrainings: async (coachIds, startDate, endDate) => {
+        if (!coachIds || coachIds.length === 0) {
+            set({ trainings: [], isLoading: false });
+            return;
+        }
+        set({ isLoading: true, error: null });
+        try {
+            const { getOrganizationTrainings } = await import('../services/trainings');
+            const all = await getOrganizationTrainings(startDate, endDate);
+            const filtered = all.filter(t => coachIds.includes(t.coachId));
+            set({ trainings: filtered, isLoading: false });
+        } catch (error) {
+            set({ error: error.message, isLoading: false });
+        }
+    },
+
     // Add training
     addTraining: async (data) => {
         set({ isLoading: true, error: null });

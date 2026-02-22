@@ -247,3 +247,24 @@ export async function permanentlyDeleteGroup(id) {
 
     await deleteDoc(doc(db, COLLECTION, id));
 }
+
+/**
+ * Get all groups for a specific center (for center managers)
+ * @param {string} centerId
+ * @returns {Promise<Array>}
+ */
+export async function getGroupsByCenter(centerId) {
+    if (isDemoMode()) {
+        return getMockGroups().filter(g => g.centerId === centerId && g.isActive);
+    }
+
+    const q = query(
+        collection(db, COLLECTION),
+        where('centerId', '==', centerId),
+        where('isActive', '==', true),
+        orderBy('createdAt', 'desc')
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}

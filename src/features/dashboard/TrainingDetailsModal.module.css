@@ -18,9 +18,12 @@
     border-radius: var(--radius-xl);
     width: 100%;
     max-width: 500px;
+    max-height: 90vh;
     box-shadow: var(--shadow-xl);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     animation: slideUp 0.3s ease-out;
 }
 
@@ -77,6 +80,7 @@
     display: flex;
     align-items: flex-start;
     gap: var(--space-4);
+    flex-shrink: 0;
 }
 
 .iconContainer {
@@ -100,6 +104,9 @@
 
 .content {
     padding: var(--space-6);
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
 }
 
 .statusBadge {
@@ -223,12 +230,11 @@
 .footer {
     padding: var(--space-4) var(--space-6);
     background-color: var(--gray-50);
-    /* Light footer bg */
     border-top: 1px solid var(--gray-200);
     display: flex;
     justify-content: space-between;
-    /* Align edit left, status right */
     align-items: center;
+    flex-shrink: 0;
 }
 
 .sectionHeader {

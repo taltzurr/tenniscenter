@@ -5,6 +5,8 @@ import {
     Users,
     Calendar,
     CalendarDays,
+    CalendarCheck,
+    CalendarRange,
     Dumbbell,
     Target,
     Heart,
@@ -51,13 +53,15 @@ function Sidebar() {
                         { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                         { to: '/users', icon: UserCog, label: 'מאמנים' },
                         { to: '/groups', icon: Users, label: 'קבוצות' },
+                        { to: '/weekly-schedule', icon: Calendar, label: 'לוז שבועי' },
+                        { to: '/calendar', icon: CalendarDays, label: 'לוח חודשי' },
                     ]
                 },
                 {
                     section: 'ניהול',
                     items: [
-                        { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
-                        { to: '/events-calendar', icon: CalendarDays, label: 'אירועים' },
+                        { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
+                        { to: '/events-calendar', icon: CalendarRange, label: 'אירועים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]
                 }
@@ -70,7 +74,7 @@ function Sidebar() {
                 section: 'ראשי',
                 items: [
                     { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-                    { to: '/monthly-plans', icon: CalendarDays, label: 'לוז אימונים' },
+                    { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
                     { to: '/calendar', icon: Calendar, label: 'בניית תכנית אימון' },
                 ]
             },
@@ -141,7 +145,7 @@ function Sidebar() {
                             <div className={styles.navSectionTitle}>{section.section}</div>
                             {section.items.map((item) => (
                                 <NavLink
-                                    key={item.to}
+                                    key={`${item.to}-${item.label}`}
                                     to={item.to}
                                     onClick={handleNavClick}
                                     className={({ isActive }) =>

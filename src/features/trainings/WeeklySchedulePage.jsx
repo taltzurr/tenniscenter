@@ -20,6 +20,7 @@ import useAuthStore from '../../stores/authStore';
 import useTrainingsStore from '../../stores/trainingsStore';
 import useEventsStore from '../../stores/eventsStore';
 import useGroupsStore from '../../stores/groupsStore';
+import useUsersStore from '../../stores/usersStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
@@ -43,26 +44,43 @@ export default function WeeklySchedulePage() {
     const { trainings, fetchTrainings, editTraining, isLoading: isTrainingsLoading } = useTrainingsStore();
     const { events, fetchEvents, isLoading: isEventsLoading } = useEventsStore();
     const { groups, fetchGroups } = useGroupsStore();
+    const { users, fetchUsers } = useUsersStore();
+    const isCenterManager = userData?.role === 'centerManager';
     const [selectedGroup, setSelectedGroup] = useState('all');
     const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Calculate week range
-    const today = new Date();
-    const weekStart = startOfWeek(today, { weekStartsOn: 0 }); // Sunday
-    const weekEnd = endOfWeek(today, { weekStartsOn: 0 }); // Saturday
-    const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+    const today = useMemo(() => new Date(), []);
+    const weekStart = useMemo(() => startOfWeek(today, { weekStartsOn: 0 }), [today]); // Sunday
+    const weekEnd = useMemo(() => endOfWeek(today, { weekStartsOn: 0 }), [today]); // Saturday
+    const days = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd]);
 
     useEffect(() => {
-        if (userData?.id) {
+        if (!userData?.id) return;
+
+        fetchEvents(today.getFullYear(), today.getMonth());
+        if (weekStart.getMonth() !== weekEnd.getMonth()) {
+            fetchEvents(today.getFullYear(), weekEnd.getMonth());
+        }
+
+        if (isCenterManager) {
+            fetchUsers();
+            fetchGroups(userData.id, false, userData.managedCenterId);
+        } else {
             fetchGroups(userData.id);
             fetchTrainings(userData.id, weekStart, weekEnd);
-            fetchEvents(today.getFullYear(), today.getMonth());
-
-            if (weekStart.getMonth() !== weekEnd.getMonth()) {
-                fetchEvents(today.getFullYear(), weekEnd.getMonth());
-            }
         }
-    }, [userData, fetchTrainings, fetchEvents, fetchGroups]);
+    }, [userData?.id, isCenterManager]);
+
+    // For center managers: fetch trainings for all center coaches once users are loaded
+    useEffect(() => {
+        if (!isCenterManager || !users || users.length === 0) return;
+        const centerId = userData?.managedCenterId;
+        const coachIds = users
+            .filter(u => u.role === 'coach' && u.centerIds?.includes(centerId))
+            .map(u => u.id);
+        useTrainingsStore.getState().fetchCenterTrainings(coachIds, weekStart, weekEnd);
+    }, [isCenterManager, users?.length]);
 
     const getDayContent = (day) => {
         const dayEvents = events.filter(e => {
@@ -108,9 +126,11 @@ export default function WeeklySchedulePage() {
                         {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
                     </p>
                 </div>
+                {!isCenterManager && (
                 <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
                     <Plus size={20} />
                 </Button>
+                )}
             </div>
 
             {/* Group Filter */}
@@ -195,7 +215,7 @@ export default function WeeklySchedulePage() {
                                             duration: `${t.durationMinutes || 60} דק'`,
                                             location: t.location || 'מגרש ראשי'
                                         })}
-                                        onStatusToggle={handleStatusToggle}
+                                        onStatusToggle={isCenterManager ? undefined : handleStatusToggle}
                                     />
                                 );
                             })}
@@ -204,6 +224,7 @@ export default function WeeklySchedulePage() {
                                 <div className={styles.emptyText}>אין פעילות</div>
                             )}
 
+                            {!isCenterManager && (
                             <Button
                                 variant="ghost"
                                 className={styles.addTrainingButton}
@@ -211,6 +232,7 @@ export default function WeeklySchedulePage() {
                             >
                                 <Plus size={16} /> הוסף אימון
                             </Button>
+                            )}
                         </div>
                     );
                 })}

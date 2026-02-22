@@ -61,6 +61,24 @@
             ]
         },
         {
+            "collectionGroup": "groups",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "centerId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "isActive",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
             "collectionGroup": "exercises",
             "queryScope": "COLLECTION",
             "fields": [

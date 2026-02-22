@@ -9,8 +9,8 @@ import { auth, db } from './firebase';
 
 /**
  * Sign in with email and password
- * @param {string} email 
- * @param {string} password 
+ * @param {string} email
+ * @param {string} password
  * @returns {Promise<{user: object, userData: object}>}
  */
 export async function signIn(email, password) {
@@ -29,7 +29,7 @@ export async function signOut() {
 
 /**
  * Send password reset email
- * @param {string} email 
+ * @param {string} email
  * @returns {Promise<void>}
  */
 export async function resetPassword(email) {
@@ -38,7 +38,7 @@ export async function resetPassword(email) {
 
 /**
  * Get user data from Firestore
- * @param {string} uid 
+ * @param {string} uid
  * @returns {Promise<object|null>}
  */
 export async function getUserData(uid) {
@@ -50,37 +50,35 @@ export async function getUserData(uid) {
 }
 
 /**
- * Version counter to discard stale async callbacks from onAuthStateChanged.
- * When login() completes, it bumps this counter so any in-flight listener
- * callbacks (which are still awaiting getUserData) will be discarded.
- */
-let _authChangeVersion = 0;
-
-/**
- * Bump the version counter to invalidate any pending onAuthStateChanged callbacks.
- * Call this after login completes to prevent the listener from overwriting
- * the state that login() just set.
- */
-export function invalidatePendingAuthCallbacks() {
-    _authChangeVersion++;
-}
-
-/**
- * Subscribe to auth state changes
- * @param {function} callback
+ * Subscribe to auth state changes.
+ * Each call to the callback is guarded by a cancellation token so that
+ * stale async results (from an in-flight getUserData) are silently dropped
+ * when a newer auth event or a manual login supersedes them.
+ *
+ * @param {function} callback - receives { user, userData }
+ * @param {function} getIsCancelled - returns true when this listener should stop dispatching
  * @returns {function} Unsubscribe function
  */
-export function onAuthChange(callback) {
+export function onAuthChange(callback, getIsCancelled) {
+    // Sequence counter: each onAuthStateChanged event gets its own slot.
+    // Only the latest slot may dispatch to the callback.
+    let latestSeq = 0;
+
     return onAuthStateChanged(auth, async (user) => {
-        const myVersion = ++_authChangeVersion;
+        // If the store has told us to stop (e.g. during manual login), skip entirely.
+        if (getIsCancelled && getIsCancelled()) return;
+
+        const mySeq = ++latestSeq;
+
         if (user) {
             const userData = await getUserData(user.uid);
-            // If the version changed while we were fetching, a newer event
-            // (or a login() call) has taken over — discard this stale result
-            if (myVersion !== _authChangeVersion) return;
+            // Drop stale results
+            if (mySeq !== latestSeq) return;
+            if (getIsCancelled && getIsCancelled()) return;
             callback({ user, userData });
         } else {
-            if (myVersion !== _authChangeVersion) return;
+            if (mySeq !== latestSeq) return;
+            if (getIsCancelled && getIsCancelled()) return;
             callback({ user: null, userData: null });
         }
     });
@@ -88,8 +86,8 @@ export function onAuthChange(callback) {
 
 /**
  * Update user data in Firestore
- * @param {string} uid 
- * @param {object} data 
+ * @param {string} uid
+ * @param {object} data
  * @returns {Promise<void>}
  */
 export async function updateUserData(uid, data) {

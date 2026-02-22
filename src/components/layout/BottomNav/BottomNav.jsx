@@ -15,6 +15,7 @@ function BottomNav() {
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                 { to: '/users', icon: UserCog, label: 'מאמנים' },
                 { to: '/groups', icon: Users, label: 'קבוצות' },
+                { to: '/weekly-schedule', icon: Calendar, label: 'לוז' },
             ];
         }
 
@@ -31,7 +32,7 @@ function BottomNav() {
         // Coach navigation
         return [
             { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-            { to: '/monthly-plans', icon: CalendarDays, label: 'לוז אימונים' },
+            { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
             { to: '/calendar', icon: Calendar, label: 'בניית תכנית' },
             { to: '/groups', icon: Users, label: 'קבוצות' },
         ];
