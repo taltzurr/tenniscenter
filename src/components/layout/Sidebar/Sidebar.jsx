@@ -74,7 +74,7 @@ function Sidebar() {
                 section: 'ראשי',
                 items: [
                     { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-                    { to: '/monthly-plans', icon: CalendarDays, label: 'לוז אימונים' },
+                    { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
                     { to: '/calendar', icon: Calendar, label: 'בניית תכנית אימון' },
                 ]
             },
