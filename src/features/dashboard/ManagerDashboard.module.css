@@ -188,3 +188,33 @@
     color: var(--primary-700);
     border-color: var(--primary-200);
 }
+
+.goalsByGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.goalRow {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+}
+
+.goalGroupLabel {
+    font-weight: 600;
+    color: var(--accent-700);
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.goalText {
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.yellow {
+    background-color: #fef9c3;
+    color: #ca8a04;
+}
