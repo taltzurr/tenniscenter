@@ -54,6 +54,10 @@ function UsersPage() {
     };
 
     const handleDeleteUser = async (user) => {
+        // Center managers can only delete users from their own center
+        if (isCenterManager() && !user.centerIds?.includes(userData.managedCenterId)) {
+            return;
+        }
         if (window.confirm(`האם אתה בטוח שברצונך למחוק את המשתמש ${user.displayName}?`)) {
             const result = await deleteUser(user.id);
             if (result.success) {
