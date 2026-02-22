@@ -26,12 +26,15 @@ function ProfileForm({ onClose }) {
         e.preventDefault();
         setIsSaving(true);
         try {
-            await updateProfile({
+            const updateData = {
                 displayName: formData.displayName,
                 phone: formData.phone,
-                centerIds: [formData.centerId],
-                centerName: centers.find(c => c.id === formData.centerId)?.name || ''
-            });
+            };
+            if (userData?.role !== 'centerManager') {
+                updateData.centerIds = [formData.centerId];
+                updateData.centerName = centers.find(c => c.id === formData.centerId)?.name || '';
+            }
+            await updateProfile(updateData);
             onClose();
         } catch (error) {
             console.error('Failed to update profile', error);
@@ -74,18 +77,27 @@ function ProfileForm({ onClose }) {
 
                     <div className={styles.formGroup}>
                         <label className={styles.label}>מרכז טניס</label>
-                        <select
-                            className={styles.input}
-                            value={formData.centerId}
-                            onChange={e => setFormData({ ...formData, centerId: e.target.value })}
-                        >
-                            <option value="">בחר מרכז...</option>
-                            {centers.map(center => (
-                                <option key={center.id} value={center.id}>
-                                    {center.name}
-                                </option>
-                            ))}
-                        </select>
+                        {userData?.role === 'centerManager' ? (
+                            <input
+                                type="text"
+                                className={`${styles.input} ${styles.disabled}`}
+                                value={centers.find(c => c.id === (userData?.managedCenterId || userData?.centerIds?.[0]))?.name || 'לא מוגדר'}
+                                disabled
+                            />
+                        ) : (
+                            <select
+                                className={styles.input}
+                                value={formData.centerId}
+                                onChange={e => setFormData({ ...formData, centerId: e.target.value })}
+                            >
+                                <option value="">בחר מרכז...</option>
+                                {centers.map(center => (
+                                    <option key={center.id} value={center.id}>
+                                        {center.name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>
