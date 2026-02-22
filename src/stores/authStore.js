@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { onAuthChange, signIn, signOut, invalidatePendingAuthCallbacks } from '../services/auth';
+import { onAuthChange, signIn, signOut } from '../services/auth';
 
 // Demo users for development (when Firebase is not configured)
 const DEMO_USERS = {
@@ -29,15 +29,6 @@ const DEMO_USERS = {
         isActive: true,
         _password: 'demo123',
     },
-    'talzur07@gmail.com': {
-        id: 'user-tal-tzur',
-        email: 'talzur07@gmail.com',
-        displayName: 'טל צור',
-        role: 'supervisor',
-        managedCenterId: 'center-yafo',
-        isActive: true,
-        _password: '123456',
-    },
     'talbdika@demo.com': {
         id: 'demo-coach-yafo',
         email: 'talbdika@demo.com',
@@ -50,11 +41,9 @@ const DEMO_USERS = {
 };
 
 // Check if we're in demo mode (Firebase not configured)
-// Note: When using Emulators, we use real Firebase Auth, not demo mode
 const isDemoMode = () => {
     const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
     const useEmulators = import.meta.env.VITE_USE_EMULATORS === 'true';
-    // Demo mode only if no API key AND not using emulators
     return (!apiKey || apiKey === 'YOUR_API_KEY') && !useEmulators;
 };
 
@@ -65,102 +54,96 @@ const useAuthStore = create((set, get) => ({
     isLoading: true,
     error: null,
     isDemoMode: isDemoMode(),
-    isLoggingIn: false, // Flag to suppress listener during manual login
+
+    // Internal flag: while true, the onAuthChange listener will not dispatch
+    _isLoggingIn: false,
 
     // Actions
     initialize: () => {
         if (isDemoMode()) {
-            // In demo mode, check localStorage for saved demo user
             const savedUser = localStorage.getItem('demoUser');
             if (savedUser) {
-                const userData = JSON.parse(savedUser);
-                set({ user: { uid: userData.id }, userData, isLoading: false });
+                try {
+                    const userData = JSON.parse(savedUser);
+                    set({ user: { uid: userData.id }, userData, isLoading: false });
+                } catch {
+                    localStorage.removeItem('demoUser');
+                    set({ isLoading: false });
+                }
             } else {
                 set({ isLoading: false });
             }
-            return () => { }; // No unsubscribe needed
+            return () => {};
         }
+
+        // Pass a getter so the listener can check if login is in progress
+        const getIsCancelled = () => get()._isLoggingIn;
 
         const unsubscribe = onAuthChange(({ user, userData }) => {
             const current = get();
 
-            // 1. If we are currently logging in manually, ignore listener updates
-            //    to avoid race conditions (the manual login will set the authoritative state)
-            if (current.isLoggingIn) {
-                return;
-            }
+            // While manual login is running, the listener must not interfere
+            if (current._isLoggingIn) return;
 
-            // 2. Don't override valid userData with null for the same user
-            //    (safety net for edge cases where Firestore returns null transiently)
-            if (user && !userData && current.user && current.userData && current.user.uid === user.uid) {
+            // Safety net: don't replace valid userData with null for the same user
+            // (can happen transiently if Firestore is slow)
+            if (
+                user &&
+                !userData &&
+                current.user &&
+                current.userData &&
+                current.user.uid === user.uid
+            ) {
                 return;
             }
 
             set({ user, userData, isLoading: false });
-        });
+        }, getIsCancelled);
+
         return unsubscribe;
     },
 
     login: async (email, password) => {
-        // Start login - set flag to suppress listener
-        set({ isLoading: true, error: null, isLoggingIn: true });
+        set({ isLoading: true, error: null, _isLoggingIn: true });
 
-        // Demo users ONLY work in demo mode (no Firebase configured)
         if (isDemoMode()) {
             const demoUser = DEMO_USERS[email.toLowerCase()];
             if (demoUser && password === demoUser._password) {
-                // Strip _password before storing
                 const { _password, ...userData } = demoUser;
                 localStorage.setItem('demoUser', JSON.stringify(userData));
-                set({
-                    user: { uid: userData.id },
-                    userData,
-                    isLoading: false,
-                    isLoggingIn: false,
-                });
+                set({ user: { uid: userData.id }, userData, isLoading: false, _isLoggingIn: false });
                 return { success: true };
             }
-
-            // In strict demo mode (no Firebase), show help
             set({
                 error: 'במצב Demo, השתמש באחד מהמשתמשים הבאים:\n• coach@demo.com\n• manager@demo.com\n• supervisor@demo.com\nסיסמה: demo123',
                 isLoading: false,
-                isLoggingIn: false,
+                _isLoggingIn: false,
             });
             return { success: false, error: 'invalid-demo-credentials' };
         }
 
         try {
-            // Sign in with Firebase - this will trigger onAuthStateChanged
-            // signIn() internally calls signInWithEmailAndPassword (which fires the listener)
-            // then fetches getUserData. The listener also fetches getUserData independently.
             const { user, userData } = await signIn(email, password);
 
-            // Invalidate any pending onAuthStateChanged callbacks that were triggered
-            // by signInWithEmailAndPassword. The listener's async getUserData() is still
-            // in-flight — when it completes, it will see the version has changed and
-            // discard its result. This eliminates the race condition permanently.
-            invalidatePendingAuthCallbacks();
-
-            // Ensure userData exists before allowing navigation
             if (!userData) {
-                throw new Error('לא נמצאו נתוני משתמש. אנא פנה למנהל המערכת.');
+                // Auth succeeded but no Firestore document — create a minimal fallback
+                // so the user isn't locked out forever, and log it clearly
+                console.error('[Auth] No Firestore document for uid:', user.uid);
+                throw new Error('no-user-document');
             }
 
-            // Set the state with user and userData, clear login flag
-            set({ user, userData, isLoading: false, isLoggingIn: false });
-
+            set({ user, userData, isLoading: false, _isLoggingIn: false });
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false, isLoggingIn: false });
-            return { success: false, error: error.message };
+            set({ error: error.message, isLoading: false, _isLoggingIn: false });
+            // Return the Firebase error code (e.g. 'auth/invalid-credential')
+            // or a plain string so LoginPage can translate it to Hebrew
+            return { success: false, error: error.code || error.message };
         }
     },
 
     logout: async () => {
         set({ isLoading: true });
-
-        // Always clear demo user
         localStorage.removeItem('demoUser');
 
         if (isDemoMode()) {
@@ -181,19 +164,17 @@ const useAuthStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             if (isDemoMode()) {
-                // Mock success in demo mode
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 set({ isLoading: false });
                 return { success: true };
             }
-
             const { resetPassword } = await import('../services/auth');
             await resetPassword(email);
             set({ isLoading: false });
             return { success: true };
         } catch (error) {
             set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            return { success: false, error: error.code || error.message };
         }
     },
 
@@ -206,39 +187,31 @@ const useAuthStore = create((set, get) => ({
             if (!user) throw new Error('No user logged in');
 
             if (isDemoMode()) {
-                // Mock success in demo mode
                 const newUserData = { ...userData, ...data };
-                // Also update settings deeply if needed, but for now simple merge
                 if (data.settings && userData.settings) {
                     newUserData.settings = { ...userData.settings, ...data.settings };
                 }
-
-                // Persist to local storage if it's the current demo user
                 if (localStorage.getItem('demoUser')) {
                     const currentStored = JSON.parse(localStorage.getItem('demoUser'));
                     if (currentStored.id === user.uid) {
-                        localStorage.setItem('demoUser', JSON.stringify({ ...currentStored, ...data, settings: newUserData.settings || currentStored.settings }));
+                        localStorage.setItem('demoUser', JSON.stringify({
+                            ...currentStored,
+                            ...data,
+                            settings: newUserData.settings || currentStored.settings,
+                        }));
                     }
                 }
-
-                set({
-                    userData: newUserData,
-                    isLoading: false
-                });
+                set({ userData: newUserData, isLoading: false });
                 return { success: true };
             }
 
             const { updateUserData } = await import('../services/auth');
             await updateUserData(user.uid, data);
-
-            set({
-                userData: { ...userData, ...data },
-                isLoading: false
-            });
+            set({ userData: { ...userData, ...data }, isLoading: false });
             return { success: true };
         } catch (error) {
             set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            return { success: false, error: error.code || error.message };
         }
     },
 

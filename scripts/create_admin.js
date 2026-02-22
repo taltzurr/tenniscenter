@@ -1,8 +1,7 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
-import 'dotenv/config'; // Load .env file
+import 'dotenv/config';
 
 const firebaseConfig = {
     apiKey: process.env.VITE_FIREBASE_API_KEY,
@@ -17,32 +16,61 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const EMAIL = process.env.ADMIN_EMAIL || "admin@example.com";
-const PASSWORD = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+const USERS = [
+    {
+        email: "admin@tennis.com",
+        password: "Admin123!",
+        displayName: "אדמין ראשי",
+        role: "supervisor",
+        extra: { centerIds: [] }
+    },
+    {
+        email: "manager@tennis.com",
+        password: "Manager123!",
+        displayName: "מנהל מרכז",
+        role: "centerManager",
+        extra: { managedCenterId: "center-1" }
+    }
+];
 
-async function createAdmin() {
+async function createUser({ email, password, displayName, role, extra }) {
     try {
-        console.log(`Creating user ${EMAIL}...`);
-        const userCredential = await createUserWithEmailAndPassword(auth, EMAIL, PASSWORD);
-        const user = userCredential.user;
-        console.log(`User created in Auth: ${user.uid}`);
+        console.log(`\nיוצר משתמש: ${email}...`);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+        console.log(`  ✅ Auth נוצר: ${uid}`);
 
-        console.log("Creating Admin profile in Firestore...");
-        await setDoc(doc(db, "users", user.uid), {
-            email: EMAIL,
-            displayName: "Tal Tzur",
-            role: "supervisor", // This makes them a Super Admin
+        await setDoc(doc(db, "users", uid), {
+            email,
+            displayName,
+            role,
             isActive: true,
             createdAt: new Date().toISOString(),
-            centerIds: [] // Supervisors have access to all
+            ...extra
         });
-
-        console.log("✅ Super Admin created successfully!");
-        process.exit(0);
+        console.log(`  ✅ Firestore נוצר (role: ${role})`);
+        return true;
     } catch (error) {
-        console.error("❌ Error creating admin:", error.message);
-        process.exit(1);
+        if (error.code === 'auth/email-already-in-use') {
+            console.log(`  ⚠️  המשתמש כבר קיים: ${email}`);
+        } else {
+            console.error(`  ❌ שגיאה: ${error.message}`);
+        }
+        return false;
     }
 }
 
-createAdmin();
+async function main() {
+    console.log("=== יוצר משתמשי מערכת ===");
+    for (const user of USERS) {
+        await createUser(user);
+    }
+    console.log("\n=== סיום ===");
+    console.log("פרטי התחברות:");
+    for (const user of USERS) {
+        console.log(`  ${user.role}: ${user.email} / ${user.password}`);
+    }
+    process.exit(0);
+}
+
+main();

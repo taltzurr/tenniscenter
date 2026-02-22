@@ -29,7 +29,7 @@ const CenterManagerDashboard = () => {
   const { userData } = useAuthStore();
   const { users, fetchUsers } = useUsersStore();
   const { groups, fetchGroups } = useGroupsStore();
-  const { monthlyPlans, getAllMonthlyPlans } = useMonthlyPlansStore();
+  const { plans: monthlyPlans, fetchAllPlans } = useMonthlyPlansStore();
   const { centers, fetchCenters } = useCentersStore();
   const { events, fetchEvents } = useEventsStore();
 
@@ -53,7 +53,7 @@ const CenterManagerDashboard = () => {
           fetchUsers(),
           fetchGroups(),
           fetchCenters(),
-          getAllMonthlyPlans(currentYear, currentMonth),
+          fetchAllPlans(currentYear, currentMonth),
           fetchEvents(currentYear, currentMonth, userData?.managedCenterId)
         ]);
 
@@ -71,7 +71,7 @@ const CenterManagerDashboard = () => {
     };
 
     fetchData();
-  }, [fetchUsers, fetchGroups, fetchCenters, getAllMonthlyPlans, currentYear, currentMonth]);
+  }, [fetchUsers, fetchGroups, fetchCenters, fetchAllPlans, currentYear, currentMonth]);
 
   // Get center data
   const managedCenter = useMemo(() => {

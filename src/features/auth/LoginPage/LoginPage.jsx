@@ -68,13 +68,20 @@ function LoginPage() {
     const getErrorMessage = (code) => {
         const messages = {
             'auth/invalid-email': 'כתובת אימייל לא תקינה',
-            'auth/user-disabled': 'המשתמש הושבת',
+            'auth/user-disabled': 'המשתמש הושבת. פנה למנהל המערכת',
             'auth/user-not-found': 'משתמש לא נמצא',
             'auth/wrong-password': 'סיסמה שגויה',
-            'auth/too-many-requests': 'יותר מדי ניסיונות, נסה שוב מאוחר יותר',
-            'auth/invalid-credential': 'פרטי התחברות שגויים',
+            'auth/too-many-requests': 'יותר מדי ניסיונות כושלים. נסה שוב מאוחר יותר או אפס סיסמה',
+            'auth/invalid-credential': 'אימייל או סיסמה שגויים',
+            'auth/network-request-failed': 'בעיית רשת. בדוק חיבור לאינטרנט',
+            'no-user-document': 'המשתמש לא הוגדר במערכת. פנה למנהל',
         };
-        return messages[code] || 'שגיאה בהתחברות, נסה שוב';
+        // Firebase sometimes returns the full message string instead of a code
+        if (code && code.includes('auth/invalid-credential')) return messages['auth/invalid-credential'];
+        if (code && code.includes('auth/too-many-requests')) return messages['auth/too-many-requests'];
+        if (code && code.includes('auth/user-disabled')) return messages['auth/user-disabled'];
+        if (code && code.includes('no-user-document')) return messages['no-user-document'];
+        return messages[code] || 'שגיאה בהתחברות. נסה שוב';
     };
 
     if (showForgotPassword) {
