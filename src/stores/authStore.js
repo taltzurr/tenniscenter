@@ -29,6 +29,15 @@ const DEMO_USERS = {
         isActive: true,
         _password: 'demo123',
     },
+    'talzur07@gmail.com': {
+        id: 'user-tal-tzur',
+        email: 'talzur07@gmail.com',
+        displayName: 'טל צור',
+        role: 'supervisor',
+        managedCenterId: 'center-yafo',
+        isActive: true,
+        _password: '123456',
+    },
     'talbdika@demo.com': {
         id: 'demo-coach-yafo',
         email: 'talbdika@demo.com',
