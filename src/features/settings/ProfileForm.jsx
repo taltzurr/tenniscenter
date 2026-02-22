@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import useAuthStore from '../../stores/authStore';
 import useCentersStore from '../../stores/centersStore';
 import styles from './ProfileForm.module.css';
+import { ROLES } from '../../config/constants';
 
 function ProfileForm({ onClose }) {
     const { userData, updateProfile } = useAuthStore();
@@ -30,7 +31,7 @@ function ProfileForm({ onClose }) {
                 displayName: formData.displayName,
                 phone: formData.phone,
             };
-            if (userData?.role !== 'centerManager') {
+            if (userData?.role !== ROLES.CENTER_MANAGER) {
                 updateData.centerIds = [formData.centerId];
                 updateData.centerName = centers.find(c => c.id === formData.centerId)?.name || '';
             }
@@ -77,12 +78,13 @@ function ProfileForm({ onClose }) {
 
                     <div className={styles.formGroup}>
                         <label className={styles.label}>מרכז טניס</label>
-                        {userData?.role === 'centerManager' ? (
+                        {userData?.role === ROLES.CENTER_MANAGER ? (
                             <input
                                 type="text"
                                 className={`${styles.input} ${styles.disabled}`}
                                 value={centers.find(c => c.id === (userData?.managedCenterId || userData?.centerIds?.[0]))?.name || 'לא מוגדר'}
-                                disabled
+                                readOnly
+                                aria-label="מרכז טניס (לקריאה בלבד)"
                             />
                         ) : (
                             <select
