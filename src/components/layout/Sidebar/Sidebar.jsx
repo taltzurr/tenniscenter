@@ -5,6 +5,8 @@ import {
     Users,
     Calendar,
     CalendarDays,
+    CalendarCheck,
+    CalendarRange,
     Dumbbell,
     Target,
     Heart,
@@ -58,8 +60,8 @@ function Sidebar() {
                 {
                     section: 'ניהול',
                     items: [
-                        { to: '/monthly-plans/review', icon: CalendarDays, label: 'תוכניות' },
-                        { to: '/events-calendar', icon: CalendarDays, label: 'אירועים' },
+                        { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
+                        { to: '/events-calendar', icon: CalendarRange, label: 'אירועים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]
                 }
@@ -143,7 +145,7 @@ function Sidebar() {
                             <div className={styles.navSectionTitle}>{section.section}</div>
                             {section.items.map((item) => (
                                 <NavLink
-                                    key={item.to}
+                                    key={`${item.to}-${item.label}`}
                                     to={item.to}
                                     onClick={handleNavClick}
                                     className={({ isActive }) =>
