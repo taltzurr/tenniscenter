@@ -226,12 +226,7 @@ function TrainingForm() {
                         : 'האימון נוצר בהצלחה! כעת ניתן להמשיך לערוך.'
                 });
 
-                if (!isEditMode && result.id) {
-                    // Redirect to edit mode of the new training to stay on "same page"
-                    navigate(`/trainings/${result.id}/edit`, { replace: true });
-                } else if (isEditMode) {
-                    // Stay on page (do nothing or refresh data if needed, but react state updates handle it)
-                }
+                navigate(-1);
             } else {
                 addToast({ type: 'error', message: result.error || 'שגיאה בשמירה' });
             }
@@ -530,7 +525,7 @@ function TrainingForm() {
                     <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => navigate('/calendar')}
+                        onClick={() => navigate(-1)}
                     >
                         ביטול
                     </Button>
