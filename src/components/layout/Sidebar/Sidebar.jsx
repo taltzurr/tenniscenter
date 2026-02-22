@@ -51,12 +51,14 @@ function Sidebar() {
                         { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                         { to: '/users', icon: UserCog, label: 'מאמנים' },
                         { to: '/groups', icon: Users, label: 'קבוצות' },
+                        { to: '/weekly-schedule', icon: Calendar, label: 'לוז שבועי' },
+                        { to: '/calendar', icon: CalendarDays, label: 'לוח חודשי' },
                     ]
                 },
                 {
                     section: 'ניהול',
                     items: [
-                        { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
+                        { to: '/monthly-plans/review', icon: CalendarDays, label: 'תוכניות' },
                         { to: '/events-calendar', icon: CalendarDays, label: 'אירועים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]

@@ -15,6 +15,7 @@ function BottomNav() {
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                 { to: '/users', icon: UserCog, label: 'מאמנים' },
                 { to: '/groups', icon: Users, label: 'קבוצות' },
+                { to: '/weekly-schedule', icon: Calendar, label: 'לוז' },
             ];
         }
 
