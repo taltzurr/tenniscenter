@@ -26,6 +26,15 @@ ui-debug.log
 # Vercel
 .vercel
 
+# Next.js build output
+.next/
+
+# Firebase hosting cache
+.firebase/
+
+# Claude worktrees (local dev only)
+.claude/worktrees/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
