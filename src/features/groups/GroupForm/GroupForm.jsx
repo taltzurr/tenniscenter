@@ -6,8 +6,9 @@ import Input from '../../../components/ui/Input';
 import Spinner from '../../../components/ui/Spinner';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
+import useUsersStore from '../../../stores/usersStore';
 import useUIStore from '../../../stores/uiStore';
-import { DEFAULT_GROUP_TYPES } from '../../../config/constants';
+import { DEFAULT_GROUP_TYPES, ROLES } from '../../../config/constants';
 import styles from './GroupForm.module.css';
 
 function GroupForm() {
@@ -17,11 +18,15 @@ function GroupForm() {
 
     const { userData } = useAuthStore();
     const { selectedGroup, fetchGroup, addGroup, editGroup, isLoading } = useGroupsStore();
+    const { users, fetchUsers } = useUsersStore();
     const { addToast } = useUIStore();
+
+    const isManagedRole = userData?.role === ROLES.CENTER_MANAGER || userData?.role === ROLES.SUPERVISOR;
 
     const [formData, setFormData] = useState({
         name: '',
         groupTypeId: '',
+        coachId: '',
         color: '#2563eb', // Default blue
         birthYearFrom: '',
         birthYearTo: '',
@@ -30,6 +35,13 @@ function GroupForm() {
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Load users for coach selection (managers/supervisors only)
+    useEffect(() => {
+        if (isManagedRole) {
+            fetchUsers();
+        }
+    }, [isManagedRole, fetchUsers]);
 
     // Load group data in edit mode
     useEffect(() => {
@@ -44,6 +56,7 @@ function GroupForm() {
             setFormData({
                 name: selectedGroup.name || '',
                 groupTypeId: selectedGroup.groupTypeId || '',
+                coachId: selectedGroup.coachId || '',
                 color: selectedGroup.color || '#2563eb',
                 birthYearFrom: selectedGroup.birthYearFrom || '',
                 birthYearTo: selectedGroup.birthYearTo || '',
@@ -92,6 +105,10 @@ function GroupForm() {
             newErrors.groupTypeId = 'יש לבחור סוג קבוצה';
         }
 
+        if (isManagedRole && !formData.coachId) {
+            newErrors.coachId = 'יש לבחור מאמן';
+        }
+
         if (formData.birthYearFrom && formData.birthYearTo && formData.birthYearFrom > formData.birthYearTo) {
             newErrors.birthYearFrom = 'שנתון התחלה חייב להיות קטן או שווה לשנתון סיום';
         }
@@ -108,12 +125,13 @@ function GroupForm() {
         setIsSubmitting(true);
 
         const groupType = DEFAULT_GROUP_TYPES.find(t => t.id === formData.groupTypeId);
+        const resolvedCoachId = isManagedRole ? formData.coachId : userData.id;
         const groupData = {
             ...formData,
             birthYearFrom: formData.birthYearFrom || null,
             birthYearTo: formData.birthYearTo || null,
             groupTypeName: groupType?.name || formData.groupTypeId,
-            coachId: userData.id,
+            coachId: resolvedCoachId,
             centerId: userData.centerIds?.[0] || userData.managedCenterId || userData.centerId,
         };
 
@@ -225,6 +243,41 @@ function GroupForm() {
                             <span className={styles.error}>{errors.groupTypeId}</span>
                         )}
                     </div>
+
+                    {/* Coach selector – visible only for managers and supervisors */}
+                    {isManagedRole && (
+                        <div>
+                            <label className={styles.label}>
+                                מאמן ראשי
+                                <span className={styles.required}>*</span>
+                            </label>
+                            <select
+                                name="coachId"
+                                className={styles.select}
+                                value={formData.coachId}
+                                onChange={handleChange}
+                            >
+                                <option value="">בחר מאמן...</option>
+                                {users
+                                    .filter(u => {
+                                        if (u.role !== ROLES.COACH) return false;
+                                        if (userData.role === ROLES.CENTER_MANAGER) {
+                                            return u.centerIds && u.centerIds.includes(userData.managedCenterId);
+                                        }
+                                        return true; // Supervisor sees all coaches
+                                    })
+                                    .map(coach => (
+                                        <option key={coach.id} value={coach.id}>
+                                            {coach.displayName}
+                                        </option>
+                                    ))
+                                }
+                            </select>
+                            {errors.coachId && (
+                                <span className={styles.error}>{errors.coachId}</span>
+                            )}
+                        </div>
+                    )}
 
                     {/* Birth Years */}
                     <div className={styles.row}>
