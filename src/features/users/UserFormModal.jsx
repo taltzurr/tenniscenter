@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Lock } from 'lucide-react';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -24,6 +25,10 @@ function UserFormModal({ isOpen, onClose, user, onSubmit, isSubmitting, currentR
         centerId: '',
     });
 
+    // Onboarding state (new user only)
+    const [onboardingMethod, setOnboardingMethod] = useState('invitation');
+    const [initialPassword, setInitialPassword] = useState('');
+
     useEffect(() => {
         // Fetch centers if not available
         if (isOpen && centers.length === 0) {
@@ -43,16 +48,16 @@ function UserFormModal({ isOpen, onClose, user, onSubmit, isSubmitting, currentR
             });
         } else {
             // Reset form for new user
-            // If Center Manager, lock values
             const isCenterManager = currentRole === ROLES.CENTER_MANAGER;
-
             setFormData({
                 displayName: '',
                 email: '',
                 phone: '',
-                role: isCenterManager ? ROLES.COACH : ROLES.COACH,
+                role: ROLES.COACH,
                 centerId: isCenterManager ? managedCenterId : '',
             });
+            setOnboardingMethod('invitation');
+            setInitialPassword('');
         }
     }, [user, isOpen, currentRole, managedCenterId]);
 
@@ -63,11 +68,17 @@ function UserFormModal({ isOpen, onClose, user, onSubmit, isSubmitting, currentR
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Convert single centerId to array format expected by store
-        onSubmit({
+        const payload = {
             ...formData,
-            centerIds: formData.centerId ? [formData.centerId] : []
-        });
+            centerIds: formData.centerId ? [formData.centerId] : [],
+        };
+        if (!user) {
+            payload.onboardingMethod = onboardingMethod;
+            if (onboardingMethod === 'password') {
+                payload.initialPassword = initialPassword;
+            }
+        }
+        onSubmit(payload);
     };
 
     const dialogTitle = user ? 'עריכת משתמש' : 'הוספת משתמש חדש';
@@ -178,6 +189,59 @@ function UserFormModal({ isOpen, onClose, user, onSubmit, isSubmitting, currentR
                             )}
                         </div>
                     </div>
+
+                        {/* Onboarding method — new users only */}
+                        {!user && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '14px', marginTop: '8px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                                    גישה ראשונית למשתמש
+                                </label>
+
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--text-primary)' }}>
+                                    <input
+                                        type="radio"
+                                        name="onboardingMethod"
+                                        value="invitation"
+                                        checked={onboardingMethod === 'invitation'}
+                                        onChange={() => setOnboardingMethod('invitation')}
+                                    />
+                                    שלח הזמנה באימייל
+                                </label>
+                                {onboardingMethod === 'invitation' && (
+                                    <p style={{ margin: '0 22px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                        המשתמש יקבל אימייל עם קישור לבחירת סיסמה
+                                    </p>
+                                )}
+
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--text-primary)' }}>
+                                    <input
+                                        type="radio"
+                                        name="onboardingMethod"
+                                        value="password"
+                                        checked={onboardingMethod === 'password'}
+                                        onChange={() => setOnboardingMethod('password')}
+                                    />
+                                    סיסמה זמנית
+                                </label>
+                                {onboardingMethod === 'password' && (
+                                    <div style={{ margin: '0 22px' }}>
+                                        <Input
+                                            type="password"
+                                            label="סיסמה זמנית"
+                                            placeholder="לפחות 6 תווים"
+                                            value={initialPassword}
+                                            onChange={(e) => setInitialPassword(e.target.value)}
+                                            iconStart={<Lock size={16} />}
+                                            required
+                                            minLength={6}
+                                        />
+                                        <p style={{ marginTop: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                            העבר את הסיסמה למשתמש ידנית (SMS / WhatsApp)
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                 </Modal.Body>
 
                 <Modal.Footer>

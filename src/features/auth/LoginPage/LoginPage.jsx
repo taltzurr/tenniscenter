@@ -5,7 +5,6 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Spinner from '../../../components/ui/Spinner';
 import useAuthStore from '../../../stores/authStore';
-import { resetPassword } from '../../../services/auth';
 import styles from './LoginPage.module.css';
 
 function LoginPage() {
@@ -16,7 +15,7 @@ function LoginPage() {
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [resetSent, setResetSent] = useState(false);
 
-    const { login, user, userData } = useAuthStore();
+    const { login, sendPasswordReset, user, userData } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -55,14 +54,26 @@ function LoginPage() {
         setError('');
         setIsLoading(true);
 
-        try {
-            await resetPassword(email);
+        const result = await sendPasswordReset(email);
+        if (!result.success) {
+            setError(getResetErrorMessage(result.error));
+        } else {
             setResetSent(true);
-        } catch (err) {
-            setError(getErrorMessage(err.code));
         }
 
         setIsLoading(false);
+    };
+
+    const getResetErrorMessage = (code) => {
+        const messages = {
+            'auth/invalid-email': 'כתובת אימייל לא תקינה',
+            'auth/user-not-found': 'לא קיים משתמש עם אימייל זה',
+            'auth/too-many-requests': 'יותר מדי ניסיונות. נסה שוב מאוחר יותר',
+            'auth/network-request-failed': 'בעיית רשת. בדוק חיבור לאינטרנט',
+        };
+        if (code && code.includes('auth/invalid-email')) return messages['auth/invalid-email'];
+        if (code && code.includes('auth/too-many-requests')) return messages['auth/too-many-requests'];
+        return messages[code] || 'שגיאה באיפוס הסיסמה. נסה שוב';
     };
 
     const getErrorMessage = (code) => {
