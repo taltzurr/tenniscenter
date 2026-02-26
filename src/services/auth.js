@@ -71,7 +71,12 @@ export function onAuthChange(callback, getIsCancelled) {
         const mySeq = ++latestSeq;
 
         if (user) {
-            const userData = await getUserData(user.uid);
+            let userData = null;
+            try {
+                userData = await getUserData(user.uid);
+            } catch (err) {
+                console.error('[Auth] getUserData failed, proceeding with null userData:', err);
+            }
             // Drop stale results
             if (mySeq !== latestSeq) return;
             if (getIsCancelled && getIsCancelled()) return;
