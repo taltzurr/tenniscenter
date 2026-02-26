@@ -225,7 +225,17 @@ function ManagerPlansReview() {
                                                 <span>{coach.displayName || `${coach.firstName} ${coach.lastName}`}</span>
                                             </div>
                                         </td>
-                                        <td>{stats.submittedCount} / {stats.totalGroups} קבוצות</td>
+                                        <td>
+                                            <div className={styles.submissionInfo}>
+                                                <span>{stats.submittedCount} / {stats.totalGroups} קבוצות</span>
+                                                <span className={styles.mobileStatus}>
+                                                    {stats.isComplete
+                                                        ? <StatusIndicator status="approved" customText="מלא" />
+                                                        : <StatusIndicator status="missing" customText={`חסר ${stats.totalGroups - stats.submittedCount}`} />
+                                                    }
+                                                </span>
+                                            </div>
+                                        </td>
                                         <td>
                                             <div className={styles.progressBar}>
                                                 <div

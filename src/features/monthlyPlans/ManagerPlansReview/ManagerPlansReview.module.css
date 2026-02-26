@@ -1,5 +1,5 @@
 .page {
-    padding: 24px;
+    padding: 16px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -12,18 +12,19 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: var(--text-primary);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .subtitle {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--text-secondary);
 }
 
@@ -128,18 +129,38 @@
 
 .table th {
     text-align: right;
-    padding: 16px;
+    padding: 12px 8px;
     background: var(--gray-50);
     color: var(--text-secondary);
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
     border-bottom: 1px solid var(--gray-100);
 }
 
 .table td {
-    padding: 16px;
+    padding: 12px 8px;
     border-bottom: 1px solid var(--gray-100);
     color: var(--text-primary);
+    font-size: 14px;
+}
+
+/* Hide progress + overall-status columns on mobile */
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    display: none;
+}
+
+/* Submission count + inline status for mobile */
+.submissionInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mobileStatus {
+    display: block;
 }
 
 .coachRow {
@@ -215,10 +236,10 @@
 }
 
 .detailsContent {
-    padding: 16px 40px 16px 16px;
+    padding: 12px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 8px;
 }
 
 .groupCard {
@@ -256,4 +277,54 @@
 .groupStatus.rejected {
     background: var(--error-bg);
     color: var(--error);
+}
+
+/* ===== Desktop overrides ===== */
+@media (min-width: 768px) {
+    .page {
+        padding: 24px;
+    }
+
+    .title {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+    }
+
+    .table th {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    .table td {
+        padding: 16px;
+        font-size: inherit;
+    }
+
+    /* Restore hidden columns on desktop */
+    .table th:nth-child(3),
+    .table td:nth-child(3),
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        display: table-cell;
+    }
+
+    /* Hide inline status badge — shown in its own column */
+    .mobileStatus {
+        display: none;
+    }
+
+    .submissionInfo {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .detailsContent {
+        padding: 16px 40px 16px 16px;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+    }
 }
