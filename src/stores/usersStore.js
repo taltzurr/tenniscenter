@@ -6,11 +6,12 @@ import {
     setDoc,
     updateDoc,
     deleteDoc,
-    addDoc,
-    query,
-    where
 } from 'firebase/firestore';
+import { initializeApp, deleteApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } from 'firebase/auth';
 import { db } from '../services/firebase';
+import firebaseConfig from '../config/firebase';
+import { resetPassword } from '../services/auth';
 import { ROLES } from '../config/constants';
 
 // Initial Mock Users
@@ -108,9 +109,10 @@ const useUsersStore = create((set, get) => ({
 
         if (get().isDemoMode) {
             await new Promise(resolve => setTimeout(resolve, 500));
+            const { onboardingMethod, initialPassword, ...profileData } = processedData;
             const newUser = {
                 id: `demo-user-${Date.now()}`,
-                ...processedData
+                ...profileData
             };
             set(state => ({
                 users: [...state.users, newUser],
@@ -120,24 +122,34 @@ const useUsersStore = create((set, get) => ({
         }
 
         try {
-            // Check if user with same email exists?
-            // Firestore doesn't enforce unique fields easily without rules or Cloud Functions.
-            // We can query.
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where("email", "==", processedData.email));
-            const querySnapshot = await getDocs(q);
+            const { onboardingMethod, initialPassword, ...profileData } = processedData;
 
-            if (!querySnapshot.empty) {
-                throw new Error("משתמש עם אימייל זה כבר קיים");
+            // Determine password for the new Auth account
+            const password = onboardingMethod === 'invitation'
+                ? Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + '!A1'
+                : initialPassword;
+
+            // Create Firebase Auth account using a secondary app instance so the admin's
+            // session is not affected (Firebase signs you in when you create a user).
+            const secondaryApp = initializeApp(firebaseConfig, `secondary-${Date.now()}`);
+            const secondaryAuth = getAuth(secondaryApp);
+            let uid;
+            try {
+                const credential = await createUserWithEmailAndPassword(secondaryAuth, profileData.email, password);
+                uid = credential.user.uid;
+            } finally {
+                await secondarySignOut(secondaryAuth).catch(() => {});
+                await deleteApp(secondaryApp).catch(() => {});
             }
 
-            // Create new document
-            // If we had the Auth UID, we would use setDoc(doc(db, 'users', uid), ...).
-            // Since we don't, we use addDoc (auto-ID).
-            // NOTE: This user won't be able to login unless the auth UID matches this ID later.
-            // In a real flow, you'd trigger a Cloud Function to create Auth user.
-            const docRef = await addDoc(collection(db, 'users'), processedData);
-            const newUser = { id: docRef.id, ...processedData };
+            // Create matching Firestore document using the real Auth UID
+            await setDoc(doc(db, 'users', uid), profileData);
+            const newUser = { id: uid, ...profileData };
+
+            // If invitation flow, send a password-reset email so the user can set their own password
+            if (onboardingMethod === 'invitation') {
+                await resetPassword(profileData.email);
+            }
 
             set(state => ({
                 users: [...state.users, newUser],
@@ -202,6 +214,8 @@ const useUsersStore = create((set, get) => ({
         }
 
         try {
+            // Delete Firestore document (Firebase Auth account cleanup requires Admin SDK /
+            // Cloud Functions with Blaze plan — handled separately when available)
             await deleteDoc(doc(db, 'users', uid));
             set(state => ({
                 users: state.users.filter(user => user.id !== uid),
