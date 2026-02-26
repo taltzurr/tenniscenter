@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import 'dotenv/config';
 
 const firebaseConfig = {
@@ -33,29 +33,41 @@ const USERS = [
     }
 ];
 
+async function upsertFirestoreDoc(uid, { email, displayName, role, extra }) {
+    const ref = doc(db, "users", uid);
+    const existing = await getDoc(ref);
+    if (existing.exists()) {
+        console.log(`  ℹ️  Firestore doc כבר קיים (role: ${existing.data().role})`);
+        return;
+    }
+    await setDoc(ref, {
+        email,
+        displayName,
+        role,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        ...extra
+    });
+    console.log(`  ✅ Firestore נוצר (role: ${role})`);
+}
+
 async function createUser({ email, password, displayName, role, extra }) {
+    console.log(`\nמעבד משתמש: ${email}...`);
     try {
-        console.log(`\nיוצר משתמש: ${email}...`);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const uid = userCredential.user.uid;
         console.log(`  ✅ Auth נוצר: ${uid}`);
-
-        await setDoc(doc(db, "users", uid), {
-            email,
-            displayName,
-            role,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            ...extra
-        });
-        console.log(`  ✅ Firestore נוצר (role: ${role})`);
+        await upsertFirestoreDoc(uid, { email, displayName, role, extra });
         return true;
     } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
-            console.log(`  ⚠️  המשתמש כבר קיים: ${email}`);
-        } else {
-            console.error(`  ❌ שגיאה: ${error.message}`);
+            console.log(`  ℹ️  Auth כבר קיים – מוודא Firestore...`);
+            // Sign in to get the uid of the existing user, then upsert the doc
+            const cred = await signInWithEmailAndPassword(auth, email, password);
+            await upsertFirestoreDoc(cred.user.uid, { email, displayName, role, extra });
+            return true;
         }
+        console.error(`  ❌ שגיאה: ${error.message}`);
         return false;
     }
 }

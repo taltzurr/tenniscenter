@@ -15,7 +15,7 @@ function LoginPage() {
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [resetSent, setResetSent] = useState(false);
 
-    const { login, sendPasswordReset, user, userData } = useAuthStore();
+    const { login, sendPasswordReset, user, userData, error: storeError } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -35,7 +35,12 @@ function LoginPage() {
         const result = await login(email, password);
 
         if (!result.success) {
-            setError(getErrorMessage(result.error));
+            // For demo-mode failures the store holds a detailed Hebrew message
+            setError(
+                result.error === 'invalid-demo-credentials' && storeError
+                    ? storeError
+                    : getErrorMessage(result.error)
+            );
         }
 
         // No need to navigate manually - the Navigate component above 
