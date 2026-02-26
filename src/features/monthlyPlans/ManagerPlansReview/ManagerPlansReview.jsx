@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent } from 'lucide-react';
+import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent, ChevronRight, ChevronLeft } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
@@ -8,9 +8,7 @@ import useUsersStore from '../../../stores/usersStore';
 import { HEBREW_MONTHS } from '../../../services/monthlyPlans';
 import { PLAN_STATUS, ROLES } from '../../../config/constants';
 import Spinner from '../../../components/ui/Spinner';
-import Button from '../../../components/ui/Button';
 import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
-import { seedManagerDashboardData } from '../../../utils/seedDashboardData';
 import styles from './ManagerPlansReview.module.css';
 
 // Helper to get initials
@@ -34,6 +32,15 @@ function ManagerPlansReview() {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [expandedCoaches, setExpandedCoaches] = useState({});
+
+    const navigateMonth = useCallback((direction) => {
+        let newMonth = selectedMonth + direction;
+        let newYear = selectedYear;
+        if (newMonth < 0) { newMonth = 11; newYear -= 1; }
+        else if (newMonth > 11) { newMonth = 0; newYear += 1; }
+        setSelectedMonth(newMonth);
+        setSelectedYear(newYear);
+    }, [selectedMonth, selectedYear]);
 
     // Fetch Data
     useEffect(() => {
@@ -121,51 +128,36 @@ function ManagerPlansReview() {
 
     const isLoading = groupsLoading || usersLoading || plansLoading;
 
-    const handleSeed = async () => {
-        if (confirm('האם ליצור נתוני דמו? זה ייצור משתמשים וקבוצות חדשים.')) {
-            await seedManagerDashboardData();
-            alert('נתונים נוצרו בהצלחה! רענן את העמוד כדי לראות.');
-            window.location.reload();
-        }
-    };
-
     if (isLoading && coaches.length === 0) return <Spinner.FullPage />;
 
     return (
         <div className={styles.page}>
             <div className={styles.header}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={styles.headerRow}>
                     <div>
                         <h1 className={styles.title}>דשבורד אישור תכניות</h1>
                         <p className={styles.subtitle}>מעקב ובקרה אחר הגשות תכניות חודשיות</p>
                     </div>
-                    <Button onClick={handleSeed} variant="secondary">
-                        צור נתוני דמו 🎲
-                    </Button>
+                    <div className={styles.monthNav}>
+                        <button
+                            className={styles.monthNavBtn}
+                            onClick={() => navigateMonth(1)}
+                            aria-label="חודש הבא"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                        <span className={styles.monthLabel}>
+                            {HEBREW_MONTHS[selectedMonth]} {selectedYear}
+                        </span>
+                        <button
+                            className={styles.monthNavBtn}
+                            onClick={() => navigateMonth(-1)}
+                            aria-label="חודש קודם"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-            {/* Filters */}
-            <div className={styles.filters}>
-                <select
-                    className={styles.filterSelect}
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                >
-                    <option value={currentYear + 1}>{currentYear + 1}</option>
-                    <option value={currentYear}>{currentYear}</option>
-                    <option value={currentYear - 1}>{currentYear - 1}</option>
-                </select>
-
-                <select
-                    className={styles.filterSelect}
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                >
-                    {HEBREW_MONTHS.map((m, i) => (
-                        <option key={i} value={i}>{m}</option>
-                    ))}
-                </select>
             </div>
 
             {/* Stats Overview */}

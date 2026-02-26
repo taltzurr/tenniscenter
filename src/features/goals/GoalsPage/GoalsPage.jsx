@@ -6,7 +6,6 @@ import {
     Edit2,
     Trash2,
     X,
-    Building2,
     Users
 } from 'lucide-react';
 import useGoalsStore from '../../../stores/goalsStore';
@@ -20,12 +19,12 @@ import Spinner from '../../../components/ui/Spinner';
 import styles from './GoalsPage.module.css';
 
 function GoalsPage() {
-    const { userData } = useAuthStore();
-    const { centerGoals, centerValues, groupGoals, fetchCenterGoals, fetchCenterValues, fetchGroupGoals, saveGoal, deleteGoal, isLoading } = useGoalsStore();
+    const { userData, isDemoMode } = useAuthStore();
+    const { centerValues, groupGoals, fetchCenterValues, fetchGroupGoals, saveGoal, deleteGoal, isLoading } = useGoalsStore();
     const { groups, fetchGroups } = useGroupsStore();
     const { addToast } = useUIStore();
 
-    const [activeTab, setActiveTab] = useState('center');
+    const [activeTab, setActiveTab] = useState('groups');
     const [selectedGroupId, setSelectedGroupId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [editingGoal, setEditingGoal] = useState(null);
@@ -38,18 +37,19 @@ function GoalsPage() {
     });
 
     useEffect(() => {
-        fetchCenterGoals();
+        if (isDemoMode) return;
         fetchCenterValues();
         if (userData?.id) {
             fetchGroups(userData.id, userData.role === 'supervisor');
         }
-    }, [fetchCenterGoals, fetchCenterValues, fetchGroups, userData]);
+    }, [isDemoMode, fetchCenterValues, fetchGroups, userData]);
 
     useEffect(() => {
+        if (isDemoMode) return;
         if (selectedGroupId) {
             fetchGroupGoals(selectedGroupId);
         }
-    }, [selectedGroupId, fetchGroupGoals]);
+    }, [isDemoMode, selectedGroupId, fetchGroupGoals]);
 
     const isValueTab = activeTab === 'values';
 
@@ -87,11 +87,10 @@ function GoalsPage() {
         const goalData = {
             ...formData,
             month: formData.month === '' ? null : parseInt(formData.month),
-            type: isValueTab ? 'value' : (activeTab === 'center' ? 'center' : 'group'),
-            groupId: activeTab === 'groups' ? selectedGroupId : null,
+            type: isValueTab ? 'value' : 'group',
+            groupId: isValueTab ? null : selectedGroupId,
             order: editingGoal?.order ?? (
                 isValueTab ? centerValues.length :
-                activeTab === 'center' ? centerGoals.length :
                 (groupGoals[selectedGroupId] || []).length
             )
         };
@@ -124,15 +123,13 @@ function GoalsPage() {
         }
     };
 
-    const currentGoals = activeTab === 'center'
-        ? centerGoals
-        : (selectedGroupId ? groupGoals[selectedGroupId] || [] : []);
+    const currentGoals = selectedGroupId ? groupGoals[selectedGroupId] || [] : [];
 
     const canEdit = userData?.role === 'supervisor';
 
     const currentCategories = isValueTab ? VALUE_CATEGORIES : GOAL_CATEGORIES;
 
-    if (isLoading && centerGoals.length === 0 && centerValues.length === 0) {
+    if (isLoading && centerValues.length === 0) {
         return <Spinner.FullPage />;
     }
 
@@ -146,25 +143,18 @@ function GoalsPage() {
             {/* Tabs */}
             <div className={styles.tabs}>
                 <button
-                    className={`${styles.tab} ${activeTab === 'center' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('center')}
-                >
-                    <Building2 size={18} />
-                    מטרות מרכז
-                </button>
-                <button
                     className={`${styles.tab} ${activeTab === 'groups' ? styles.active : ''}`}
                     onClick={() => setActiveTab('groups')}
                 >
-                    <Users size={18} />
-                    מטרות קבוצתיות
+                    <Target size={18} />
+                    מטרות
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'values' ? styles.active : ''}`}
                     onClick={() => setActiveTab('values')}
                 >
                     <Heart size={18} />
-                    ערכי המרכז
+                    ערכים
                 </button>
             </div>
 
@@ -174,7 +164,7 @@ function GoalsPage() {
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
                             <Heart size={20} />
-                            ערכי המרכז
+                            ערכים
                         </h2>
                         {canEdit && (
                             <Button size="small" onClick={() => handleOpenModal()}>
@@ -246,9 +236,9 @@ function GoalsPage() {
                         <div className={styles.sectionHeader}>
                             <h2 className={styles.sectionTitle}>
                                 <Target size={20} />
-                                {activeTab === 'center' ? 'מטרות המרכז' : 'מטרות הקבוצה'}
+                                מטרות
                             </h2>
-                            {canEdit && (activeTab === 'center' || selectedGroupId) && (
+                            {canEdit && selectedGroupId && (
                                 <Button size="small" onClick={() => handleOpenModal()}>
                                     <Plus size={16} />
                                     הוסף מטרה

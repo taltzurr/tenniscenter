@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useEventsStore from '../../../stores/eventsStore';
 import useUIStore from '../../../stores/uiStore';
 import { HEBREW_MONTHS } from '../../../services/monthlyThemes';
+import { DEFAULT_GROUP_TYPES } from '../../../config/constants';
 import { EVENT_TYPES, EVENT_LABELS, EVENT_COLORS } from '../../../services/events';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
@@ -14,21 +15,39 @@ import styles from './EventsCalendarPage.module.css';
 
 function EventsCalendarPage() {
     const navigate = useNavigate();
-    const { userData, isSupervisor } = useAuthStore();
+    const { userData, isSupervisor, isDemoMode } = useAuthStore();
     const { fetchTheme, saveTheme, isLoading: themesLoading } = useMonthlyThemesStore();
     const { events, fetchEvents, addEvent, editEvent, removeEvent, isLoading: eventsLoading } = useEventsStore();
     const { addToast } = useUIStore();
 
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
 
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
+    const navigateMonth = useCallback((direction) => {
+        let newMonth = selectedMonth + direction;
+        let newYear = selectedYear;
+        if (newMonth < 0) {
+            newMonth = 11;
+            newYear -= 1;
+        } else if (newMonth > 11) {
+            newMonth = 0;
+            newYear += 1;
+        }
+        setSelectedMonth(newMonth);
+        setSelectedYear(newYear);
+    }, [selectedMonth, selectedYear]);
+
+    // Goals default: one empty string per group type
+    const emptyGoals = () => Object.fromEntries(DEFAULT_GROUP_TYPES.map(g => [g.id, '']));
+
     // Themes State
     const [themesFormData, setThemesFormData] = useState({
         values: '',
-        goals: ''
+        goals: emptyGoals()
     });
 
     // Events State
@@ -38,16 +57,21 @@ function EventsCalendarPage() {
 
     // Load Data
     useEffect(() => {
+        // Skip Firestore in demo mode — no Firebase config available
+        if (isDemoMode) return;
+
         const loadData = async () => {
             // Load Theme
             const theme = await fetchTheme(selectedYear, selectedMonth);
             if (theme) {
+                // goals may be an object (new format) or array (old format → ignore)
+                const goalsData = theme.goals && !Array.isArray(theme.goals) ? theme.goals : {};
                 setThemesFormData({
                     values: Array.isArray(theme.values) ? theme.values.join(', ') : '',
-                    goals: Array.isArray(theme.goals) ? theme.goals.join(', ') : ''
+                    goals: { ...emptyGoals(), ...goalsData }
                 });
             } else {
-                setThemesFormData({ values: '', goals: '' });
+                setThemesFormData({ values: '', goals: emptyGoals() });
             }
 
             // Load Events
@@ -56,16 +80,24 @@ function EventsCalendarPage() {
             await fetchEvents(selectedYear, selectedMonth, centerId);
         };
         loadData();
-    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
+    }, [isDemoMode, selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
 
     // Theme Handlers
     const handleSaveThemes = async (e) => {
         e.preventDefault();
+        if (isDemoMode) {
+            addToast({ type: 'info', message: 'שמירה אינה זמינה במצב Demo' });
+            return;
+        }
+        // Filter out empty goal entries
+        const filteredGoals = Object.fromEntries(
+            Object.entries(themesFormData.goals).filter(([, v]) => v.trim())
+        );
         const result = await saveTheme({
             year: selectedYear,
             month: selectedMonth,
             values: themesFormData.values.split(',').map(s => s.trim()).filter(Boolean),
-            goals: themesFormData.goals.split(',').map(s => s.trim()).filter(Boolean)
+            goals: filteredGoals
         });
 
         if (result.success) {
@@ -252,37 +284,33 @@ function EventsCalendarPage() {
     return (
         <div className={styles.page}>
             <div className={styles.header}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
+                    <ArrowRight size={20} /> חזרה לדאשבורד
+                </button>
+                <div className={styles.headerRow}>
                     <div>
-                        <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
-                            <ArrowRight size={20} /> חזרה לדאשבורד
-                        </button>
-                        <h1 className={styles.title}>לוח אירועים ומטרות</h1>
-                        <p className={styles.subtitle}>ניהול הלו"ז הארגוני ומטרות החודש למרכז</p>
+                        <h1 className={styles.title}>מטרות וערכים</h1>
+                        <p className={styles.subtitle}>הגדרת מטרות חודשיות לפי סוג קבוצה, ערכים ואירועים</p>
                     </div>
-                    {/* Selectors */}
-                    <div className={styles.selectors}>
-                        <div className={styles.selector}>
-                            <select
-                                className={styles.selectorSelect}
-                                value={selectedYear}
-                                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            >
-                                <option value={currentYear}>{currentYear}</option>
-                                <option value={currentYear + 1}>{currentYear + 1}</option>
-                            </select>
-                        </div>
-                        <div className={styles.selector}>
-                            <select
-                                className={styles.selectorSelect}
-                                value={selectedMonth}
-                                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                            >
-                                {HEBREW_MONTHS.map((m, i) => (
-                                    <option key={i} value={i}>{m}</option>
-                                ))}
-                            </select>
-                        </div>
+                    {/* Month/Year navigation with arrows */}
+                    <div className={styles.monthNav}>
+                        <button
+                            className={styles.monthNavBtn}
+                            onClick={() => navigateMonth(1)}
+                            aria-label="חודש הבא"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                        <span className={styles.monthLabel}>
+                            {HEBREW_MONTHS[selectedMonth]} {selectedYear}
+                        </span>
+                        <button
+                            className={styles.monthNavBtn}
+                            onClick={() => navigateMonth(-1)}
+                            aria-label="חודש קודם"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -328,18 +356,28 @@ function EventsCalendarPage() {
                             )}
                         </div>
 
-                        {/* Monthly Goals */}
+                        {/* Monthly Goals by group type */}
                         <div className={styles.card} style={{ marginTop: '1.5rem' }}>
                             <div className={styles.cardHeader}>
                                 <Target className={styles.cardIcon} size={20} color="var(--accent-500)" />
-                                <h2 className={styles.cardTitle}>מטרות החודש</h2>
+                                <h2 className={styles.cardTitle}>מטרות החודש לפי סוג קבוצה</h2>
                             </div>
-                            <textarea
-                                className={styles.textarea}
-                                placeholder="לדוגמה: עבודת רגליים..."
-                                value={themesFormData.goals}
-                                onChange={(e) => setThemesFormData(prev => ({ ...prev, goals: e.target.value }))}
-                            />
+                            <div className={styles.goalsGroupForm}>
+                                {DEFAULT_GROUP_TYPES.map((groupType) => (
+                                    <div key={groupType.id} className={styles.goalGroupRow}>
+                                        <label className={styles.goalGroupLabel}>{groupType.name}</label>
+                                        <input
+                                            className={styles.input}
+                                            placeholder={`מטרת חודש ל${groupType.name}...`}
+                                            value={themesFormData.goals[groupType.id] || ''}
+                                            onChange={(e) => setThemesFormData(prev => ({
+                                                ...prev,
+                                                goals: { ...prev.goals, [groupType.id]: e.target.value }
+                                            }))}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         <div className={styles.actions}>
