@@ -18,6 +18,11 @@
     color: var(--text-primary);
 }
 
+.searchContainer {
+    margin-bottom: var(--space-4);
+    max-width: 400px;
+}
+
 /* Desktop Table - hidden on mobile */
 .desktopTable {
     display: none;
@@ -59,6 +64,16 @@
     background-color: var(--gray-50);
 }
 
+.nameCell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.nameCellText {
+    font-weight: var(--font-weight-medium);
+}
+
 .actions {
     display: flex;
     gap: var(--space-2);
@@ -87,6 +102,28 @@
 .roleCoach {
     background-color: #FEF3C7;
     color: #92400E;
+}
+
+/* Inactive badge */
+.inactiveBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    background-color: var(--error-100);
+    color: var(--error-700);
+}
+
+/* Inactive row/card */
+.rowInactive {
+    opacity: 0.6;
+}
+
+.cardInactive {
+    opacity: 0.6;
 }
 
 .emptyState {
@@ -126,6 +163,12 @@
     min-width: 0;
 }
 
+.cardNameRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
 .cardName {
     font-weight: var(--font-weight-semibold);
     font-size: var(--font-size-sm);
@@ -157,6 +200,19 @@
 
 .cardActionBtn:active {
     background: var(--gray-200);
+}
+
+.cardActionBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.mailBtn {
+    color: var(--primary-500);
+}
+
+.mailBtn:active {
+    background: var(--primary-50);
 }
 
 .deleteBtn {

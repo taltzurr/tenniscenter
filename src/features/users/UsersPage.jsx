@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Mail } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
@@ -29,7 +29,7 @@ const getRoleClass = (role) => {
 
 function UsersPage() {
     const { userData, isCenterManager, isSupervisor } = useAuthStore();
-    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser } = useUsersStore();
+    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser, resendInvitation } = useUsersStore();
     const { centers, fetchCenters, getCenterName } = useCentersStore();
     const { addToast } = useUIStore();
 
@@ -37,6 +37,7 @@ function UsersPage() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [resendCooldowns, setResendCooldowns] = useState({});
 
     useEffect(() => {
         fetchUsers();
@@ -54,13 +55,39 @@ function UsersPage() {
     };
 
     const handleDeleteUser = async (user) => {
-        if (window.confirm(`האם אתה בטוח שברצונך למחוק את המשתמש ${user.displayName}?`)) {
+        if (window.confirm(
+            `האם אתה בטוח שברצונך למחוק לצמיתות את ${user.displayName}?\n\nשים לב: מחיקה היא בלתי הפיכה. ניתן גם להשבית את המשתמש דרך עריכה.`
+        )) {
             const result = await deleteUser(user.id);
             if (result.success) {
                 addToast({ type: 'success', message: 'המשתמש נמחק בהצלחה' });
             } else {
                 addToast({ type: 'error', message: result.error });
             }
+        }
+    };
+
+    const handleResendInvitation = async (user) => {
+        if (resendCooldowns[user.id]) return;
+
+        const result = await resendInvitation(user.email);
+        if (result.success) {
+            addToast({
+                type: 'success',
+                message: `אימייל איפוס סיסמה נשלח ל-${user.email}`,
+                duration: 5000,
+            });
+            // Set cooldown for 30 seconds
+            setResendCooldowns(prev => ({ ...prev, [user.id]: true }));
+            setTimeout(() => {
+                setResendCooldowns(prev => {
+                    const next = { ...prev };
+                    delete next[user.id];
+                    return next;
+                });
+            }, 30000);
+        } else {
+            addToast({ type: 'error', message: result.error || 'שגיאה בשליחת האימייל' });
         }
     };
 
@@ -77,7 +104,19 @@ function UsersPage() {
         setIsSubmitting(false);
 
         if (result.success) {
-            addToast({ type: 'success', message: selectedUser ? 'המשתמש עודכן בהצלחה' : 'המשתמש נוצר בהצלחה' });
+            if (selectedUser) {
+                addToast({ type: 'success', message: 'המשתמש עודכן בהצלחה' });
+            } else {
+                const method = formData.onboardingMethod || 'invitation';
+                const emailMsg = method === 'invitation'
+                    ? ` | אימייל הזמנה נשלח ל-${formData.email}`
+                    : '';
+                addToast({
+                    type: 'success',
+                    message: `המשתמש נוצר בהצלחה${emailMsg}`,
+                    duration: 6000,
+                });
+            }
             setIsFormOpen(false);
         } else {
             addToast({ type: 'error', message: result.error });
@@ -90,7 +129,6 @@ function UsersPage() {
 
         let matchesRole = true;
         if (isCenterManager()) {
-            // Center Manager sees users in their center
             matchesRole = user.centerIds && user.centerIds.includes(userData.managedCenterId);
         }
 
@@ -110,7 +148,7 @@ function UsersPage() {
                 </Button>
             </header>
 
-            <div style={{ marginBottom: '24px', maxWidth: '400px' }}>
+            <div className={styles.searchContainer}>
                 <Input
                     placeholder="חיפוש לפי שם או אימייל..."
                     icon={Search}
@@ -141,11 +179,14 @@ function UsersPage() {
                                 </thead>
                                 <tbody>
                                     {filteredUsers.map(user => (
-                                        <tr key={user.id}>
+                                        <tr key={user.id} className={user.isActive === false ? styles.rowInactive : ''}>
                                             <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div className={styles.nameCell}>
                                                     <Avatar name={user.displayName} size="small" />
-                                                    <span style={{ fontWeight: '500' }}>{user.displayName}</span>
+                                                    <span className={styles.nameCellText}>{user.displayName}</span>
+                                                    {user.isActive === false && (
+                                                        <span className={styles.inactiveBadge}>מושבת</span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td>
@@ -163,6 +204,15 @@ function UsersPage() {
                                             <td>{user.phone || '-'}</td>
                                             <td>
                                                 <div className={styles.actions}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="small"
+                                                        onClick={() => handleResendInvitation(user)}
+                                                        title="שלח מייל איפוס סיסמה"
+                                                        disabled={resendCooldowns[user.id]}
+                                                    >
+                                                        <Mail size={16} color={resendCooldowns[user.id] ? 'var(--gray-300)' : 'var(--primary-500)'} />
+                                                    </Button>
                                                     <Button variant="ghost" size="small" onClick={() => handleEditUser(user)} title="ערוך">
                                                         <Edit2 size={16} />
                                                     </Button>
@@ -181,16 +231,29 @@ function UsersPage() {
                     {/* Mobile Cards */}
                     <div className={styles.mobileCards}>
                         {filteredUsers.map(user => (
-                            <div key={user.id} className={styles.userCard}>
+                            <div key={user.id} className={`${styles.userCard} ${user.isActive === false ? styles.cardInactive : ''}`}>
                                 <div className={styles.cardMain}>
                                     <Avatar name={user.displayName} size="small" />
                                     <div className={styles.cardInfo}>
-                                        <span className={styles.cardName}>{user.displayName}</span>
+                                        <div className={styles.cardNameRow}>
+                                            <span className={styles.cardName}>{user.displayName}</span>
+                                            {user.isActive === false && (
+                                                <span className={styles.inactiveBadge}>מושבת</span>
+                                            )}
+                                        </div>
                                         <span className={`${styles.roleBadge} ${getRoleClass(user.role)}`}>
                                             {ROLE_LABELS[user.role] || user.role}
                                         </span>
                                     </div>
                                     <div className={styles.cardActions}>
+                                        <button
+                                            className={`${styles.cardActionBtn} ${styles.mailBtn}`}
+                                            onClick={() => handleResendInvitation(user)}
+                                            title="שלח מייל איפוס סיסמה"
+                                            disabled={resendCooldowns[user.id]}
+                                        >
+                                            <Mail size={18} />
+                                        </button>
                                         <button className={styles.cardActionBtn} onClick={() => handleEditUser(user)} title="ערוך">
                                             <Edit2 size={18} />
                                         </button>
