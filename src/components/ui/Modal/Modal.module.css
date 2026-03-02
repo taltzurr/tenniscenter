@@ -115,3 +115,27 @@
     padding: var(--space-4) var(--space-6);
     border-top: 1px solid var(--gray-200);
 }
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+    .modal {
+        margin: var(--space-2);
+        max-height: calc(100vh - var(--space-8));
+    }
+
+    .header {
+        padding: var(--space-4);
+    }
+
+    .title {
+        font-size: var(--font-size-lg);
+    }
+
+    .body {
+        padding: var(--space-4);
+    }
+
+    .footer {
+        padding: var(--space-3) var(--space-4);
+    }
+}

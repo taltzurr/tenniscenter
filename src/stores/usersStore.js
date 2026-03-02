@@ -201,6 +201,20 @@ const useUsersStore = create((set, get) => ({
         }
     },
 
+    resendInvitation: async (email) => {
+        if (get().isDemoMode) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return { success: true };
+        }
+        try {
+            await resetPassword(email);
+            return { success: true };
+        } catch (error) {
+            console.error('Error resending invitation:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
     deleteUser: async (uid) => {
         set({ isLoading: true, error: null });
 

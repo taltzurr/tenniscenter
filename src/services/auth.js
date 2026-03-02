@@ -16,6 +16,15 @@ import { auth, db } from './firebase';
 export async function signIn(email, password) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const userData = await getUserData(userCredential.user.uid);
+
+    // Block deactivated users
+    if (userData && userData.isActive === false) {
+        await firebaseSignOut(auth);
+        const error = new Error('User is disabled');
+        error.code = 'auth/user-disabled';
+        throw error;
+    }
+
     return { user: userCredential.user, userData };
 }
 
