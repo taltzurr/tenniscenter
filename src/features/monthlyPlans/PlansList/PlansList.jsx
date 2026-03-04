@@ -24,6 +24,7 @@ import {
 } from 'date-fns';
 import { he } from 'date-fns/locale';
 
+import { Navigate } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
@@ -78,7 +79,12 @@ const parseDateSafe = (dateInput) => {
 function PlansList() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { userData } = useAuthStore();
+    const { userData, isCenterManager, isSupervisor } = useAuthStore();
+
+    // Center managers and supervisors belong on the review page, not the coach plans list
+    if (isCenterManager() || isSupervisor()) {
+        return <Navigate to="/monthly-plans/review" replace />;
+    }
 
     // Stores
     const { groups, fetchGroups } = useGroupsStore();
