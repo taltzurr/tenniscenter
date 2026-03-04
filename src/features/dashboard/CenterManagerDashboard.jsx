@@ -51,7 +51,7 @@ const CenterManagerDashboard = () => {
         // Fetch all required data
         await Promise.all([
           fetchUsers(),
-          fetchGroups(),
+          fetchGroups(null, false, userData?.managedCenterId),
           fetchCenters(),
           fetchAllPlans(currentYear, currentMonth),
           fetchEvents(currentYear, currentMonth, userData?.managedCenterId)
