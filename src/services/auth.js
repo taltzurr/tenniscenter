@@ -16,6 +16,15 @@ import { auth, db } from './firebase';
 export async function signIn(email, password) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const userData = await getUserData(userCredential.user.uid);
+
+    // Block deactivated users
+    if (userData && userData.isActive === false) {
+        await firebaseSignOut(auth);
+        const error = new Error('User is disabled');
+        error.code = 'auth/user-disabled';
+        throw error;
+    }
+
     return { user: userCredential.user, userData };
 }
 
@@ -71,7 +80,12 @@ export function onAuthChange(callback, getIsCancelled) {
         const mySeq = ++latestSeq;
 
         if (user) {
-            const userData = await getUserData(user.uid);
+            let userData = null;
+            try {
+                userData = await getUserData(user.uid);
+            } catch (err) {
+                console.error('[Auth] getUserData failed, proceeding with null userData:', err);
+            }
             // Drop stale results
             if (mySeq !== latestSeq) return;
             if (getIsCancelled && getIsCancelled()) return;

@@ -135,6 +135,7 @@ const useAuthStore = create((set, get) => ({
             set({ user, userData, isLoading: false, _isLoggingIn: false });
             return { success: true };
         } catch (error) {
+            console.error('[Auth] Login error:', error.code, error.message);
             set({ error: error.message, isLoading: false, _isLoggingIn: false });
             // Return the Firebase error code (e.g. 'auth/invalid-credential')
             // or a plain string so LoginPage can translate it to Hebrew

@@ -4,6 +4,7 @@ import { Users, Building2, Calendar, Settings, ShieldCheck, BarChart2, Trophy, H
 import useAuthStore from '../../stores/authStore';
 import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
 import MonthlyOutstandingCard from './MonthlyOutstandingCard';
+import { DEFAULT_GROUP_TYPES } from '../../config/constants';
 import styles from './ManagerDashboard.module.css';
 
 const ManagerDashboard = () => {
@@ -24,11 +25,11 @@ const ManagerDashboard = () => {
         return [];
     }, [currentTheme]);
 
-    const monthlyGoals = useMemo(() => {
-        if (currentTheme?.goals && currentTheme.goals.length > 0) {
-            return currentTheme.goals.map((g, i) => ({ id: `g-${i}`, name: g }));
-        }
-        return [];
+    // Goals are stored as { groupTypeId: string } keyed by group type
+    const monthlyGoalsByGroup = useMemo(() => {
+        const goals = currentTheme?.goals;
+        if (!goals || Array.isArray(goals)) return {};
+        return goals;
     }, [currentTheme]);
 
     const getGreeting = () => {
@@ -39,8 +40,7 @@ const ManagerDashboard = () => {
         return 'לילה טוב';
     };
 
-    // Filter dashboard items based on role
-    // Center managers should not see "Center Management" - that's supervisor-only
+    // Navigation cards ordered by daily relevance (UX: daily ops first, recognition last)
     const dashboardItems = useMemo(() => {
         const items = [
             {
@@ -66,8 +66,8 @@ const ManagerDashboard = () => {
                 path: '/analytics'
             },
             {
-                title: 'לוח אירועים ומטרות',
-                description: 'ניהול לוח שנה ארגוני, אירועים מיוחדים ומטרות חודשיות.',
+                title: 'מטרות וערכים',
+                description: 'הגדרת מטרות חודשיות לפי סוג קבוצה, ערכים ולוח אירועים ארגוני.',
                 icon: Calendar,
                 color: 'purple',
                 path: '/events-calendar'
@@ -89,22 +89,43 @@ const ManagerDashboard = () => {
                 <h1 className={styles.greetingTitle}>
                     {getGreeting()}, {userData?.displayName || 'מנהל'}!
                 </h1>
-                <p className={styles.greetingSubtitle}>
-                    ברוך הבא לממשק הניהול של הטניס סנטר.
-                </p>
             </header>
 
-            {/* Monthly Outstanding Widget */}
-            <MonthlyOutstandingCard />
-
-            {/* Monthly Context (Values & Goals) */}
+            {/* Monthly Context (Goals by group type + Values for all) */}
             <div className={styles.contextGrid}>
-                {/* Values */}
+                {/* Goals by group type */}
+                <div className={styles.dashboardCard}>
+                    <div className={styles.cardHeader}>
+                        <div className={styles.contextTitle} style={{ color: 'var(--accent-700)' }}>
+                            <Target size={18} />
+                            מטרות החודש לפי סוג קבוצה
+                        </div>
+                    </div>
+                    <div className={styles.goalsByGroup}>
+                        {DEFAULT_GROUP_TYPES.map((groupType) => {
+                            const goal = monthlyGoalsByGroup[groupType.id];
+                            if (!goal) return null;
+                            return (
+                                <div key={groupType.id} className={styles.goalRow}>
+                                    <span className={styles.goalGroupLabel}>{groupType.name}</span>
+                                    <span className={styles.goalText}>{goal}</span>
+                                </div>
+                            );
+                        })}
+                        {Object.keys(monthlyGoalsByGroup).length === 0 && (
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                טרם הוגדרו מטרות לחודש זה
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Values for all */}
                 <div className={styles.dashboardCard}>
                     <div className={styles.cardHeader}>
                         <div className={styles.contextTitle} style={{ color: 'var(--primary-700)' }}>
                             <Heart size={18} />
-                            ערכי החודש
+                            ערכי החודש לכולם
                         </div>
                     </div>
                     <div className={styles.cardContent}>
@@ -119,28 +140,10 @@ const ManagerDashboard = () => {
                         )}
                     </div>
                 </div>
-
-                {/* Goals */}
-                <div className={styles.dashboardCard}>
-                    <div className={styles.cardHeader}>
-                        <div className={styles.contextTitle} style={{ color: 'var(--accent-700)' }}>
-                            <Target size={18} />
-                            מטרות החודש
-                        </div>
-                    </div>
-                    <div className={styles.cardContent}>
-                        {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
-                            <span key={goal.id} className={`${styles.tag} ${styles.tagGoal}`}>
-                                {goal.name}
-                            </span>
-                        )) : (
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                                טרם הוגדרו מטרות לחודש זה
-                            </span>
-                        )}
-                    </div>
-                </div>
             </div>
+
+            {/* Monthly Outstanding Widget */}
+            <MonthlyOutstandingCard />
 
             <main>
                 <h2 className={styles.sectionTitle}>

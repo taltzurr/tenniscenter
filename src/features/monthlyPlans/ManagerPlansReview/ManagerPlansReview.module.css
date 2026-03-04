@@ -1,5 +1,5 @@
 .page {
-    padding: 24px;
+    padding: 16px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -8,36 +8,66 @@
     margin-bottom: 24px;
 }
 
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
 .title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: var(--text-primary);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .subtitle {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--text-secondary);
 }
 
-/* Filters */
-.filters {
+/* Month navigation */
+.monthNav {
     display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-    background: white;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
 }
 
-.filterSelect {
-    padding: 8px 12px;
-    border: 1px solid var(--gray-200);
-    border-radius: 8px;
-    font-size: 14px;
-    min-width: 150px;
+.monthNavBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s, color 0.15s;
+    padding: 0;
+}
+
+.monthNavBtn:hover {
+    background-color: var(--gray-100);
+    color: var(--text-primary);
+}
+
+.monthLabel {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+    min-width: 130px;
+    text-align: center;
+    white-space: nowrap;
 }
 
 /* Stats Cards */
@@ -99,18 +129,38 @@
 
 .table th {
     text-align: right;
-    padding: 16px;
+    padding: 12px 8px;
     background: var(--gray-50);
     color: var(--text-secondary);
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
     border-bottom: 1px solid var(--gray-100);
 }
 
 .table td {
-    padding: 16px;
+    padding: 12px 8px;
     border-bottom: 1px solid var(--gray-100);
     color: var(--text-primary);
+    font-size: 14px;
+}
+
+/* Hide progress + overall-status columns on mobile */
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    display: none;
+}
+
+/* Submission count + inline status for mobile */
+.submissionInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mobileStatus {
+    display: block;
 }
 
 .coachRow {
@@ -186,10 +236,10 @@
 }
 
 .detailsContent {
-    padding: 16px 40px 16px 16px;
+    padding: 12px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 8px;
 }
 
 .groupCard {
@@ -235,4 +285,54 @@
 .groupStatus.rejected {
     background: var(--error-bg);
     color: var(--error);
+}
+
+/* ===== Desktop overrides ===== */
+@media (min-width: 768px) {
+    .page {
+        padding: 24px;
+    }
+
+    .title {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+    }
+
+    .table th {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    .table td {
+        padding: 16px;
+        font-size: inherit;
+    }
+
+    /* Restore hidden columns on desktop */
+    .table th:nth-child(3),
+    .table td:nth-child(3),
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        display: table-cell;
+    }
+
+    /* Hide inline status badge — shown in its own column */
+    .mobileStatus {
+        display: none;
+    }
+
+    .submissionInfo {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .detailsContent {
+        padding: 16px 40px 16px 16px;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+    }
 }

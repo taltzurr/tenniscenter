@@ -134,6 +134,7 @@
     }
 
     .content {
+        flex-direction: column;
         gap: var(--space-3);
         width: 100%;
     }
