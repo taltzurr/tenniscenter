@@ -33,7 +33,11 @@ export async function signOut(): Promise<void> {
  * Send password reset email
  */
 export async function resetPassword(email: string): Promise<void> {
-  return sendPasswordResetEmail(auth, email);
+  const actionCodeSettings = {
+    url: `${window.location.origin}/reset-password`,
+    handleCodeInApp: true,
+  };
+  return sendPasswordResetEmail(auth, email, actionCodeSettings);
 }
 
 /**

@@ -12,6 +12,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 // Auth Pages
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
 
 // Coach Pages
 import { CoachDashboard } from '@/pages/coach/CoachDashboard';
@@ -111,6 +112,7 @@ export default function App() {
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
 
       {/* Protected Routes */}
