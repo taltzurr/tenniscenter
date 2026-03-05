@@ -162,19 +162,16 @@ const useAuthStore = create((set, get) => ({
     },
 
     sendPasswordReset: async (email) => {
-        set({ isLoading: true, error: null });
+        // Do NOT touch global isLoading — it causes App.jsx to unmount all routes
         try {
             if (isDemoMode()) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                set({ isLoading: false });
                 return { success: true };
             }
             const { resetPassword } = await import('../services/auth');
             await resetPassword(email);
-            set({ isLoading: false });
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
             return { success: false, error: error.code || error.message };
         }
     },
