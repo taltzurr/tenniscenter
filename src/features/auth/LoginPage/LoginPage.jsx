@@ -64,6 +64,10 @@ function LoginPage() {
             setError(getResetErrorMessage(result.error));
         } else {
             setResetSent(true);
+            setTimeout(() => {
+                setShowForgotPassword(false);
+                setResetSent(false);
+            }, 3000);
         }
 
         setIsLoading(false);
@@ -119,7 +123,7 @@ function LoginPage() {
                         {resetSent ? (
                             <div className={styles.successMessage}>
                                 <CheckCircle size={18} />
-                                קישור לאיפוס סיסמה נשלח לאימייל שלך
+                                קישור נשלח! בדוק את תיבת הדואר. חוזר להתחברות...
                             </div>
                         ) : (
                             <form className={styles.form} onSubmit={handleForgotPassword}>

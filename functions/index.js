@@ -51,6 +51,39 @@ exports.createUser = onCall(async (request) => {
  * Input: { uid: string }
  * Returns: { success: true }
  */
+/**
+ * generatePasswordResetLink — generates a password reset link without sending an email.
+ * Used for internal systems where email delivery is unreliable.
+ *
+ * Input: { email: string }
+ * Returns: { link: string }
+ */
+exports.generatePasswordResetLink = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const callerRole = await getCallerRole(request.auth.uid);
+    if (!ALLOWED_ROLES.includes(callerRole)) {
+        throw new HttpsError('permission-denied', 'Only supervisors and center managers can generate reset links');
+    }
+
+    const { email } = request.data;
+    if (!email) {
+        throw new HttpsError('invalid-argument', 'email is required');
+    }
+
+    try {
+        const link = await admin.auth().generatePasswordResetLink(email);
+        return { link };
+    } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+            throw new HttpsError('not-found', 'משתמש לא נמצא');
+        }
+        throw new HttpsError('internal', err.message);
+    }
+});
+
 exports.deleteUser = onCall(async (request) => {
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'Authentication required');

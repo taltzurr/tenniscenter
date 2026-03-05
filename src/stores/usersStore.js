@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../services/firebase';
 import firebaseConfig from '../config/firebase';
 import { resetPassword } from '../services/auth';
@@ -197,6 +198,20 @@ const useUsersStore = create((set, get) => ({
         } catch (error) {
             console.error('Error updating user:', error);
             set({ error: error.message, isLoading: false });
+            return { success: false, error: error.message };
+        }
+    },
+
+    generateResetLink: async (email) => {
+        if (get().isDemoMode) {
+            return { success: true, link: 'https://example.com/reset?demo=true' };
+        }
+        try {
+            const fn = httpsCallable(getFunctions(), 'generatePasswordResetLink');
+            const result = await fn({ email });
+            return { success: true, link: result.data.link };
+        } catch (error) {
+            console.error('Error generating reset link:', error);
             return { success: false, error: error.message };
         }
     },
