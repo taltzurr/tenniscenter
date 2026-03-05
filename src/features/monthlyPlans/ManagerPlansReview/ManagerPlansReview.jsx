@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent, ChevronRight, ChevronLeft } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
@@ -20,7 +20,7 @@ const getInitials = (name) => {
 
 function ManagerPlansReview() {
     const navigate = useNavigate();
-    const { userData } = useAuthStore();
+    const { userData, isSupervisor, isCenterManager } = useAuthStore();
     const { groups, fetchGroups, isLoading: groupsLoading } = useGroupsStore();
     const { users, fetchUsers, isLoading: usersLoading } = useUsersStore();
     const { plans, fetchAllPlans, approvePlan, rejectPlan, isLoading: plansLoading } = useMonthlyPlansStore();
@@ -48,9 +48,10 @@ function ManagerPlansReview() {
             // 1. Fetch all users (to find coaches)
             await fetchUsers();
 
-            // 2. Fetch all groups (Supervisor mode)
+            // 2. Fetch groups — role-aware: supervisor gets all, center manager gets center-only
             if (userData?.id) {
-                await fetchGroups(userData.id, true);
+                const centerId = isCenterManager() ? userData.managedCenterId : null;
+                await fetchGroups(userData.id, isSupervisor(), centerId);
             }
         };
         loadUsersAndGroups();
@@ -61,10 +62,16 @@ function ManagerPlansReview() {
         fetchAllPlans(selectedYear, selectedMonth);
     }, [selectedYear, selectedMonth, fetchAllPlans]);
 
-    // Derived Data
-    const coaches = users.filter(u =>
-        (u.role === ROLES.COACH || u.role === ROLES.CENTER_MANAGER) && u.active !== false
-    );
+    // Derived Data — filter coaches to center for center managers
+    const coaches = useMemo(() => {
+        const all = users.filter(u =>
+            (u.role === ROLES.COACH || u.role === ROLES.CENTER_MANAGER) && u.active !== false
+        );
+        if (isCenterManager() && userData?.managedCenterId) {
+            return all.filter(c => c.centerIds?.includes(userData.managedCenterId));
+        }
+        return all;
+    }, [users, userData?.managedCenterId, isCenterManager]);
 
     // Aggregation Logic
     const getCoachStats = (coachId) => {
@@ -124,6 +131,23 @@ function ManagerPlansReview() {
 
     const handleViewPlan = (groupId) => {
         navigate(`/monthly-plans/edit?groupId=${groupId}&year=${selectedYear}&month=${selectedMonth}&view=true`);
+    };
+
+    const handleApprovePlan = async (e, plan, coachId, groupName) => {
+        e.stopPropagation();
+        const result = await approvePlan(plan.id, coachId, groupName);
+        if (!result.success) {
+            alert('שגיאה באישור התוכנית');
+        }
+    };
+
+    const handleRejectPlan = async (e, plan, groupName) => {
+        e.stopPropagation();
+        const feedback = window.prompt('סיבת הדחייה (אופציונלי):') ?? '';
+        const result = await rejectPlan(plan.id, feedback, groupName);
+        if (!result.success) {
+            alert('שגיאה בדחיית התוכנית');
+        }
     };
 
     const isLoading = groupsLoading || usersLoading || plansLoading;
@@ -274,6 +298,25 @@ function ManagerPlansReview() {
                                                             <span className={styles.groupName}>{group.name}</span>
 
                                                             <StatusIndicator status={status === 'missing' ? 'missing' : status} />
+
+                                                            {isSupervisor() && plan && status === PLAN_STATUS.SUBMITTED && (
+                                                                <div className={styles.approvalActions} onClick={e => e.stopPropagation()}>
+                                                                    <Button
+                                                                        size="small"
+                                                                        variant="primary"
+                                                                        onClick={(e) => handleApprovePlan(e, plan, coach.id, group.name)}
+                                                                    >
+                                                                        אישור
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="small"
+                                                                        variant="danger"
+                                                                        onClick={(e) => handleRejectPlan(e, plan, group.name)}
+                                                                    >
+                                                                        דחייה
+                                                                    </Button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ))}
                                                 </div>

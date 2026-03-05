@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Building2, MapPin, Phone } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import useCentersStore from '../../stores/centersStore';
 import useUIStore from '../../stores/uiStore';
+import useAuthStore from '../../stores/authStore';
 import CenterFormModal from './CenterFormModal';
 import styles from './CentersPage.module.css';
 
 function CentersPage() {
+    const { isSupervisor } = useAuthStore();
+    if (!isSupervisor()) return <Navigate to="/dashboard" replace />;
     const { centers, isLoading, fetchCenters, addCenter, updateCenter, deleteCenter } = useCentersStore();
     const { addToast } = useUIStore();
 

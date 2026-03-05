@@ -9,7 +9,7 @@ import useGroupsStore from '../../stores/groupsStore';
 import useMonthlyPlansStore from '../../stores/monthlyPlansStore';
 import useCentersStore from '../../stores/centersStore';
 import useEventsStore from '../../stores/eventsStore';
-import { getOrganizationTrainings } from '../../services/trainings';
+import useTrainingsStore from '../../stores/trainingsStore';
 import {
   getCenterCoaches,
   getCoachPlanProgress,
@@ -33,7 +33,7 @@ const CenterManagerDashboard = () => {
   const { centers, fetchCenters } = useCentersStore();
   const { events, fetchEvents } = useEventsStore();
 
-  const [trainings, setTrainings] = useState([]);
+  const { trainings, fetchCenterTrainings } = useTrainingsStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -51,17 +51,11 @@ const CenterManagerDashboard = () => {
         // Fetch all required data
         await Promise.all([
           fetchUsers(),
-          fetchGroups(),
+          fetchGroups(null, false, userData?.managedCenterId),
           fetchCenters(),
           fetchAllPlans(currentYear, currentMonth),
           fetchEvents(currentYear, currentMonth, userData?.managedCenterId)
         ]);
-
-        // Fetch trainings for current month
-        const monthStart = startOfMonth(currentDate);
-        const monthEnd = endOfMonth(currentDate);
-        const trainingsData = await getOrganizationTrainings(monthStart, monthEnd);
-        setTrainings(trainingsData || []);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError('שגיאה בטעינת נתוני הדשבורד');
@@ -96,11 +90,16 @@ const CenterManagerDashboard = () => {
     return groups.filter(g => g.centerId === userData.managedCenterId && g.isActive !== false);
   }, [groups, userData?.managedCenterId]);
 
-  // Filter trainings for this center
-  const centerTrainings = useMemo(() => {
-    if (centerCoachIds.length === 0 || !trainings || trainings.length === 0) return [];
-    return trainings.filter(t => centerCoachIds.includes(t.coachId));
-  }, [trainings, centerCoachIds]);
+  // Fetch trainings only after we know center coach IDs (avoids fetching all org trainings)
+  useEffect(() => {
+    if (centerCoachIds.length === 0) return;
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    fetchCenterTrainings(centerCoachIds, monthStart, monthEnd);
+  }, [centerCoachIds, fetchCenterTrainings]);
+
+  // trainings from store are already filtered by centerCoachIds via fetchCenterTrainings
+  const centerTrainings = trainings;
 
   // Calculate plan submission stats
   const planStats = useMemo(() => {
