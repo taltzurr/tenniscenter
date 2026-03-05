@@ -11,10 +11,11 @@ import {
   setPersistence
 } from 'firebase/auth';
 import {
-  getFirestore,
+  initializeFirestore,
   Firestore,
   connectFirestoreEmulator,
-  enableIndexedDbPersistence
+  persistentLocalCache,
+  persistentMultipleTabManager,
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -43,23 +44,14 @@ let functions: Functions;
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
-  db = getFirestore(app);
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+  });
   storage = getStorage(app);
   functions = getFunctions(app, 'europe-west1'); // Use region close to Israel
 
   // Set auth persistence
   setPersistence(auth, browserLocalPersistence);
-
-  // Enable offline persistence for Firestore
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      // Multiple tabs open, persistence can only be enabled in one tab at a time
-      console.warn('Firestore persistence failed: Multiple tabs open');
-    } else if (err.code === 'unimplemented') {
-      // The current browser does not support persistence
-      console.warn('Firestore persistence not supported in this browser');
-    }
-  });
 
   // Connect to emulators in development
   if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
@@ -71,7 +63,6 @@ try {
   }
 } catch (error) {
   console.error('Firebase initialization error:', error);
-  throw error;
 }
 
 export { app, auth, db, storage, functions };
