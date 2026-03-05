@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Mail } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Mail, Link, X } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
@@ -29,7 +29,7 @@ const getRoleClass = (role) => {
 
 function UsersPage() {
     const { userData, isCenterManager, isSupervisor } = useAuthStore();
-    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser, resendInvitation } = useUsersStore();
+    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser, resendInvitation, generateResetLink } = useUsersStore();
     const { centers, fetchCenters, getCenterName } = useCentersStore();
     const { addToast } = useUIStore();
 
@@ -38,6 +38,7 @@ function UsersPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [resendCooldowns, setResendCooldowns] = useState({});
+    const [resetLink, setResetLink] = useState(null);
 
     useEffect(() => {
         fetchUsers();
@@ -88,6 +89,15 @@ function UsersPage() {
             }, 30000);
         } else {
             addToast({ type: 'error', message: result.error || 'שגיאה בשליחת האימייל' });
+        }
+    };
+
+    const handleGenerateResetLink = async (user) => {
+        const result = await generateResetLink(user.email);
+        if (result.success) {
+            setResetLink({ email: user.email, link: result.link });
+        } else {
+            addToast({ type: 'error', message: result.error || 'שגיאה ביצירת הקישור' });
         }
     };
 
@@ -207,6 +217,14 @@ function UsersPage() {
                                                     <Button
                                                         variant="ghost"
                                                         size="small"
+                                                        onClick={() => handleGenerateResetLink(user)}
+                                                        title="צור קישור איפוס סיסמה"
+                                                    >
+                                                        <Link size={16} color="var(--primary-500)" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="small"
                                                         onClick={() => handleResendInvitation(user)}
                                                         title="שלח מייל איפוס סיסמה"
                                                         disabled={resendCooldowns[user.id]}
@@ -248,6 +266,13 @@ function UsersPage() {
                                     <div className={styles.cardActions}>
                                         <button
                                             className={`${styles.cardActionBtn} ${styles.mailBtn}`}
+                                            onClick={() => handleGenerateResetLink(user)}
+                                            title="צור קישור איפוס סיסמה"
+                                        >
+                                            <Link size={18} />
+                                        </button>
+                                        <button
+                                            className={`${styles.cardActionBtn} ${styles.mailBtn}`}
                                             onClick={() => handleResendInvitation(user)}
                                             title="שלח מייל איפוס סיסמה"
                                             disabled={resendCooldowns[user.id]}
@@ -278,6 +303,33 @@ function UsersPage() {
                         ))}
                     </div>
                 </>
+            )}
+
+            {resetLink && (
+                <div className={styles.resetLinkOverlay} onClick={() => setResetLink(null)}>
+                    <div className={styles.resetLinkModal} onClick={e => e.stopPropagation()}>
+                        <div className={styles.resetLinkHeader}>
+                            <h3>קישור איפוס סיסמה</h3>
+                            <button className={styles.resetLinkClose} onClick={() => setResetLink(null)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <p className={styles.resetLinkEmail}>{resetLink.email}</p>
+                        <p className={styles.resetLinkNote}>שלח את הקישור הבא למשתמש. תקף ל-60 דקות.</p>
+                        <div className={styles.resetLinkBox}>
+                            <span className={styles.resetLinkText}>{resetLink.link}</span>
+                        </div>
+                        <Button
+                            fullWidth
+                            onClick={() => {
+                                navigator.clipboard.writeText(resetLink.link);
+                                addToast({ type: 'success', message: 'הקישור הועתק ללוח' });
+                            }}
+                        >
+                            העתק קישור
+                        </Button>
+                    </div>
+                </div>
             )}
 
             <UserFormModal
