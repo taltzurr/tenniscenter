@@ -9,7 +9,8 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged,
   User as FirebaseUser,
-  UserCredential
+  UserCredential,
+  ActionCodeSettings
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, COLLECTIONS } from './firebase';
@@ -33,7 +34,11 @@ export async function signOut(): Promise<void> {
  * Send password reset email
  */
 export async function resetPassword(email: string): Promise<void> {
-  return sendPasswordResetEmail(auth, email);
+  const actionCodeSettings: ActionCodeSettings = {
+    url: `${window.location.origin}/login`,
+    handleCodeInApp: false,
+  };
+  return sendPasswordResetEmail(auth, email, actionCodeSettings);
 }
 
 /**

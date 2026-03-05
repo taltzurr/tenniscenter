@@ -63,7 +63,7 @@ export function ForgotPasswordPage() {
       {/* Logo */}
       <div className="mb-8 text-center">
         <img
-          src="/logo.png"
+          src="/logo.svg"
           alt="מרכזי הטניס"
           className="w-20 h-20 mx-auto mb-4"
         />
