@@ -71,7 +71,7 @@ export function LoginPage() {
       {/* Logo */}
       <div className="mb-8 text-center">
         <img
-          src="/logo.png"
+          src="/logo.svg"
           alt="מרכזי הטניס"
           className="w-24 h-24 mx-auto mb-4"
         />
