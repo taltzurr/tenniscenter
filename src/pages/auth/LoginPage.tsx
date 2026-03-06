@@ -52,6 +52,7 @@ export function LoginPage() {
         case 'auth/user-not-found':
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
+        case 'auth/invalid-login-credentials':
           setError('כתובת המייל או הסיסמה שגויים');
           break;
         case 'auth/too-many-requests':
