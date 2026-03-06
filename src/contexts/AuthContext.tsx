@@ -77,26 +77,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Login
   const login = useCallback(async (email: string, password: string) => {
-    setIsLoading(true);
     try {
       await signIn(email, password);
       // Auth state listener will handle the rest
     } catch (error) {
-      setIsLoading(false);
       throw error;
     }
   }, []);
 
   // Logout
   const logout = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await authSignOut();
-      setUser(null);
-      setFirebaseUser(null);
-    } finally {
-      setIsLoading(false);
-    }
+    await authSignOut();
+    setUser(null);
+    setFirebaseUser(null);
   }, []);
 
   // Password reset
