@@ -45,6 +45,11 @@ export function LoginPage() {
     try {
       await login(data.email, data.password);
     } catch (err: unknown) {
+      if (err instanceof Error && err.message === 'user-doc-missing') {
+        setError('אין למשתמש זה פרופיל במערכת. פנה למנהל.');
+        return;
+      }
+
       const firebaseError = err as { code?: string };
 
       // User-friendly error messages

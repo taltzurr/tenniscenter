@@ -78,7 +78,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Login
   const login = useCallback(async (email: string, password: string) => {
     try {
-      await signIn(email, password);
+      const userCredential = await signIn(email, password);
+
+      // Verify user document exists before allowing login to proceed
+      const userData = await getUserData(userCredential.user.uid);
+      if (!userData) {
+        // Sign out immediately if no profile exists
+        await authSignOut();
+        throw new Error('user-doc-missing');
+      }
+
       // Auth state listener will handle the rest
     } catch (error) {
       throw error;
