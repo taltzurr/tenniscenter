@@ -5,6 +5,7 @@
   width: 100%;
 }
 
+/* ── Selected Tags (top summary) ── */
 .selectedTags {
   display: flex;
   flex-wrap: wrap;
@@ -41,56 +42,94 @@
 }
 .removeTag:hover { opacity: 1; }
 
-.tabs {
+/* ── Category Tabs (Level 1 — Navigation) ── */
+.tabsBar {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-1);
   flex-wrap: wrap;
+  padding: 4px;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
 }
 
 .tab {
-  padding: 5px 10px;
-  border-radius: var(--radius-full, 9999px);
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-primary);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
 
 .tab:hover {
-  border-color: var(--primary-400);
-  color: var(--primary-600);
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .tabActive {
-  border-color: var(--primary-500);
-  background: var(--primary-50, #eff6ff);
-  color: var(--primary-600);
-  font-weight: 600;
+  background: var(--bg-primary);
+  color: var(--primary-700);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── Chips Section (Level 2 — Topics) ── */
+.chipsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.chipsSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.chipsCategoryLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.chipsCount {
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  margin-inline-start: auto;
 }
 
 .chipsGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 6px;
   padding: var(--space-3);
   background: var(--bg-secondary, #f9fafb);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  min-height: 80px;
+  min-height: 60px;
+  align-content: flex-start;
 }
 
 .chip {
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: var(--radius-full, 9999px);
-  border: 1.5px solid var(--border-color);
+  border: 1px solid var(--gray-300);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: var(--font-size-sm);
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
+  line-height: 1.4;
 }
 
 .chip:hover {
@@ -112,6 +151,7 @@
   color: #fff;
 }
 
+/* ── Free text input ── */
 .freeTextRow {
   display: flex;
   gap: var(--space-2);

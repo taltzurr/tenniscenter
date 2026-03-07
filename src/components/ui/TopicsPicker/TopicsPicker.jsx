@@ -67,7 +67,7 @@ function TopicsPicker({ value = [], onChange }) {
         </div>
       )}
 
-      <div className={styles.tabs}>
+      <div className={styles.tabsBar}>
         {categories.map(cat => (
           <button
             key={cat.id}
@@ -80,17 +80,27 @@ function TopicsPicker({ value = [], onChange }) {
         ))}
       </div>
 
-      <div className={styles.chipsGrid}>
-        {activeCategoryTopics.map(topic => (
-          <button
-            key={topic}
-            type="button"
-            className={`${styles.chip} ${value.includes(topic) ? styles.chipSelected : ''}`}
-            onClick={() => toggle(topic)}
-          >
-            {topic}
-          </button>
-        ))}
+      <div className={styles.chipsSection}>
+        <div className={styles.chipsSectionHeader}>
+          <span className={styles.chipsCategoryLabel}>
+            {categories.find(c => c.id === activeCategory)?.label}
+          </span>
+          <span className={styles.chipsCount}>
+            {activeCategoryTopics.length} נושאים
+          </span>
+        </div>
+        <div className={styles.chipsGrid}>
+          {activeCategoryTopics.map(topic => (
+            <button
+              key={topic}
+              type="button"
+              className={`${styles.chip} ${value.includes(topic) ? styles.chipSelected : ''}`}
+              onClick={() => toggle(topic)}
+            >
+              {topic}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className={styles.freeTextRow}>
