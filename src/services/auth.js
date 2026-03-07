@@ -2,6 +2,8 @@ import {
     signInWithEmailAndPassword,
     signOut as firebaseSignOut,
     sendPasswordResetEmail,
+    verifyPasswordResetCode,
+    confirmPasswordReset,
     onAuthStateChanged,
 } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -42,7 +44,28 @@ export async function signOut() {
  * @returns {Promise<void>}
  */
 export async function resetPassword(email) {
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email, {
+        url: window.location.origin + '/login',
+    });
+}
+
+/**
+ * Verify a password reset code is valid
+ * @param {string} code - The oobCode from the reset email link
+ * @returns {Promise<string>} The email address associated with the code
+ */
+export async function verifyResetCode(code) {
+    return await verifyPasswordResetCode(auth, code);
+}
+
+/**
+ * Confirm password reset with new password
+ * @param {string} code - The oobCode from the reset email link
+ * @param {string} newPassword - The new password
+ * @returns {Promise<void>}
+ */
+export async function confirmReset(code, newPassword) {
+    await confirmPasswordReset(auth, code, newPassword);
 }
 
 /**
