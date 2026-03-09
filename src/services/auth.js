@@ -44,9 +44,7 @@ export async function signOut() {
  * @returns {Promise<void>}
  */
 export async function resetPassword(email) {
-    await sendPasswordResetEmail(auth, email, {
-        url: window.location.origin + '/login',
-    });
+    await sendPasswordResetEmail(auth, email);
 }
 
 /**

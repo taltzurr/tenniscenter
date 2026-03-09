@@ -7,6 +7,7 @@ import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
 import useUsersStore from '../../../stores/usersStore';
 import { HEBREW_MONTHS } from '../../../services/monthlyPlans';
 import { PLAN_STATUS, ROLES } from '../../../config/constants';
+import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
 import styles from './ManagerPlansReview.module.css';
@@ -65,7 +66,7 @@ function ManagerPlansReview() {
     // Derived Data — filter coaches to center for center managers
     const coaches = useMemo(() => {
         const all = users.filter(u =>
-            (u.role === ROLES.COACH || u.role === ROLES.CENTER_MANAGER) && u.active !== false
+            (u.role === ROLES.COACH || u.role === ROLES.CENTER_MANAGER) && u.isActive !== false
         );
         if (isCenterManager() && userData?.managedCenterId) {
             return all.filter(c => c.centerIds?.includes(userData.managedCenterId));
@@ -299,7 +300,7 @@ function ManagerPlansReview() {
 
                                                             <StatusIndicator status={status === 'missing' ? 'missing' : status} />
 
-                                                            {isSupervisor() && plan && status === PLAN_STATUS.SUBMITTED && (
+                                                            {(isSupervisor() || isCenterManager()) && plan && status === PLAN_STATUS.SUBMITTED && (
                                                                 <div className={styles.approvalActions} onClick={e => e.stopPropagation()}>
                                                                     <Button
                                                                         size="small"

@@ -55,7 +55,7 @@ const useGoalsStore = create((set, get) => ({
     saveGoal: async (goalData) => {
         set({ isLoading: true, error: null });
         try {
-            const saved = await saveGoal(goalData);
+            const saved = await saveGoalService(goalData);
 
             if (goalData.type === 'value') {
                 set(state => {
@@ -98,7 +98,7 @@ const useGoalsStore = create((set, get) => ({
     deleteGoal: async (goalId, type, groupId) => {
         set({ isLoading: true, error: null });
         try {
-            await deleteGoal(goalId);
+            await deleteGoalService(goalId);
 
             if (type === 'value') {
                 set(state => ({
@@ -130,7 +130,7 @@ const useGoalsStore = create((set, get) => ({
     // Reorder goals
     reorderGoals: async (goals, type, groupId) => {
         try {
-            await reorderGoals(goals);
+            await reorderGoalsService(goals);
 
             if (type === 'center') {
                 set({ centerGoals: goals });

@@ -45,6 +45,7 @@ import { PLAN_STATUS } from '../../../config/constants';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import Badge from '../../../components/ui/Badge';
+import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
 import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
 import styles from './TrainingProgramPage.module.css';
 
@@ -264,7 +265,7 @@ export default function TrainingProgramPage() {
                 <div className={styles.headerActions}>
                     {selectedGroup && selectedGroup !== 'all' && (
                         <div className={styles.statusBadge}>
-                            סטטוס: <Badge variant={currentPlan?.status || 'default'}>{currentPlan?.status || 'טיוטה'}</Badge>
+                            סטטוס: <StatusIndicator status={currentPlan?.status || 'draft'} />
                         </div>
                     )}
 

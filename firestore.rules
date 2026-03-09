@@ -23,7 +23,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSignedIn();
       // Allow users to create/update their own profile
-      allow create: if request.auth.uid == userId;
+      allow create: if request.auth.uid == userId || isSupervisor();
       allow update: if request.auth.uid == userId || isSupervisor();
       allow delete: if isSupervisor();
     }
