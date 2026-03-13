@@ -16,42 +16,10 @@ import { db } from './firebase';
 
 const COLLECTION = 'trainings';
 
-// Demo mode helpers
-const isDemoMode = () => {
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    const demoUser = localStorage.getItem('demoUser');
-    return !apiKey || apiKey === 'YOUR_API_KEY' || demoUser !== null;
-};
-
-const STORAGE_KEY = 'tennis_mock_trainings';
-
-const getMockTrainings = () => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored, (key, value) => {
-        if (key === 'date' || key === 'createdAt' || key === 'updatedAt') {
-            return value ? new Date(value) : value;
-        }
-        return value;
-    }) : [];
-};
-
-const saveMockTrainings = (trainings) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trainings));
-};
-
 /**
  * Get trainings for a specific coach
  */
 export const getCoachTrainings = async (coachId, startDate, endDate, status) => {
-    if (isDemoMode()) {
-        let trainings = getMockTrainings().filter(t => t.coachId === coachId);
-        if (startDate) trainings = trainings.filter(t => new Date(t.date) >= startDate);
-        if (endDate) trainings = trainings.filter(t => new Date(t.date) <= endDate);
-        if (status) trainings = trainings.filter(t => t.status === status);
-        return trainings.sort((a, b) => new Date(a.date) - new Date(b.date));
-    }
-
     try {
         let q = query(
             collection(db, COLLECTION),
@@ -84,13 +52,6 @@ export const getCoachTrainings = async (coachId, startDate, endDate, status) => 
  * Get ALL trainings for the organization (for Manager Analytics)
  */
 export const getOrganizationTrainings = async (startDate, endDate) => {
-    if (isDemoMode()) {
-        let trainings = getMockTrainings();
-        if (startDate) trainings = trainings.filter(t => new Date(t.date) >= startDate);
-        if (endDate) trainings = trainings.filter(t => new Date(t.date) <= endDate);
-        return trainings;
-    }
-
     try {
         if (!startDate || !endDate) throw new Error('Start date and End date are required');
 
@@ -116,10 +77,6 @@ export const getOrganizationTrainings = async (startDate, endDate) => {
  * Get a single training
  */
 export const getTraining = async (id) => {
-    if (isDemoMode()) {
-        return getMockTrainings().find(t => t.id === id) || null;
-    }
-
     try {
         const docRef = doc(db, COLLECTION, id);
         const docSnap = await getDoc(docRef);
@@ -152,21 +109,6 @@ const validateTrainingData = (data) => {
  * Create a new training
  */
 export const createTraining = async (data) => {
-    if (isDemoMode()) {
-        validateTrainingData(data);
-        const trainings = getMockTrainings();
-        const newTraining = {
-            ...data,
-            id: `training-${Date.now()}`,
-            status: data.status || 'planned',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-        trainings.push(newTraining);
-        saveMockTrainings(trainings);
-        return newTraining;
-    }
-
     try {
         validateTrainingData(data);
 
@@ -203,46 +145,6 @@ import {
  * Create recurring trainings (Batch) - Advanced
  */
 export const createRecurringTrainings = async (baseData, recurrence) => {
-    if (isDemoMode()) {
-        const trainings = getMockTrainings();
-        const created = [];
-        const recurrenceGroupId = `recurrence-${Date.now()}`;
-        let currentDate = new Date(baseData.date);
-        const interval = recurrence.interval || 1;
-        const freq = recurrence.frequency;
-        const endType = recurrence.endType || 'date';
-        let maxDate = recurrence.endDate ? new Date(recurrence.endDate) : null;
-        if (maxDate) maxDate.setHours(23, 59, 59, 999);
-        const targetCount = endType === 'count' ? (recurrence.count || 13) : 100;
-        let count = 0;
-
-        while (count < targetCount) {
-            if (endType === 'date' && maxDate && isBefore(maxDate, currentDate)) break;
-            if (count >= 100) break;
-
-            const newTraining = {
-                ...baseData,
-                id: `training-${Date.now()}-${count}`,
-                date: new Date(currentDate),
-                recurrenceGroupId,
-                status: 'planned',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
-            trainings.push(newTraining);
-            created.push(newTraining);
-            count++;
-
-            if (freq === 'DAILY') currentDate = addDays(currentDate, interval);
-            else if (freq === 'WEEKLY') currentDate = addWeeks(currentDate, interval);
-            else if (freq === 'MONTHLY') currentDate = addMonths(currentDate, interval);
-            else if (freq === 'YEARLY') currentDate = addYears(currentDate, interval);
-        }
-
-        saveMockTrainings(trainings);
-        return created;
-    }
-
     try {
         const batch = writeBatch(db);
         const trainings = [];
@@ -316,17 +218,6 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
  * Update a training
  */
 export const updateTraining = async (id, data) => {
-    if (isDemoMode()) {
-        const trainings = getMockTrainings();
-        const index = trainings.findIndex(t => t.id === id);
-        if (index !== -1) {
-            trainings[index] = { ...trainings[index], ...data, updatedAt: new Date() };
-            saveMockTrainings(trainings);
-            return trainings[index];
-        }
-        throw new Error('Training not found');
-    }
-
     try {
         const docRef = doc(db, COLLECTION, id);
         const updateData = {
@@ -350,13 +241,6 @@ export const updateTraining = async (id, data) => {
  * Delete a training
  */
 export const deleteTraining = async (id) => {
-    if (isDemoMode()) {
-        const trainings = getMockTrainings();
-        const filtered = trainings.filter(t => t.id !== id);
-        saveMockTrainings(filtered);
-        return true;
-    }
-
     try {
         await deleteDoc(doc(db, COLLECTION, id));
         return true;

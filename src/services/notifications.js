@@ -4,13 +4,6 @@ import { getGroupPlayers } from './players';
 
 const COLLECTION = 'notifications';
 
-// Demo mode helpers
-const isDemoMode = () => {
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    const demoUser = localStorage.getItem('demoUser');
-    return !apiKey || apiKey === 'YOUR_API_KEY' || demoUser !== null;
-};
-
 export const NOTIFICATION_TYPES = {
     INFO: 'info',
     SUCCESS: 'success',
@@ -20,12 +13,6 @@ export const NOTIFICATION_TYPES = {
 
 export const subscribeToNotifications = (userId, callback) => {
     if (!userId) return () => { };
-
-    if (isDemoMode()) {
-        // In demo mode, just return empty notifications
-        callback([]);
-        return () => { };
-    }
 
     const q = query(
         collection(db, COLLECTION),
@@ -39,12 +26,10 @@ export const subscribeToNotifications = (userId, callback) => {
 };
 
 export const markAsRead = async (id) => {
-    if (isDemoMode()) return;
     await updateDoc(doc(db, COLLECTION, id), { isRead: true });
 };
 
 export const markAllAsRead = async (userId) => {
-    if (isDemoMode()) return;
     const q = query(
         collection(db, COLLECTION),
         where('userId', '==', userId),
@@ -59,7 +44,6 @@ export const markAllAsRead = async (userId) => {
 };
 
 export const createNotification = async (notification) => {
-    if (isDemoMode()) return;
     await addDoc(collection(db, COLLECTION), {
         ...notification,
         isRead: false,
@@ -68,12 +52,10 @@ export const createNotification = async (notification) => {
 };
 
 export const deleteNotification = async (id) => {
-    if (isDemoMode()) return;
     await deleteDoc(doc(db, COLLECTION, id));
 };
 
 export const notifyGroup = async (groupId, notification) => {
-    if (isDemoMode()) return;
     try {
         const players = await getGroupPlayers(groupId);
         if (players.length === 0) return;
@@ -99,7 +81,6 @@ export const notifyGroup = async (groupId, notification) => {
  * Notify all users with a specific role
  */
 export const notifyRole = async (role, notification) => {
-    if (isDemoMode()) return;
     try {
         const q = query(
             collection(db, 'users'),

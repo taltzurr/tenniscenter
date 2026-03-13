@@ -12,38 +12,10 @@ import { db } from './firebase';
 
 const COLLECTION = 'monthlyOutstanding';
 
-// Demo mode helpers
-const isDemoMode = () => {
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    const demoUser = localStorage.getItem('demoUser');
-    return !apiKey || apiKey === 'YOUR_API_KEY' || demoUser !== null;
-};
-
-const STORAGE_KEY = 'tennis_mock_outstanding';
-
-const getMockOutstanding = () => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored, (key, value) => {
-        if (key === 'createdAt' || key === 'updatedAt') {
-            return value ? new Date(value) : value;
-        }
-        return value;
-    }) : [];
-};
-
-const saveMockOutstanding = (entries) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-};
-
 /**
  * Get all monthly outstanding entries for a specific month
  */
 export const getMonthlyOutstanding = async (year, month) => {
-    if (isDemoMode()) {
-        return getMockOutstanding().filter(e => e.year === year && e.month === month);
-    }
-
     try {
         const q = query(
             collection(db, COLLECTION),
@@ -68,12 +40,6 @@ export const getMonthlyOutstanding = async (year, month) => {
  * Get monthly outstanding for a specific center
  */
 export const getMonthlyOutstandingByCenter = async (year, month, centerId) => {
-    if (isDemoMode()) {
-        return getMockOutstanding().filter(
-            e => e.year === year && e.month === month && e.centerId === centerId
-        );
-    }
-
     try {
         const q = query(
             collection(db, COLLECTION),
@@ -99,31 +65,6 @@ export const getMonthlyOutstandingByCenter = async (year, month, centerId) => {
  * Save or update a monthly outstanding entry
  */
 export const saveMonthlyOutstanding = async (data) => {
-    if (isDemoMode()) {
-        const entries = getMockOutstanding();
-        const { reason, ...cleanData } = data;
-        const existingIndex = entries.findIndex(
-            e => e.year === data.year && e.month === data.month && e.type === data.type &&
-                (!data.centerId || e.centerId === data.centerId)
-        );
-
-        if (existingIndex !== -1) {
-            entries[existingIndex] = { ...entries[existingIndex], ...cleanData, updatedAt: new Date() };
-            saveMockOutstanding(entries);
-            return entries[existingIndex];
-        } else {
-            const newEntry = {
-                ...cleanData,
-                id: `outstanding-${Date.now()}`,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
-            entries.push(newEntry);
-            saveMockOutstanding(entries);
-            return newEntry;
-        }
-    }
-
     try {
         const { year, month, type, centerId } = data;
 
@@ -168,12 +109,6 @@ export const saveMonthlyOutstanding = async (data) => {
  * Delete a monthly outstanding entry
  */
 export const deleteMonthlyOutstanding = async (docId) => {
-    if (isDemoMode()) {
-        const entries = getMockOutstanding();
-        saveMockOutstanding(entries.filter(e => e.id !== docId));
-        return { success: true };
-    }
-
     try {
         await deleteDoc(doc(db, COLLECTION, docId));
         return { success: true };

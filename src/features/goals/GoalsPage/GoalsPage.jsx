@@ -19,7 +19,7 @@ import Spinner from '../../../components/ui/Spinner';
 import styles from './GoalsPage.module.css';
 
 function GoalsPage() {
-    const { userData, isDemoMode } = useAuthStore();
+    const { userData } = useAuthStore();
     const { centerValues, groupGoals, fetchCenterValues, fetchGroupGoals, saveGoal, deleteGoal, isLoading } = useGoalsStore();
     const { groups, fetchGroups } = useGroupsStore();
     const { addToast } = useUIStore();
@@ -37,19 +37,17 @@ function GoalsPage() {
     });
 
     useEffect(() => {
-        if (isDemoMode) return;
         fetchCenterValues();
         if (userData?.id) {
             fetchGroups(userData.id, userData.role === 'supervisor');
         }
-    }, [isDemoMode, fetchCenterValues, fetchGroups, userData]);
+    }, [fetchCenterValues, fetchGroups, userData]);
 
     useEffect(() => {
-        if (isDemoMode) return;
         if (selectedGroupId) {
             fetchGroupGoals(selectedGroupId);
         }
-    }, [isDemoMode, selectedGroupId, fetchGroupGoals]);
+    }, [selectedGroupId, fetchGroupGoals]);
 
     const isValueTab = activeTab === 'values';
 

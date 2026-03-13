@@ -14,28 +14,6 @@ import { db } from './firebase';
 
 const COLLECTION = 'exerciseRequests';
 
-// Check if we're in demo mode
-const isDemoMode = () => {
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    const demoUser = localStorage.getItem('demoUser');
-    return !apiKey || apiKey === 'YOUR_API_KEY' || demoUser !== null;
-};
-
-// Local storage key for mock data
-const STORAGE_KEY = 'tennis_mock_exercise_requests';
-
-// Get mock requests from localStorage
-const getMockRequests = () => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-};
-
-// Save mock requests to localStorage
-const saveMockRequests = (requests) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
-};
-
 // Request statuses
 export const REQUEST_STATUSES = {
     PENDING: 'pending',
@@ -130,19 +108,6 @@ export const getRequest = async (id) => {
  */
 export const createRequest = async (data) => {
     try {
-        if (isDemoMode()) {
-            const requests = getMockRequests();
-            const newRequest = {
-                ...data,
-                id: `request-${Date.now()}`,
-                status: REQUEST_STATUSES.PENDING,
-                createdAt: new Date()
-            };
-            requests.unshift(newRequest);
-            saveMockRequests(requests);
-            return newRequest;
-        }
-
         const docRef = await addDoc(collection(db, COLLECTION), {
             ...data,
             status: REQUEST_STATUSES.PENDING,

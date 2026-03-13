@@ -15,7 +15,7 @@ import styles from './EventsCalendarPage.module.css';
 
 function EventsCalendarPage() {
     const navigate = useNavigate();
-    const { userData, isSupervisor, isDemoMode } = useAuthStore();
+    const { userData, isSupervisor } = useAuthStore();
     const { fetchTheme, saveTheme, isLoading: themesLoading } = useMonthlyThemesStore();
     const { events, fetchEvents, addEvent, editEvent, removeEvent, isLoading: eventsLoading } = useEventsStore();
     const { addToast } = useUIStore();
@@ -57,9 +57,6 @@ function EventsCalendarPage() {
 
     // Load Data
     useEffect(() => {
-        // Skip Firestore in demo mode — no Firebase config available
-        if (isDemoMode) return;
-
         const loadData = async () => {
             // Load Theme
             const theme = await fetchTheme(selectedYear, selectedMonth);
@@ -80,15 +77,11 @@ function EventsCalendarPage() {
             await fetchEvents(selectedYear, selectedMonth, centerId);
         };
         loadData();
-    }, [isDemoMode, selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
+    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
 
     // Theme Handlers
     const handleSaveThemes = async (e) => {
         e.preventDefault();
-        if (isDemoMode) {
-            addToast({ type: 'info', message: 'שמירה אינה זמינה במצב Demo' });
-            return;
-        }
         // Filter out empty goal entries
         const filteredGoals = Object.fromEntries(
             Object.entries(themesFormData.goals).filter(([, v]) => v.trim())

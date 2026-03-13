@@ -9,38 +9,13 @@ import {
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
-const MOCK_CENTERS = [
-    { id: 'center-1', name: 'מרכז הטניס תל אביב', address: 'שד\' רוקח 1, תל אביב' },
-    { id: 'center-2', name: 'מרכז הטניס חיפה', address: 'דרך צרפת 1, חיפה' },
-    { id: 'center-3', name: 'מרכז הטניס ירושלים', address: 'דרך אגודת ספורט בית"ר 1, ירושלים' },
-    { id: 'center-4', name: 'מרכז הטניס אשקלון', address: 'שד\' עופר 1, אשקלון' },
-    { id: 'center-5', name: 'מרכז הטניס באר שבע', address: 'דרך מצדה 1, באר שבע' },
-];
-
-const isDemoMode = () => {
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    return !apiKey || apiKey === 'YOUR_API_KEY';
-};
-
 const useCentersStore = create((set, get) => ({
     centers: [],
     isLoading: false,
     error: null,
-    isDemoMode: isDemoMode(),
 
     fetchCenters: async () => {
         set({ isLoading: true, error: null });
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            // Keep existing updates if present in memory, otherwise load mock
-            if (get().centers.length === 0) {
-                set({ centers: MOCK_CENTERS, isLoading: false });
-            } else {
-                set({ isLoading: false });
-            }
-            return;
-        }
 
         try {
             const querySnapshot = await getDocs(collection(db, 'centers'));
@@ -57,19 +32,6 @@ const useCentersStore = create((set, get) => ({
 
     addCenter: async (centerData) => {
         set({ isLoading: true, error: null });
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const newCenter = {
-                id: `center-${Date.now()}`,
-                ...centerData
-            };
-            set(state => ({
-                centers: [...state.centers, newCenter],
-                isLoading: false
-            }));
-            return { success: true };
-        }
 
         try {
             const docRef = await addDoc(collection(db, 'centers'), centerData);
@@ -88,17 +50,6 @@ const useCentersStore = create((set, get) => ({
 
     updateCenter: async (id, updates) => {
         set({ isLoading: true, error: null });
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            set(state => ({
-                centers: state.centers.map(center =>
-                    center.id === id ? { ...center, ...updates } : center
-                ),
-                isLoading: false
-            }));
-            return { success: true };
-        }
 
         try {
             const centerRef = doc(db, 'centers', id);
@@ -119,15 +70,6 @@ const useCentersStore = create((set, get) => ({
 
     deleteCenter: async (id) => {
         set({ isLoading: true, error: null });
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            set(state => ({
-                centers: state.centers.filter(center => center.id !== id),
-                isLoading: false
-            }));
-            return { success: true };
-        }
 
         try {
             await deleteDoc(doc(db, 'centers', id));

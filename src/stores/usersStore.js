@@ -15,67 +15,13 @@ import firebaseConfig from '../config/firebase';
 import { resetPassword } from '../services/auth';
 import { ROLES } from '../config/constants';
 
-// Initial Mock Users
-const MOCK_USERS = [
-    {
-        id: 'demo-coach-1',
-        email: 'coach@demo.com',
-        displayName: 'יוסי כהן',
-        role: ROLES.COACH,
-        centerIds: ['center-1'],
-        phone: '050-1234567',
-        isActive: true,
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: 'demo-manager-1',
-        email: 'manager@demo.com',
-        displayName: 'דני לוי',
-        role: ROLES.CENTER_MANAGER,
-        centerIds: ['center-1'],
-        phone: '052-7654321',
-        isActive: true,
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: 'demo-supervisor-1',
-        email: 'supervisor@demo.com',
-        displayName: 'מיכל אברהם',
-        role: ROLES.SUPERVISOR,
-        centerIds: [], // Supervisors might not be bound to a center or bound to all
-        phone: '054-9876543',
-        isActive: true,
-        createdAt: new Date().toISOString()
-    },
-];
-
-const isDemoMode = () => {
-    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-    return !apiKey || apiKey === 'YOUR_API_KEY';
-};
-
 const useUsersStore = create((set, get) => ({
     users: [],
     isLoading: false,
     error: null,
-    isDemoMode: isDemoMode(),
 
     fetchUsers: async () => {
         set({ isLoading: true, error: null });
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 600));
-            // In a real app we might want to persist changes in demo mode too, but for now reset to defaults is okay
-            // or checking if we have local modifications could be added.
-            // For simplicity, we just return MOCK_USERS.
-            // A better approach for "Management" demo is to keep state in memory if we want to see immediate updates.
-            if (get().users.length === 0) {
-                set({ users: MOCK_USERS, isLoading: false });
-            } else {
-                set({ isLoading: false }); // Keep existing memory users
-            }
-            return;
-        }
 
         try {
             const querySnapshot = await getDocs(collection(db, 'users'));
@@ -107,20 +53,6 @@ const useUsersStore = create((set, get) => ({
         }
         // Remove legacy single centerId if present in processedData to keep it clean
         delete processedData.centerId;
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const { onboardingMethod, initialPassword, ...profileData } = processedData;
-            const newUser = {
-                id: `demo-user-${Date.now()}`,
-                ...profileData
-            };
-            set(state => ({
-                users: [...state.users, newUser],
-                isLoading: false
-            }));
-            return { success: true };
-        }
 
         try {
             const { onboardingMethod, initialPassword, ...profileData } = processedData;
@@ -167,17 +99,6 @@ const useUsersStore = create((set, get) => ({
     updateUser: async (uid, updates) => {
         set({ isLoading: true, error: null });
 
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            set(state => ({
-                users: state.users.map(user =>
-                    user.id === uid ? { ...user, ...updates } : user
-                ),
-                isLoading: false
-            }));
-            return { success: true };
-        }
-
         try {
             const userRef = doc(db, 'users', uid);
 
@@ -203,9 +124,6 @@ const useUsersStore = create((set, get) => ({
     },
 
     generateResetLink: async (email) => {
-        if (get().isDemoMode) {
-            return { success: true, link: 'https://example.com/reset?demo=true' };
-        }
         try {
             const fn = httpsCallable(getFunctions(), 'generatePasswordResetLink');
             const result = await fn({ email });
@@ -217,10 +135,6 @@ const useUsersStore = create((set, get) => ({
     },
 
     resendInvitation: async (email) => {
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return { success: true };
-        }
         try {
             await resetPassword(email);
             return { success: true };
@@ -232,15 +146,6 @@ const useUsersStore = create((set, get) => ({
 
     deleteUser: async (uid) => {
         set({ isLoading: true, error: null });
-
-        if (get().isDemoMode) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            set(state => ({
-                users: state.users.filter(user => user.id !== uid),
-                isLoading: false
-            }));
-            return { success: true };
-        }
 
         try {
             // Delete Firestore document (Firebase Auth account cleanup requires Admin SDK /
