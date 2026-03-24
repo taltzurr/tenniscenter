@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
@@ -17,14 +17,10 @@ function LoginPage() {
 
     const { login, sendPasswordReset, user, userData, error: storeError } = useAuthStore();
     const navigate = useNavigate();
-    const location = useLocation();
 
-    const rawFrom = location.state?.from?.pathname || '/dashboard';
-    const from = rawFrom === '/login' ? '/dashboard' : rawFrom;
-
-    // Redirect if already authenticated (handles race condition on first login)
+    // Always redirect to dashboard after login — no matter what page the user was on before
     if (user && userData) {
-        return <Navigate to={from} replace />;
+        return <Navigate to="/dashboard" replace />;
     }
 
     const handleSubmit = async (e) => {
