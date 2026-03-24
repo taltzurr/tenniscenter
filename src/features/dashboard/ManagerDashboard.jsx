@@ -25,11 +25,19 @@ const ManagerDashboard = () => {
         return [];
     }, [currentTheme]);
 
-    // Goals are stored as { groupTypeId: string } keyed by group type
+    // Goals can be stored as { groupTypeId: string } (old format) or string[] (new format from assignments)
     const monthlyGoalsByGroup = useMemo(() => {
         const goals = currentTheme?.goals;
-        if (!goals || Array.isArray(goals)) return {};
+        if (!goals) return {};
+        if (Array.isArray(goals)) return {};  // Array format handled by monthlyGoalsArray
         return goals;
+    }, [currentTheme]);
+
+    // Goals as flat array (new assignment format)
+    const monthlyGoalsArray = useMemo(() => {
+        const goals = currentTheme?.goals;
+        if (!goals || !Array.isArray(goals)) return [];
+        return goals.map((g, i) => ({ id: `g-${i}`, name: g }));
     }, [currentTheme]);
 
     const getGreeting = () => {
@@ -102,17 +110,28 @@ const ManagerDashboard = () => {
                         </div>
                     </div>
                     <div className={styles.goalsByGroup}>
-                        {DEFAULT_GROUP_TYPES.map((groupType) => {
-                            const goal = monthlyGoalsByGroup[groupType.id];
-                            if (!goal) return null;
-                            return (
-                                <div key={groupType.id} className={styles.goalRow}>
-                                    <span className={styles.goalGroupLabel}>{groupType.name}</span>
-                                    <span className={styles.goalText}>{goal}</span>
-                                </div>
-                            );
-                        })}
-                        {Object.keys(monthlyGoalsByGroup).length === 0 && (
+                        {/* New format: goals as flat array from assignments */}
+                        {monthlyGoalsArray.length > 0 ? (
+                            <div className={styles.cardContent}>
+                                {monthlyGoalsArray.map((goal) => (
+                                    <span key={goal.id} className={`${styles.tag} ${styles.tagGoal}`}>
+                                        {goal.name}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : Object.keys(monthlyGoalsByGroup).length > 0 ? (
+                            /* Old format: goals keyed by group type */
+                            DEFAULT_GROUP_TYPES.map((groupType) => {
+                                const goal = monthlyGoalsByGroup[groupType.id];
+                                if (!goal) return null;
+                                return (
+                                    <div key={groupType.id} className={styles.goalRow}>
+                                        <span className={styles.goalGroupLabel}>{groupType.name}</span>
+                                        <span className={styles.goalText}>{goal}</span>
+                                    </div>
+                                );
+                            })
+                        ) : (
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
                                 טרם הוגדרו מטרות לחודש זה
                             </span>

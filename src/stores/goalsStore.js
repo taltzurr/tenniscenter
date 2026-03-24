@@ -7,6 +7,7 @@ import {
     getMonthlyAssignment,
     saveMonthlyAssignment as saveMonthlyAssignmentService
 } from '../services/goals';
+import { saveMonthlyTheme } from '../services/monthlyThemes';
 
 const useGoalsStore = create((set, get) => ({
     goals: [],              // all goal definitions
@@ -48,11 +49,33 @@ const useGoalsStore = create((set, get) => ({
         }
     },
 
-    // Save monthly assignment
+    // Save monthly assignment and sync to monthlyThemes for dashboard display
     saveMonthlyAssignment: async (year, month, goalIds, valueIds) => {
         set({ isLoading: true, error: null });
         try {
             const saved = await saveMonthlyAssignmentService(year, month, goalIds, valueIds);
+
+            // Sync to monthlyThemes so dashboards (Coach/Manager) display the data
+            const { goals: allGoals, values: allValues } = get();
+            const resolvedGoalTitles = (goalIds || [])
+                .map(id => allGoals.find(g => g.id === id)?.title)
+                .filter(Boolean);
+            const resolvedValueTitles = (valueIds || [])
+                .map(id => allValues.find(v => v.id === id)?.title)
+                .filter(Boolean);
+
+            try {
+                await saveMonthlyTheme({
+                    year,
+                    month,
+                    goals: resolvedGoalTitles,
+                    values: resolvedValueTitles
+                });
+            } catch (syncError) {
+                console.error('Failed to sync to monthlyThemes:', syncError);
+                // Don't fail the whole operation if sync fails
+            }
+
             set({
                 currentAssignment: saved,
                 isLoading: false
