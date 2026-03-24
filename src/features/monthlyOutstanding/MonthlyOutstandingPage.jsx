@@ -206,8 +206,8 @@ function MonthlyOutstandingPage() {
             <div className={styles.monthNav}>
                 <button
                     className={styles.monthNavBtn}
-                    onClick={() => navigateMonth(1)}
-                    title="חודש הבא"
+                    onClick={() => navigateMonth(-1)}
+                    title="חודש קודם"
                 >
                     <ChevronRight size={20} />
                 </button>
@@ -217,8 +217,8 @@ function MonthlyOutstandingPage() {
                 </div>
                 <button
                     className={styles.monthNavBtn}
-                    onClick={() => navigateMonth(-1)}
-                    title="חודש קודם"
+                    onClick={() => navigateMonth(1)}
+                    title="חודש הבא"
                 >
                     <ChevronLeft size={20} />
                 </button>

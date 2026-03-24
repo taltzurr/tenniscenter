@@ -289,8 +289,8 @@ function EventsCalendarPage() {
                     <div className={styles.monthNav}>
                         <button
                             className={styles.monthNavBtn}
-                            onClick={() => navigateMonth(1)}
-                            aria-label="חודש הבא"
+                            onClick={() => navigateMonth(-1)}
+                            aria-label="חודש קודם"
                         >
                             <ChevronRight size={20} />
                         </button>
@@ -299,8 +299,8 @@ function EventsCalendarPage() {
                         </span>
                         <button
                             className={styles.monthNavBtn}
-                            onClick={() => navigateMonth(-1)}
-                            aria-label="חודש קודם"
+                            onClick={() => navigateMonth(1)}
+                            aria-label="חודש הבא"
                         >
                             <ChevronLeft size={20} />
                         </button>

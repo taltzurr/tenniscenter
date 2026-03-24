@@ -43,9 +43,13 @@ export async function signOut() {
  * @param {string} email
  * @returns {Promise<void>}
  */
+// Production URL – hardcoded so emails always link to the real site,
+// regardless of which domain the admin is currently on.
+const PRODUCTION_URL = 'https://tennis-training-app-gemini.web.app';
+
 export async function resetPassword(email) {
     const actionCodeSettings = {
-        url: `${window.location.origin}/reset-password`,
+        url: `${PRODUCTION_URL}/reset-password`,
         handleCodeInApp: true,
     };
     await sendPasswordResetEmail(auth, email, actionCodeSettings);
@@ -58,7 +62,7 @@ export async function resetPassword(email) {
  */
 export async function sendWelcomeEmail(email) {
     const actionCodeSettings = {
-        url: `${window.location.origin}/welcome`,
+        url: `${PRODUCTION_URL}/welcome`,
         handleCodeInApp: true,
     };
     await sendPasswordResetEmail(auth, email, actionCodeSettings);
