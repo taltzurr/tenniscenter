@@ -5,7 +5,7 @@
 }
 
 .greeting {
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
 }
 
 .greetingTitle {
@@ -23,8 +23,8 @@
 .grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
 }
 
 .card {
@@ -92,7 +92,7 @@
 }
 
 .quickActions {
-    margin-top: var(--space-8);
+    margin-top: var(--space-6);
 }
 
 .sectionTitle {
@@ -113,6 +113,10 @@
 
     .greetingTitle {
         font-size: var(--font-size-2xl);
+    }
+
+    .greeting {
+        margin-bottom: var(--space-6);
     }
 
     .greetingSubtitle {
@@ -155,9 +159,17 @@
 /* Monthly Context Section (Values & Goals) */
 .contextGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-6);
-    margin-bottom: var(--space-8);
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .contextGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-6);
+        margin-bottom: var(--space-8);
+    }
 }
 
 .dashboardCard {

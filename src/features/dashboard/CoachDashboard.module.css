@@ -32,8 +32,7 @@
 .dashSection {
     opacity: 0;
     animation: slideUp 0.3s ease forwards;
-    margin-bottom: var(--space-16);
-    /* Increased to 64px for VERY CLEAR separation */
+    margin-bottom: var(--space-6);
 }
 
 .delay0 {
@@ -62,8 +61,7 @@
 
 /* Greeting */
 .greeting {
-    margin-bottom: var(--space-8);
-    /* Increased from space-2 */
+    margin-bottom: var(--space-2);
 }
 
 .greetingTitle {
@@ -296,7 +294,7 @@
 /* Empty state */
 .emptyState {
     text-align: center;
-    padding: var(--space-10) var(--space-4);
+    padding: var(--space-6) var(--space-4);
     background-color: var(--bg-primary);
     border-radius: var(--radius-lg);
 }
@@ -458,11 +456,11 @@
     }
 
     .dashSection {
-        margin-bottom: var(--space-12);
+        margin-bottom: var(--space-8);
     }
 
     .greeting {
-        margin-bottom: var(--space-8);
+        margin-bottom: var(--space-4);
     }
 }
 
@@ -485,7 +483,7 @@
     }
 
     .dashSection {
-        margin-bottom: var(--space-16);
+        margin-bottom: var(--space-12);
     }
 
     .section {

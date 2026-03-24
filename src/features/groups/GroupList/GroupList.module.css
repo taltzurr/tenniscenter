@@ -234,7 +234,7 @@
 /* Empty state */
 .emptyState {
     text-align: center;
-    padding: var(--space-16) var(--space-4);
+    padding: var(--space-8) var(--space-4);
     background-color: var(--bg-primary);
     border-radius: var(--radius-lg);
     margin-top: var(--space-4);

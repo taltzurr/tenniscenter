@@ -13,7 +13,7 @@
 }
 
 .greeting {
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
 }
 
 .greetingTitle {
@@ -31,8 +31,8 @@
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
 }
 
 /* Tablet breakpoint */

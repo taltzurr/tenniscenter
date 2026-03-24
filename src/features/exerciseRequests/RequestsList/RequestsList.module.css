@@ -160,7 +160,7 @@
 /* Empty state */
 .emptyState {
     text-align: center;
-    padding: var(--space-12);
+    padding: var(--space-8) var(--space-4);
     background: var(--bg-primary);
     border-radius: var(--radius-lg);
 }

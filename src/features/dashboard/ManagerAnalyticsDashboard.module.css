@@ -84,9 +84,8 @@
 
 .card {
     background: white;
-    padding: var(--space-6);
+    padding: var(--space-4);
     border-radius: var(--radius-xl);
-    /* Premium roundness */
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-100);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -178,7 +177,7 @@
 .cardTitle {
     font-size: var(--font-size-lg);
     font-weight: 800;
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
     color: var(--text-primary);
     display: flex;
     align-items: center;
