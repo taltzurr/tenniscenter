@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import {
     collection,
     getDocs,
+    query,
+    where,
     doc,
     setDoc,
     updateDoc,
@@ -12,7 +14,7 @@ import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut as seco
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../services/firebase';
 import firebaseConfig from '../config/firebase';
-import { resetPassword, sendWelcomeEmail } from '../services/auth';
+import { sendWelcomeEmail } from '../services/auth';
 import { ROLES } from '../config/constants';
 
 const useUsersStore = create((set, get) => ({
@@ -51,25 +53,21 @@ const useUsersStore = create((set, get) => ({
         if (processedData.role === ROLES.CENTER_MANAGER && processedData.centerIds.length > 0) {
             processedData.managedCenterId = processedData.centerIds[0];
         }
-        // Remove legacy single centerId if present in processedData to keep it clean
         delete processedData.centerId;
 
         try {
             const { onboardingMethod, initialPassword, ...profileData } = processedData;
 
-            // Determine password for the new Auth account
             const password = onboardingMethod === 'invitation'
                 ? Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + '!A1'
                 : initialPassword;
 
-            // Create Firebase Auth account using a secondary app instance so the admin's
-            // session is not affected (Firebase signs you in when you create a user).
+            // Try creating a new Auth account
             const createAuthAccount = async () => {
                 const secondaryApp = initializeApp(firebaseConfig, `secondary-${Date.now()}`);
                 const secondaryAuth = getAuth(secondaryApp);
                 try {
                     const credential = await createUserWithEmailAndPassword(secondaryAuth, profileData.email, password);
-                    // Set displayName in Auth profile so it's in sync with Firestore
                     if (profileData.displayName) {
                         await updateProfile(credential.user, { displayName: profileData.displayName }).catch(() => {});
                     }
@@ -84,27 +82,40 @@ const useUsersStore = create((set, get) => ({
             try {
                 uid = await createAuthAccount();
             } catch (authError) {
-                // If email exists in Auth but was deleted from Firestore (orphaned),
-                // clean up the orphaned Auth account and retry
                 if (authError.code === 'auth/email-already-in-use') {
-                    try {
-                        const cleanupFn = httpsCallable(getFunctions(), 'deleteUserByEmail');
-                        await cleanupFn({ email: profileData.email });
-                        // Retry creating the account
-                        uid = await createAuthAccount();
-                    } catch (retryError) {
-                        throw authError; // Throw original error if cleanup+retry fails
+                    // Check if this is an orphaned Auth account (deleted from UI but Auth remained)
+                    // Look up the saved UID in deletedUsers collection
+                    const orphanQuery = query(
+                        collection(db, 'deletedUsers'),
+                        where('email', '==', profileData.email)
+                    );
+                    const orphanSnap = await getDocs(orphanQuery);
+
+                    if (!orphanSnap.empty) {
+                        // Found orphan record — reuse the existing Auth account
+                        uid = orphanSnap.docs[0].id;
+                        // Clean up the orphan record
+                        await deleteDoc(doc(db, 'deletedUsers', uid));
+                    } else {
+                        // No orphan record — try Cloud Function cleanup as fallback
+                        try {
+                            const cleanupFn = httpsCallable(getFunctions(), 'deleteUserByEmail');
+                            await cleanupFn({ email: profileData.email });
+                            uid = await createAuthAccount();
+                        } catch {
+                            throw authError;
+                        }
                     }
                 } else {
                     throw authError;
                 }
             }
 
-            // Create matching Firestore document using the real Auth UID
+            // Create Firestore document with the Auth UID
             await setDoc(doc(db, 'users', uid), profileData);
             const newUser = { id: uid, ...profileData };
 
-            // If invitation flow, send a welcome email so the user can set their own password
+            // Send welcome email for invitation flow
             if (onboardingMethod === 'invitation') {
                 await sendWelcomeEmail(profileData.email);
             }
@@ -130,9 +141,7 @@ const useUsersStore = create((set, get) => ({
         try {
             const userRef = doc(db, 'users', uid);
 
-            // Sync managedCenterId for center managers if role or center is updated
             const processedUpdates = { ...updates };
-            // Remove transient form fields that shouldn't be stored
             delete processedUpdates.centerId;
             delete processedUpdates.onboardingMethod;
             delete processedUpdates.initialPassword;
@@ -143,7 +152,7 @@ const useUsersStore = create((set, get) => ({
             // Update Firestore (source of truth)
             await updateDoc(userRef, processedUpdates);
 
-            // Sync relevant fields to Firebase Auth (best-effort via Cloud Function)
+            // Sync to Firebase Auth (best-effort)
             try {
                 const authUpdates = {};
                 if (processedUpdates.displayName) authUpdates.displayName = processedUpdates.displayName;
@@ -155,7 +164,6 @@ const useUsersStore = create((set, get) => ({
                     await fn({ uid, ...authUpdates });
                 }
             } catch (authSyncErr) {
-                // Cloud Function may not be deployed yet — log and continue
                 console.warn('Auth sync skipped (function may not be deployed):', authSyncErr.message);
             }
 
@@ -169,17 +177,6 @@ const useUsersStore = create((set, get) => ({
         } catch (error) {
             console.error('Error updating user:', error);
             set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
-        }
-    },
-
-    generateResetLink: async (email) => {
-        try {
-            const fn = httpsCallable(getFunctions(), 'generatePasswordResetLink');
-            const result = await fn({ email });
-            return { success: true, link: result.data.link };
-        } catch (error) {
-            console.error('Error generating reset link:', error);
             return { success: false, error: error.message };
         }
     },
@@ -198,16 +195,32 @@ const useUsersStore = create((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            // Delete Firebase Auth account via Cloud Function
+            // Get user data BEFORE deleting so we can save email→UID mapping
+            const currentUser = get().users.find(u => u.id === uid);
+
+            // Save email→UID mapping in deletedUsers collection
+            // This allows re-adding the same email later without Cloud Functions
+            if (currentUser?.email) {
+                await setDoc(doc(db, 'deletedUsers', uid), {
+                    email: currentUser.email,
+                    deletedAt: new Date().toISOString(),
+                });
+            }
+
+            // Try to delete Auth account via Cloud Function (best-effort)
             try {
                 const fn = httpsCallable(getFunctions(), 'deleteUser');
                 await fn({ uid });
+                // Auth deleted successfully — remove the orphan record
+                if (currentUser?.email) {
+                    await deleteDoc(doc(db, 'deletedUsers', uid)).catch(() => {});
+                }
             } catch (authErr) {
-                // Log but don't block — Firestore doc should still be cleaned up
-                console.warn('Could not delete Auth account (may not exist):', authErr.message);
+                // Cloud Function not deployed — orphan record stays for recovery on next add
+                console.warn('Auth account not deleted (Cloud Functions not deployed). Orphan record saved for recovery.');
             }
 
-            // Delete Firestore document
+            // Delete Firestore user document
             await deleteDoc(doc(db, 'users', uid));
             set(state => ({
                 users: state.users.filter(user => user.id !== uid),
