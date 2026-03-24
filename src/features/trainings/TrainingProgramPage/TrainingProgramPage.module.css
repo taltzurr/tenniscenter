@@ -56,6 +56,16 @@
     flex-shrink: 0;
 }
 
+.submitHint {
+    font-size: var(--font-size-sm);
+    color: var(--warning-600);
+    background-color: var(--warning-50);
+    border: 1px solid var(--warning-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    text-align: center;
+}
+
 /* Context Bar */
 .contextBar {
     display: flex;

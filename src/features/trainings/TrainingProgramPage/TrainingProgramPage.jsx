@@ -273,7 +273,6 @@ export default function TrainingProgramPage() {
                         disabled={!selectedGroup || selectedGroup === 'all' || isPlanSubmitted || planLoading}
                         onClick={handleSubmission}
                         variant={isPlanSubmitted ? "outline" : "primary"}
-                        title={selectedGroup === 'all' ? 'יש לבחור קבוצה ספציפית כדי להגיש תכנית' : ''}
                     >
                         {isPlanSubmitted ? (
                             <>
@@ -288,6 +287,11 @@ export default function TrainingProgramPage() {
                         )}
                     </Button>
                 </div>
+                {(!selectedGroup || selectedGroup === 'all') && (
+                    <p className={styles.submitHint}>
+                        💡 יש לבחור קבוצה ספציפית כדי להגיש — ההגשה היא לפי קבוצה בנפרד
+                    </p>
+                )}
             </div>
 
             {/* Context Bar (Goals & Values) */}
