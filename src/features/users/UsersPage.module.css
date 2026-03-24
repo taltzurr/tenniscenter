@@ -76,7 +76,14 @@
 
 .actions {
     display: flex;
-    gap: var(--space-2);
+    gap: var(--space-1);
+    flex-wrap: nowrap;
+}
+
+.actions button {
+    flex-shrink: 0;
+    min-width: 32px;
+    min-height: 32px;
 }
 
 .roleBadge {

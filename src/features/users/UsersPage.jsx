@@ -221,6 +221,7 @@ function UsersPage() {
                                                     <Button
                                                         variant="ghost"
                                                         size="small"
+                                                        iconOnly
                                                         onClick={() => handleGenerateResetLink(user)}
                                                         title="צור קישור איפוס סיסמה"
                                                     >
@@ -229,16 +230,17 @@ function UsersPage() {
                                                     <Button
                                                         variant="ghost"
                                                         size="small"
+                                                        iconOnly
                                                         onClick={() => handleResendInvitation(user)}
                                                         title="שלח מייל איפוס סיסמה"
                                                         disabled={resendCooldowns[user.id]}
                                                     >
                                                         <Mail size={16} color={resendCooldowns[user.id] ? 'var(--gray-300)' : 'var(--primary-500)'} />
                                                     </Button>
-                                                    <Button variant="ghost" size="small" onClick={() => handleEditUser(user)} title="ערוך">
+                                                    <Button variant="ghost" size="small" iconOnly onClick={() => handleEditUser(user)} title="ערוך">
                                                         <Edit2 size={16} />
                                                     </Button>
-                                                    <Button variant="ghost" size="small" onClick={() => handleDeleteUser(user)} title="מחק">
+                                                    <Button variant="ghost" size="small" iconOnly onClick={() => handleDeleteUser(user)} title="מחק">
                                                         <Trash2 size={16} color="var(--error-500)" />
                                                     </Button>
                                                 </div>
