@@ -44,7 +44,11 @@ export async function signOut() {
  * @returns {Promise<void>}
  */
 export async function resetPassword(email) {
-    await sendPasswordResetEmail(auth, email);
+    const actionCodeSettings = {
+        url: `${window.location.origin}/reset-password`,
+        handleCodeInApp: true,
+    };
+    await sendPasswordResetEmail(auth, email, actionCodeSettings);
 }
 
 /**
