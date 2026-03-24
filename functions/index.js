@@ -106,7 +106,41 @@ exports.deleteUser = onCall(async (request) => {
         await admin.auth().deleteUser(uid);
         return { success: true };
     } catch (err) {
-        // If the Auth account doesn't exist, treat it as success (Firestore doc can still be deleted)
+        if (err.code === 'auth/user-not-found') {
+            return { success: true };
+        }
+        throw new HttpsError('internal', err.message);
+    }
+});
+
+/**
+ * deleteUserByEmail — deletes a Firebase Auth account by email.
+ * Used to clean up orphaned Auth accounts (e.g., Firestore doc was deleted
+ * but Auth account remained).
+ *
+ * Input: { email: string }
+ * Returns: { success: true }
+ */
+exports.deleteUserByEmail = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const callerRole = await getCallerRole(request.auth.uid);
+    if (!ALLOWED_ROLES.includes(callerRole)) {
+        throw new HttpsError('permission-denied', 'Only supervisors and center managers can delete users');
+    }
+
+    const { email } = request.data;
+    if (!email) {
+        throw new HttpsError('invalid-argument', 'email is required');
+    }
+
+    try {
+        const userRecord = await admin.auth().getUserByEmail(email);
+        await admin.auth().deleteUser(userRecord.uid);
+        return { success: true };
+    } catch (err) {
         if (err.code === 'auth/user-not-found') {
             return { success: true };
         }

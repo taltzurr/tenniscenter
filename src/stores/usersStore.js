@@ -64,15 +64,36 @@ const useUsersStore = create((set, get) => ({
 
             // Create Firebase Auth account using a secondary app instance so the admin's
             // session is not affected (Firebase signs you in when you create a user).
-            const secondaryApp = initializeApp(firebaseConfig, `secondary-${Date.now()}`);
-            const secondaryAuth = getAuth(secondaryApp);
+            const createAuthAccount = async () => {
+                const secondaryApp = initializeApp(firebaseConfig, `secondary-${Date.now()}`);
+                const secondaryAuth = getAuth(secondaryApp);
+                try {
+                    const credential = await createUserWithEmailAndPassword(secondaryAuth, profileData.email, password);
+                    return credential.user.uid;
+                } finally {
+                    await secondarySignOut(secondaryAuth).catch(() => {});
+                    await deleteApp(secondaryApp).catch(() => {});
+                }
+            };
+
             let uid;
             try {
-                const credential = await createUserWithEmailAndPassword(secondaryAuth, profileData.email, password);
-                uid = credential.user.uid;
-            } finally {
-                await secondarySignOut(secondaryAuth).catch(() => {});
-                await deleteApp(secondaryApp).catch(() => {});
+                uid = await createAuthAccount();
+            } catch (authError) {
+                // If email exists in Auth but was deleted from Firestore (orphaned),
+                // clean up the orphaned Auth account and retry
+                if (authError.code === 'auth/email-already-in-use') {
+                    try {
+                        const cleanupFn = httpsCallable(getFunctions(), 'deleteUserByEmail');
+                        await cleanupFn({ email: profileData.email });
+                        // Retry creating the account
+                        uid = await createAuthAccount();
+                    } catch (retryError) {
+                        throw authError; // Throw original error if cleanup+retry fails
+                    }
+                } else {
+                    throw authError;
+                }
             }
 
             // Create matching Firestore document using the real Auth UID
@@ -91,8 +112,11 @@ const useUsersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error adding user:', error);
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            const friendlyMsg = error.code === 'auth/email-already-in-use'
+                ? 'משתמש עם אימייל זה כבר קיים במערכת'
+                : error.message;
+            set({ error: friendlyMsg, isLoading: false });
+            return { success: false, error: friendlyMsg };
         }
     },
 
@@ -152,8 +176,16 @@ const useUsersStore = create((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            // Delete Firestore document (Firebase Auth account cleanup requires Admin SDK /
-            // Cloud Functions with Blaze plan — handled separately when available)
+            // Delete Firebase Auth account via Cloud Function
+            try {
+                const fn = httpsCallable(getFunctions(), 'deleteUser');
+                await fn({ uid });
+            } catch (authErr) {
+                // Log but don't block — Firestore doc should still be cleaned up
+                console.warn('Could not delete Auth account (may not exist):', authErr.message);
+            }
+
+            // Delete Firestore document
             await deleteDoc(doc(db, 'users', uid));
             set(state => ({
                 users: state.users.filter(user => user.id !== uid),
