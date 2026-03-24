@@ -52,6 +52,19 @@ export async function resetPassword(email) {
 }
 
 /**
+ * Send welcome/invitation email (uses password reset flow but redirects to /welcome)
+ * @param {string} email
+ * @returns {Promise<void>}
+ */
+export async function sendWelcomeEmail(email) {
+    const actionCodeSettings = {
+        url: `${window.location.origin}/welcome`,
+        handleCodeInApp: true,
+    };
+    await sendPasswordResetEmail(auth, email, actionCodeSettings);
+}
+
+/**
  * Verify a password reset code is valid
  * @param {string} code - The oobCode from the reset email link
  * @returns {Promise<string>} The email address associated with the code

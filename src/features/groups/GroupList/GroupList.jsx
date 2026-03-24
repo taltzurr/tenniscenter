@@ -7,12 +7,14 @@ import {
     Calendar,
     Edit2,
     Trash2,
-    UsersRound
+    UsersRound,
+    MapPin
 } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
+import useCentersStore from '../../../stores/centersStore';
 import useUIStore from '../../../stores/uiStore';
 import { ROLES } from '../../../config/constants';
 import styles from './GroupList.module.css';
@@ -21,21 +23,26 @@ function GroupList() {
     const navigate = useNavigate();
     const { userData } = useAuthStore();
     const { groups, isLoading, error, fetchGroups, removeGroup } = useGroupsStore();
+    const { centers, fetchCenters, getCenterName } = useCentersStore();
     const { addToast } = useUIStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedType, setSelectedType] = useState('all');
+    const [selectedCenter, setSelectedCenter] = useState('all');
+
+    const isSupervisor = userData?.role === ROLES.SUPERVISOR;
 
     useEffect(() => {
         if (userData) {
-            const isSupervisor = userData.role === ROLES.SUPERVISOR;
+            const supervisorRole = userData.role === ROLES.SUPERVISOR;
             const isCenterManager = userData.role === ROLES.CENTER_MANAGER;
             const centerId = isCenterManager ? userData.managedCenterId : null;
             if (isCenterManager && !centerId) {
                 console.warn('[GroupList] centerManager has no managedCenterId — groups may not load correctly');
             }
-            fetchGroups(userData.id, isSupervisor, centerId);
+            fetchGroups(userData.id, supervisorRole, centerId);
+            fetchCenters();
         }
-    }, [userData, fetchGroups]);
+    }, [userData, fetchGroups, fetchCenters]);
 
     const handleDeleteGroup = async (e, group) => {
         e.preventDefault();
@@ -61,7 +68,8 @@ function GroupList() {
     const filteredGroups = groups.filter(group => {
         const matchesSearch = group.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = selectedType === 'all' || group.groupTypeName === selectedType;
-        return matchesSearch && matchesType;
+        const matchesCenter = selectedCenter === 'all' || group.centerId === selectedCenter;
+        return matchesSearch && matchesType && matchesCenter;
     });
 
     // Get unique group types for tabs
@@ -114,6 +122,25 @@ function GroupList() {
                 />
             </div>
 
+            {/* Center Filter - only for supervisors */}
+            {isSupervisor && centers.length > 0 && (
+                <div className={styles.centerFilter}>
+                    <MapPin size={16} className={styles.centerFilterIcon} />
+                    <select
+                        className={styles.centerSelect}
+                        value={selectedCenter}
+                        onChange={(e) => setSelectedCenter(e.target.value)}
+                    >
+                        <option value="all">כל המרכזים</option>
+                        {centers.map(center => (
+                            <option key={center.id} value={center.id}>
+                                {center.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
             {/* Type Tabs */}
             {groupTypes.length > 0 && (
                 <div className={styles.tabs}>
@@ -146,7 +173,15 @@ function GroupList() {
                         >
                             <div className={styles.cardHeader}>
                                 <h3 className={styles.groupName}>{group.name}</h3>
-                                <span className={styles.groupType}>{group.groupTypeName}</span>
+                                <div className={styles.badges}>
+                                    <span className={styles.groupType}>{group.groupTypeName}</span>
+                                    {group.centerId && (
+                                        <span className={styles.centerBadge}>
+                                            <MapPin size={12} />
+                                            {getCenterName(group.centerId)}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className={styles.cardBody}>

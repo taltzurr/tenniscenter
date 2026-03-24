@@ -11,6 +11,7 @@ import './styles/global.css';
 // Lazy load all page components for better code splitting
 const LoginPage = lazy(() => import('./features/auth/LoginPage/LoginPage'));
 const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage/ResetPasswordPage'));
+const WelcomePage = lazy(() => import('./features/auth/WelcomePage/WelcomePage'));
 const CoachDashboard = lazy(() => import('./features/dashboard/CoachDashboard'));
 const ManagerDashboard = lazy(() => import('./features/dashboard/ManagerDashboard'));
 const CenterManagerDashboard = lazy(() => import('./features/dashboard/CenterManagerDashboard'));
@@ -75,6 +76,7 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
 
           {/* Protected routes */}
           <Route

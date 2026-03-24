@@ -68,13 +68,16 @@ exports.generatePasswordResetLink = onCall(async (request) => {
         throw new HttpsError('permission-denied', 'Only supervisors and center managers can generate reset links');
     }
 
-    const { email } = request.data;
+    const { email, isWelcome } = request.data;
     if (!email) {
         throw new HttpsError('invalid-argument', 'email is required');
     }
 
     try {
-        const link = await admin.auth().generatePasswordResetLink(email);
+        const actionCodeSettings = isWelcome
+            ? { url: 'https://tennis-training-app-gemini.web.app/welcome' }
+            : undefined;
+        const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         return { link };
     } catch (err) {
         if (err.code === 'auth/user-not-found') {

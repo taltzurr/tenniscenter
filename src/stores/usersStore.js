@@ -12,7 +12,7 @@ import { getAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } 
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../services/firebase';
 import firebaseConfig from '../config/firebase';
-import { resetPassword } from '../services/auth';
+import { resetPassword, sendWelcomeEmail } from '../services/auth';
 import { ROLES } from '../config/constants';
 
 const useUsersStore = create((set, get) => ({
@@ -79,9 +79,9 @@ const useUsersStore = create((set, get) => ({
             await setDoc(doc(db, 'users', uid), profileData);
             const newUser = { id: uid, ...profileData };
 
-            // If invitation flow, send a password-reset email so the user can set their own password
+            // If invitation flow, send a welcome email so the user can set their own password
             if (onboardingMethod === 'invitation') {
-                await resetPassword(profileData.email);
+                await sendWelcomeEmail(profileData.email);
             }
 
             set(state => ({
@@ -140,7 +140,7 @@ const useUsersStore = create((set, get) => ({
 
     resendInvitation: async (email) => {
         try {
-            await resetPassword(email);
+            await sendWelcomeEmail(email);
             return { success: true };
         } catch (error) {
             console.error('Error resending invitation:', error);
