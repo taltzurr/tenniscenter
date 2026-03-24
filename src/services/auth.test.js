@@ -69,7 +69,8 @@ describe('Auth Service', () => {
 
       expect(firebaseAuth.sendPasswordResetEmail).toHaveBeenCalledWith(
         expect.anything(),
-        'test@example.com'
+        'test@example.com',
+        expect.objectContaining({ handleCodeInApp: true })
       );
     });
   });

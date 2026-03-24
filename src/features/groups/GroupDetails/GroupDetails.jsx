@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import usePlayersStore from '../../../stores/playersStore';
+import useUsersStore from '../../../stores/usersStore';
 import useUIStore from '../../../stores/uiStore';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
@@ -32,6 +33,7 @@ export default function GroupDetails() {
         isLoading: isLoadingPlayers
     } = usePlayersStore();
 
+    const { users, fetchUsers } = useUsersStore();
     const { addToast } = useUIStore();
 
     const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
@@ -46,7 +48,10 @@ export default function GroupDetails() {
             fetchGroup(id);
             fetchGroupPlayers(id);
         }
-    }, [id, fetchGroup, fetchGroupPlayers]);
+        if (users.length === 0) {
+            fetchUsers();
+        }
+    }, [id, fetchGroup, fetchGroupPlayers, users.length, fetchUsers]);
 
     const handleAddPlayer = () => {
         setSelectedPlayer(null);
@@ -169,8 +174,7 @@ export default function GroupDetails() {
                 <div className={styles.infoCard}>
                     <span className={styles.label}>מאמן</span>
                     <span className={styles.value}>
-                        {/* TODO: Create Coach Store to fetch coach name */}
-                        מאמן ראשי
+                        {users.find(u => u.id === group.coachId)?.displayName || 'לא משויך'}
                     </span>
                 </div>
             </div>
