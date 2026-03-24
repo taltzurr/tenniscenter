@@ -8,7 +8,7 @@ import {
     deleteDoc,
 } from 'firebase/firestore';
 import { initializeApp, deleteApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut as secondarySignOut } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../services/firebase';
 import firebaseConfig from '../config/firebase';
@@ -69,6 +69,10 @@ const useUsersStore = create((set, get) => ({
                 const secondaryAuth = getAuth(secondaryApp);
                 try {
                     const credential = await createUserWithEmailAndPassword(secondaryAuth, profileData.email, password);
+                    // Set displayName in Auth profile so it's in sync with Firestore
+                    if (profileData.displayName) {
+                        await updateProfile(credential.user, { displayName: profileData.displayName }).catch(() => {});
+                    }
                     return credential.user.uid;
                 } finally {
                     await secondarySignOut(secondaryAuth).catch(() => {});
@@ -136,7 +140,25 @@ const useUsersStore = create((set, get) => ({
                 processedUpdates.managedCenterId = processedUpdates.centerIds[0];
             }
 
+            // Update Firestore (source of truth)
             await updateDoc(userRef, processedUpdates);
+
+            // Sync relevant fields to Firebase Auth (best-effort via Cloud Function)
+            try {
+                const authUpdates = {};
+                if (processedUpdates.displayName) authUpdates.displayName = processedUpdates.displayName;
+                if (processedUpdates.isActive === false) authUpdates.disabled = true;
+                if (processedUpdates.isActive === true) authUpdates.disabled = false;
+
+                if (Object.keys(authUpdates).length > 0) {
+                    const fn = httpsCallable(getFunctions(), 'updateUserAuth');
+                    await fn({ uid, ...authUpdates });
+                }
+            } catch (authSyncErr) {
+                // Cloud Function may not be deployed yet — log and continue
+                console.warn('Auth sync skipped (function may not be deployed):', authSyncErr.message);
+            }
+
             set(state => ({
                 users: state.users.map(user =>
                     user.id === uid ? { ...user, ...processedUpdates } : user

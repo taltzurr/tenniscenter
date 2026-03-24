@@ -87,6 +87,45 @@ exports.generatePasswordResetLink = onCall(async (request) => {
     }
 });
 
+/**
+ * updateUserAuth — updates Firebase Auth user profile fields.
+ * Keeps Auth in sync with Firestore after edits (displayName, disabled status).
+ *
+ * Input: { uid: string, displayName?: string, disabled?: boolean }
+ * Returns: { success: true }
+ */
+exports.updateUserAuth = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const callerRole = await getCallerRole(request.auth.uid);
+    if (!ALLOWED_ROLES.includes(callerRole)) {
+        throw new HttpsError('permission-denied', 'Only supervisors and center managers can update users');
+    }
+
+    const { uid, displayName, disabled } = request.data;
+    if (!uid) {
+        throw new HttpsError('invalid-argument', 'uid is required');
+    }
+
+    try {
+        const updatePayload = {};
+        if (displayName !== undefined) updatePayload.displayName = displayName;
+        if (disabled !== undefined) updatePayload.disabled = disabled;
+
+        if (Object.keys(updatePayload).length > 0) {
+            await admin.auth().updateUser(uid, updatePayload);
+        }
+        return { success: true };
+    } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+            return { success: true }; // User doesn't exist in Auth, nothing to update
+        }
+        throw new HttpsError('internal', err.message);
+    }
+});
+
 exports.deleteUser = onCall(async (request) => {
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'Authentication required');
