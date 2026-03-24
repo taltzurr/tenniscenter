@@ -21,7 +21,7 @@ const useMonthlyOutstandingStore = create((set, get) => ({
             set({ items, isLoading: false });
             return items;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return [];
         }
     },
@@ -36,7 +36,7 @@ const useMonthlyOutstandingStore = create((set, get) => ({
             set({ items, isLoading: false });
             return items;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return [];
         }
     },
@@ -64,8 +64,8 @@ const useMonthlyOutstandingStore = create((set, get) => ({
             });
             return { success: true, data: saved };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -82,8 +82,8 @@ const useMonthlyOutstandingStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 

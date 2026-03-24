@@ -19,7 +19,7 @@ const useTrainingsStore = create((set, get) => ({
             const trainings = await getCoachTrainings(coachId, startDate, endDate, status);
             set({ trainings, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -43,7 +43,7 @@ const useTrainingsStore = create((set, get) => ({
             }
             return training;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return null;
         }
     },
@@ -62,7 +62,7 @@ const useTrainingsStore = create((set, get) => ({
             const filtered = all.filter(t => coachIds.includes(t.coachId));
             set({ trainings: filtered, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -77,8 +77,8 @@ const useTrainingsStore = create((set, get) => ({
             }));
             return { success: true, training: newTraining };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -96,8 +96,8 @@ const useTrainingsStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -113,8 +113,8 @@ const useTrainingsStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 

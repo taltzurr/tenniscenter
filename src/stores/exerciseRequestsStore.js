@@ -18,7 +18,7 @@ const useExerciseRequestsStore = create((set, get) => ({
             const requests = await getMyRequests(coachId);
             set({ requests, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -29,7 +29,7 @@ const useExerciseRequestsStore = create((set, get) => ({
             const requests = await getAllRequests(status);
             set({ requests, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -44,8 +44,8 @@ const useExerciseRequestsStore = create((set, get) => ({
             }));
             return { success: true, request: newRequest };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -62,8 +62,8 @@ const useExerciseRequestsStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 

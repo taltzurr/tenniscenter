@@ -10,7 +10,8 @@ import {
     where,
     serverTimestamp,
     Timestamp,
-    writeBatch
+    writeBatch,
+    limit
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -58,7 +59,8 @@ export const getOrganizationTrainings = async (startDate, endDate) => {
         let q = query(
             collection(db, COLLECTION),
             where('date', '>=', Timestamp.fromDate(startDate)),
-            where('date', '<=', Timestamp.fromDate(endDate))
+            where('date', '<=', Timestamp.fromDate(endDate)),
+            limit(1000)
         );
 
         const snapshot = await getDocs(q);

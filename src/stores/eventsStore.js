@@ -25,7 +25,7 @@ const useEventsStore = create((set, get) => ({
                 };
             });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -40,8 +40,8 @@ const useEventsStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -56,8 +56,8 @@ const useEventsStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -72,8 +72,8 @@ const useEventsStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     }
 }));

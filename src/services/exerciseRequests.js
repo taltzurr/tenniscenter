@@ -8,7 +8,8 @@ import {
     query,
     where,
     orderBy,
-    serverTimestamp
+    serverTimestamp,
+    limit
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -37,7 +38,8 @@ export const getMyRequests = async (coachId) => {
         const q = query(
             collection(db, COLLECTION),
             where('requestedBy', '==', coachId),
-            orderBy('createdAt', 'desc')
+            orderBy('createdAt', 'desc'),
+            limit(500)
         );
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({
@@ -58,14 +60,16 @@ export const getAllRequests = async (status = null) => {
     try {
         let q = query(
             collection(db, COLLECTION),
-            orderBy('createdAt', 'desc')
+            orderBy('createdAt', 'desc'),
+            limit(500)
         );
 
         if (status) {
             q = query(
                 collection(db, COLLECTION),
                 where('status', '==', status),
-                orderBy('createdAt', 'desc')
+                orderBy('createdAt', 'desc'),
+                limit(500)
             );
         }
 

@@ -25,7 +25,7 @@ const useMonthlyPlansStore = create((set, get) => ({
             const plans = await getCoachMonthlyPlans(coachId, year);
             set({ plans, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -36,7 +36,7 @@ const useMonthlyPlansStore = create((set, get) => ({
             const plans = await getAllMonthlyPlans(year, month);
             set({ plans, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -47,7 +47,7 @@ const useMonthlyPlansStore = create((set, get) => ({
             const plans = await getGroupMonthlyPlans(groupId);
             set({ plans, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -59,7 +59,7 @@ const useMonthlyPlansStore = create((set, get) => ({
             set({ currentPlan: plan, isLoading: false });
             return plan;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return null;
         }
     },
@@ -79,8 +79,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             });
             return { success: true, plan: saved };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -96,8 +96,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -121,8 +121,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -139,8 +139,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -157,8 +157,8 @@ const useMonthlyPlansStore = create((set, get) => ({
             }));
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -170,7 +170,7 @@ const useMonthlyPlansStore = create((set, get) => ({
             const plans = await getPendingMonthlyPlans();
             set({ pendingPlans: plans, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     }
 }));

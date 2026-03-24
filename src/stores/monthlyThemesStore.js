@@ -14,7 +14,7 @@ const useMonthlyThemesStore = create((set, get) => ({
             set({ currentTheme: theme, isLoading: false });
             return theme;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return null;
         }
     },
@@ -27,8 +27,8 @@ const useMonthlyThemesStore = create((set, get) => ({
             set({ currentTheme: saved, isLoading: false });
             return { success: true, theme: saved };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 

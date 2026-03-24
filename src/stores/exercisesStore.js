@@ -27,7 +27,7 @@ const useExercisesStore = create((set, get) => ({
             const exercises = await getExercises(filters);
             set({ exercises, isLoading: false });
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -39,7 +39,7 @@ const useExercisesStore = create((set, get) => ({
             set({ currentExercise: exercise, isLoading: false });
             return exercise;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return null;
         }
     },
@@ -55,7 +55,7 @@ const useExercisesStore = create((set, get) => ({
             }));
             return newExercise;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             throw error;
         }
     },
@@ -76,7 +76,7 @@ const useExercisesStore = create((set, get) => ({
             }));
             return updated;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             throw error;
         }
     },
@@ -92,7 +92,7 @@ const useExercisesStore = create((set, get) => ({
             }));
             return true;
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             throw error;
         }
     },

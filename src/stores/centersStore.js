@@ -26,7 +26,7 @@ const useCentersStore = create((set, get) => ({
             set({ centers, isLoading: false });
         } catch (error) {
             console.error('Error fetching centers:', error);
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -43,8 +43,8 @@ const useCentersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error adding center:', error);
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -63,8 +63,8 @@ const useCentersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error updating center:', error);
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -80,8 +80,8 @@ const useCentersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error deleting center:', error);
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 

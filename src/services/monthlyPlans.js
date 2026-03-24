@@ -9,7 +9,8 @@ import {
     query,
     where,
     orderBy,
-    serverTimestamp
+    serverTimestamp,
+    limit
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { PLAN_STATUS, ROLES } from '../config/constants';
@@ -53,7 +54,8 @@ export const getCoachMonthlyPlans = async (coachId, year = null) => {
             collection(db, COLLECTION),
             where('coachId', '==', coachId),
             orderBy('year', 'desc'),
-            orderBy('month', 'desc')
+            orderBy('month', 'desc'),
+            limit(24)
         );
 
         const snapshot = await getDocs(q);
@@ -83,7 +85,8 @@ export const getAllMonthlyPlans = async (year, month) => {
         let q = query(
             collection(db, COLLECTION),
             where('year', '==', year),
-            where('month', '==', month)
+            where('month', '==', month),
+            limit(500)
         );
 
         const snapshot = await getDocs(q);

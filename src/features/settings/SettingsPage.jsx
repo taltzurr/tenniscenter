@@ -34,7 +34,7 @@ function SettingsPage() {
         } catch (error) {
             addToast({
                 title: 'שגיאה בעדכון הגדרות',
-                message: error.message,
+                message: 'שגיאה בביצוע הפעולה',
                 type: 'error'
             });
         }

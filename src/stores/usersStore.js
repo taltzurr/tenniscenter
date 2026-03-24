@@ -8,6 +8,7 @@ import {
     setDoc,
     updateDoc,
     deleteDoc,
+    limit,
 } from 'firebase/firestore';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut as secondarySignOut } from 'firebase/auth';
@@ -26,7 +27,7 @@ const useUsersStore = create((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const querySnapshot = await getDocs(collection(db, 'users'));
+            const querySnapshot = await getDocs(query(collection(db, 'users'), limit(500)));
             const users = [];
             querySnapshot.forEach((doc) => {
                 users.push({ id: doc.id, ...doc.data() });
@@ -34,7 +35,7 @@ const useUsersStore = create((set, get) => ({
             set({ users, isLoading: false });
         } catch (error) {
             console.error('Error fetching users:', error);
-            set({ error: error.message, isLoading: false });
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
         }
     },
 
@@ -129,7 +130,7 @@ const useUsersStore = create((set, get) => ({
             console.error('Error adding user:', error);
             const friendlyMsg = error.code === 'auth/email-already-in-use'
                 ? 'משתמש עם אימייל זה כבר קיים במערכת'
-                : error.message;
+                : 'שגיאה בביצוע הפעולה';
             set({ error: friendlyMsg, isLoading: false });
             return { success: false, error: friendlyMsg };
         }
@@ -176,8 +177,8 @@ const useUsersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error updating user:', error);
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -187,7 +188,7 @@ const useUsersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error resending invitation:', error);
-            return { success: false, error: error.message };
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     },
 
@@ -229,8 +230,8 @@ const useUsersStore = create((set, get) => ({
             return { success: true };
         } catch (error) {
             console.error('Error deleting user:', error);
-            set({ error: error.message, isLoading: false });
-            return { success: false, error: error.message };
+            set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
+            return { success: false, error: 'שגיאה בביצוע הפעולה' };
         }
     }
 }));
