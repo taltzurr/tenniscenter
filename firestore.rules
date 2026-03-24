@@ -30,7 +30,13 @@ service cloud.firestore {
       allow update: if request.auth.uid == userId
                     || isSupervisor()
                     || (isCenterManager() && resource.data.role == 'coach');
-      allow delete: if isSupervisor();
+      allow delete: if isSupervisor()
+                    || (isCenterManager() && resource.data.role == 'coach');
+    }
+
+    // Orphan recovery records for deleted users (email→UID mapping)
+    match /deletedUsers/{docId} {
+      allow read, write: if isSupervisor() || isCenterManager();
     }
 
     match /groups/{groupId} {
