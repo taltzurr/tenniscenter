@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Target, Calendar, Save, Trash2, AlertTriangle, Send, Clock } from 'lucide-react';
+import { ArrowRight, Target, Calendar, Save, Trash2, AlertTriangle, Send, Clock, XCircle } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
@@ -143,9 +143,9 @@ function PlanForm() {
         }
 
         // Validate plan has at least some content
-        const hasGoals = formData.monthlyGoals?.some(g => g.trim());
+        const hasGoals = formData.monthlyGoals?.trim();
         const hasWeeklyContent = Object.values(formData.weeks || {}).some(week =>
-            week.topic?.trim() || week.drills?.trim() || week.focus?.trim()
+            week.theme?.trim() || week.notes?.trim()
         );
         if (!hasGoals && !hasWeeklyContent) {
             addToast({ type: 'error', message: 'נא למלא לפחות מטרה אחת או תוכן שבועי' });

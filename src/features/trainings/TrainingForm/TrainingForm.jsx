@@ -236,7 +236,7 @@ function TrainingForm() {
                     type: NOTIFICATION_TYPES.INFO,
                     title: notificationTitle,
                     message: notificationMessage,
-                    relatedEntityId: isEditMode ? id : (result.id || 'unknown'),
+                    relatedEntityId: isEditMode ? id : (result.training?.id || 'unknown'),
                     relatedEntityType: 'training'
                 });
 

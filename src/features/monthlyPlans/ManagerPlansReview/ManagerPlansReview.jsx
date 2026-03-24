@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent, ChevronRight, ChevronLeft } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
@@ -236,9 +236,8 @@ function ManagerPlansReview() {
                             const isExpanded = expandedCoaches[coach.id];
 
                             return (
-                                <>
+                                <React.Fragment key={coach.id}>
                                     <tr
-                                        key={coach.id}
                                         className={`${styles.coachRow} ${isExpanded ? styles.expanded : ''}`}
                                         onClick={() => toggleExpand(coach.id)}
                                     >
@@ -324,7 +323,7 @@ function ManagerPlansReview() {
                                             </td>
                                         </tr>
                                     )}
-                                </>
+                                </React.Fragment>
                             );
                         })}
                     </tbody>

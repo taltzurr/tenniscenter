@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
 import useAuthStore from './stores/authStore';
 import ProtectedRoute from './routes/ProtectedRoute';
+import RoleRoute from './routes/RoleRoute';
 import PageContainer from './components/layout/PageContainer';
 import ToastContainer from './components/ui/Toast';
 import Spinner from './components/ui/Spinner';
@@ -88,7 +89,11 @@ function App() {
             <Route path="/weekly-schedule" element={<WeeklySchedulePage />} />
             <Route path="/weekly-completed" element={<WeeklyStatusPage status="completed" />} />
             <Route path="/weekly-pending" element={<WeeklyStatusPage status="pending" />} />
-            <Route path="/analytics" element={<ManagerAnalyticsDashboard />} />
+            <Route path="/analytics" element={
+              <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
+                <ManagerAnalyticsDashboard />
+              </RoleRoute>
+            } />
 
             {/* Trainings */}
             <Route path="/trainings/new" element={<TrainingForm />} />
@@ -116,19 +121,39 @@ function App() {
             <Route path="/monthly-plans" element={<PlansList />} />
             <Route path="/monthly-plans/new" element={<PlanForm />} />
             <Route path="/monthly-plans/edit" element={<PlanForm />} />
-            <Route path="/monthly-plans/review" element={<ManagerPlansReview />} />
+            <Route path="/monthly-plans/review" element={
+              <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
+                <ManagerPlansReview />
+              </RoleRoute>
+            } />
 
             {/* Manager routes */}
-            <Route path="/events-calendar" element={<EventsCalendarPage />} />
+            <Route path="/events-calendar" element={
+              <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
+                <EventsCalendarPage />
+              </RoleRoute>
+            } />
 
             <Route path="/trainings" element={<Navigate to="/weekly-schedule" replace />} />
-            <Route path="/centers" element={<CentersPage />} />
-            <Route path="/users" element={<UsersPage />} />
+            <Route path="/centers" element={
+              <RoleRoute allowedRoles={['supervisor']}>
+                <CentersPage />
+              </RoleRoute>
+            } />
+            <Route path="/users" element={
+              <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
+                <UsersPage />
+              </RoleRoute>
+            } />
 
             {/* Goals routes */}
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/monthly-outstanding" element={<MonthlyOutstandingPage />} />
+            <Route path="/monthly-outstanding" element={
+              <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
+                <MonthlyOutstandingPage />
+              </RoleRoute>
+            } />
           </Route>
 
           {/* Redirects */}

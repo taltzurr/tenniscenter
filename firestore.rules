@@ -23,8 +23,13 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSignedIn();
       // Allow users to create/update their own profile
-      allow create: if request.auth.uid == userId || isSupervisor();
-      allow update: if request.auth.uid == userId || isSupervisor();
+      // Center managers can create/update coaches only
+      allow create: if request.auth.uid == userId
+                    || isSupervisor()
+                    || (isCenterManager() && request.resource.data.role == 'coach');
+      allow update: if request.auth.uid == userId
+                    || isSupervisor()
+                    || (isCenterManager() && resource.data.role == 'coach');
       allow delete: if isSupervisor();
     }
 

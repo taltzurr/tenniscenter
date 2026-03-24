@@ -21,6 +21,7 @@ export const PLAN_STATUS = {
     SUBMITTED: 'submitted',
     REVIEWED: 'reviewed',
     APPROVED: 'approved',
+    REJECTED: 'rejected',
 };
 
 // Exercise types

@@ -11,13 +11,15 @@ import styles from './CentersPage.module.css';
 
 function CentersPage() {
     const { isSupervisor } = useAuthStore();
-    if (!isSupervisor()) return <Navigate to="/dashboard" replace />;
     const { centers, isLoading, fetchCenters, addCenter, updateCenter, deleteCenter } = useCentersStore();
     const { addToast } = useUIStore();
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedCenter, setSelectedCenter] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Defense-in-depth: route is already protected by RoleRoute
+    if (!isSupervisor()) return <Navigate to="/dashboard" replace />;
 
     useEffect(() => {
         fetchCenters();

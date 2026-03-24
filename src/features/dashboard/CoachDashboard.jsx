@@ -57,11 +57,11 @@ function CoachDashboard() {
                 await Promise.all([
                     fetchGroups(userData.id),
                     fetchTrainings(userData.id, startOfWeek, endOfWeek),
-                    fetchEvents(today.getFullYear(), today.getMonth()),
+                    fetchEvents(today.getFullYear(), today.getMonth(), userData.centerIds?.[0] || null),
                 ]);
 
                 if (endOfWeek.getMonth() !== today.getMonth()) {
-                    await fetchEvents(endOfWeek.getFullYear(), endOfWeek.getMonth());
+                    await fetchEvents(endOfWeek.getFullYear(), endOfWeek.getMonth(), userData.centerIds?.[0] || null);
                 }
             } catch (err) {
                 console.error('Failed to load dashboard data:', err);

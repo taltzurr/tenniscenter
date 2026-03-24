@@ -81,15 +81,15 @@ function PlansList() {
     const [searchParams] = useSearchParams();
     const { userData, isCenterManager, isSupervisor } = useAuthStore();
 
+    // Stores - must be called before any conditional returns (React hooks rules)
+    const { groups, fetchGroups } = useGroupsStore();
+    const { trainings, fetchTrainings, editTraining, isLoading: trainingsLoading } = useTrainingsStore();
+    const { events, fetchEvents, isLoading: eventsLoading } = useEventsStore();
+
     // Center managers and supervisors belong on the review page, not the coach plans list
     if (isCenterManager() || isSupervisor()) {
         return <Navigate to="/monthly-plans/review" replace />;
     }
-
-    // Stores
-    const { groups, fetchGroups } = useGroupsStore();
-    const { trainings, fetchTrainings, editTraining, isLoading: trainingsLoading } = useTrainingsStore();
-    const { events, fetchEvents, isLoading: eventsLoading } = useEventsStore();
 
     // State
     const [currentDate, setCurrentDate] = useState(() => {
