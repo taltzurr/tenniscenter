@@ -46,7 +46,7 @@ function GoalsPage() {
 
     // Definition form
     const [editingItem, setEditingItem] = useState(null);
-    const [formData, setFormData] = useState({ title: '', description: '', category: '', icon: '' });
+    const [formData, setFormData] = useState({ title: '', description: '', category: '' });
     const [showDefinitionForm, setShowDefinitionForm] = useState(false);
 
     const canEdit = userData?.role === 'supervisor';
@@ -152,16 +152,14 @@ function GoalsPage() {
             setFormData({
                 title: item.title || '',
                 description: item.description || '',
-                category: item.category || (isValue ? 'respect' : 'technical'),
-                icon: item.icon || (isValue ? '❤️' : '🎯')
+                category: item.category || (isValue ? 'respect' : 'technical')
             });
         } else {
             setEditingItem(null);
             setFormData({
                 title: '',
                 description: '',
-                category: isValue ? 'respect' : 'technical',
-                icon: isValue ? '❤️' : '🎯'
+                category: isValue ? 'respect' : 'technical'
             });
         }
         setShowDefinitionForm(true);
@@ -281,7 +279,6 @@ function GoalsPage() {
                         <div className={styles.cardsGrid}>
                             {assignedGoals.map(goal => (
                                 <div key={goal.id} className={styles.goalCard}>
-                                    <div className={styles.cardIcon}>{goal.icon || '🎯'}</div>
                                     <h3 className={styles.cardTitle}>{goal.title}</h3>
                                     <p className={styles.cardDescription}>{goal.description}</p>
                                     {goal.category && (
@@ -323,7 +320,6 @@ function GoalsPage() {
                         <div className={styles.cardsGrid}>
                             {assignedValues.map(value => (
                                 <div key={value.id} className={styles.valueCard}>
-                                    <div className={styles.cardIcon}>{value.icon || '❤️'}</div>
                                     <h3 className={styles.cardTitle}>{value.title}</h3>
                                     <p className={styles.cardDescription}>{value.description}</p>
                                     {value.category && (
@@ -366,7 +362,6 @@ function GoalsPage() {
                                         disabled={!isSelected && selectedGoalIds.length >= 3}
                                     >
                                         <div className={styles.selectionInfo}>
-                                            <span className={styles.selectionIcon}>{goal.icon || '🎯'}</span>
                                             <div>
                                                 <div className={styles.selectionTitle}>{goal.title}</div>
                                                 {goal.description && (
@@ -418,7 +413,6 @@ function GoalsPage() {
                                         disabled={!isSelected && selectedValueIds.length >= 3}
                                     >
                                         <div className={styles.selectionInfo}>
-                                            <span className={styles.selectionIcon}>{value.icon || '❤️'}</span>
                                             <div>
                                                 <div className={styles.selectionTitle}>{value.title}</div>
                                                 {value.description && (
@@ -470,7 +464,6 @@ function GoalsPage() {
                                     {goals.map(goal => (
                                         <div key={goal.id} className={styles.manageItem}>
                                             <div className={styles.manageItemInfo}>
-                                                <span className={styles.manageItemIcon}>{goal.icon || '🎯'}</span>
                                                 <div>
                                                     <div className={styles.manageItemTitle}>{goal.title}</div>
                                                     {goal.description && (
@@ -533,16 +526,6 @@ function GoalsPage() {
                                     ))}
                                 </select>
                             </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>אייקון</label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={formData.icon}
-                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                    placeholder="🎯"
-                                />
-                            </div>
                             <div className={styles.formActions}>
                                 <Button type="button" variant="ghost" onClick={closeDefinitionForm}>ביטול</Button>
                                 <Button type="submit" disabled={isLoading}>
@@ -577,7 +560,6 @@ function GoalsPage() {
                                     {values.map(value => (
                                         <div key={value.id} className={styles.manageItem}>
                                             <div className={styles.manageItemInfo}>
-                                                <span className={styles.manageItemIcon}>{value.icon || '❤️'}</span>
                                                 <div>
                                                     <div className={styles.manageItemTitle}>{value.title}</div>
                                                     {value.description && (
@@ -639,16 +621,6 @@ function GoalsPage() {
                                         <option key={cat.id} value={cat.id}>{cat.label}</option>
                                     ))}
                                 </select>
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>אייקון</label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={formData.icon}
-                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                    placeholder="❤️"
-                                />
                             </div>
                             <div className={styles.formActions}>
                                 <Button type="button" variant="ghost" onClick={closeDefinitionForm}>ביטול</Button>

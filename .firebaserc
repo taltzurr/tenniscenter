@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "tennis-training-app-gemini"
-  }
+  },
+  "targets": {
+    "tennis-training-app-gemini": {
+      "hosting": {
+        "main": [
+          "tennis-training-app-gemini"
+        ],
+        "tennis-centers": [
+          "tennis-centers"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

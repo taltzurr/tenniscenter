@@ -353,7 +353,7 @@ function EventsCalendarPage() {
                         <div className={styles.card} style={{ marginTop: '1.5rem' }}>
                             <div className={styles.cardHeader}>
                                 <Target className={styles.cardIcon} size={20} color="var(--accent-500)" />
-                                <h2 className={styles.cardTitle}>מטרות החודש לפי סוג קבוצה</h2>
+                                <h2 className={styles.cardTitle}>מטרות החודש</h2>
                             </div>
                             <div className={styles.goalsGroupForm}>
                                 {DEFAULT_GROUP_TYPES.map((groupType) => (

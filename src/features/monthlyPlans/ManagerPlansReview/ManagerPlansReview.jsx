@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronDown, CheckCircle, AlertCircle, Clock, XCircle, User, Award, Percent, ChevronRight, ChevronLeft, Eye, Target, Calendar } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
 import useUsersStore from '../../../stores/usersStore';
-import { HEBREW_MONTHS } from '../../../services/monthlyPlans';
+import { HEBREW_MONTHS, WEEK_STRUCTURE } from '../../../services/monthlyPlans';
 import { PLAN_STATUS, ROLES } from '../../../config/constants';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
+import Modal from '../../../components/ui/Modal';
 import styles from './ManagerPlansReview.module.css';
 
 // Helper to get initials
@@ -33,6 +34,7 @@ function ManagerPlansReview() {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [expandedCoaches, setExpandedCoaches] = useState({});
+    const [previewPlan, setPreviewPlan] = useState(null); // { plan, groupName, coachName }
 
     const navigateMonth = useCallback((direction) => {
         let newMonth = selectedMonth + direction;
@@ -130,7 +132,11 @@ function ManagerPlansReview() {
         setExpandedCoaches(prev => ({ ...prev, [coachId]: !prev[coachId] }));
     };
 
-    const handleViewPlan = (groupId) => {
+    const handleViewPlan = (plan, groupName, coachName) => {
+        setPreviewPlan({ plan, groupName, coachName });
+    };
+
+    const handleViewPlanFullPage = (groupId) => {
         navigate(`/monthly-plans/edit?groupId=${groupId}&year=${selectedYear}&month=${selectedMonth}&view=true`);
     };
 
@@ -291,13 +297,28 @@ function ManagerPlansReview() {
                                                             className={styles.groupCard}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                if (plan) handleViewPlan(group.id);
+                                                                if (plan) handleViewPlan(plan, group.name, coach.displayName || `${coach.firstName} ${coach.lastName}`);
                                                             }}
                                                             style={{ cursor: plan ? 'pointer' : 'default' }}
                                                         >
                                                             <span className={styles.groupName}>{group.name}</span>
 
                                                             <StatusIndicator status={status === 'missing' ? 'missing' : status} />
+
+                                                            {plan && (
+                                                                <button
+                                                                    className={styles.viewPlanBtn}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleViewPlan(plan, group.name, coach.displayName || `${coach.firstName} ${coach.lastName}`);
+                                                                    }}
+                                                                    title="צפה בתכנית"
+                                                                    aria-label="צפה בתכנית"
+                                                                >
+                                                                    <Eye size={16} />
+                                                                    <span className={styles.viewPlanLabel}>צפה בתכנית</span>
+                                                                </button>
+                                                            )}
 
                                                             {(isSupervisor() || isCenterManager()) && plan && status === PLAN_STATUS.SUBMITTED && (
                                                                 <div className={styles.approvalActions} onClick={e => e.stopPropagation()}>
@@ -329,6 +350,150 @@ function ManagerPlansReview() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Plan Preview Modal */}
+            {previewPlan && (
+                <Modal
+                    isOpen={!!previewPlan}
+                    onClose={() => setPreviewPlan(null)}
+                    title={`תכנית – ${previewPlan.groupName}`}
+                    size="large"
+                >
+                    <Modal.Body>
+                        <div className={styles.previewContent}>
+                            {/* Plan Meta */}
+                            <div className={styles.previewMeta}>
+                                <div className={styles.previewMetaItem}>
+                                    <span className={styles.previewMetaLabel}>מאמן</span>
+                                    <span className={styles.previewMetaValue}>{previewPlan.coachName}</span>
+                                </div>
+                                <div className={styles.previewMetaItem}>
+                                    <span className={styles.previewMetaLabel}>חודש</span>
+                                    <span className={styles.previewMetaValue}>{HEBREW_MONTHS[selectedMonth]} {selectedYear}</span>
+                                </div>
+                                <div className={styles.previewMetaItem}>
+                                    <span className={styles.previewMetaLabel}>סטטוס</span>
+                                    <StatusIndicator status={previewPlan.plan.status || 'draft'} />
+                                </div>
+                            </div>
+
+                            {/* Monthly Goals */}
+                            <div className={styles.previewSection}>
+                                <h3 className={styles.previewSectionTitle}>
+                                    <Target size={18} />
+                                    מטרות החודש
+                                </h3>
+                                <div className={styles.previewSectionBody}>
+                                    {previewPlan.plan.monthlyGoals
+                                        ? previewPlan.plan.monthlyGoals
+                                        : <span className={styles.previewEmpty}>לא הוגדרו מטרות</span>
+                                    }
+                                </div>
+                            </div>
+
+                            {/* Focus Points */}
+                            {previewPlan.plan.focusPoints && (
+                                <div className={styles.previewSection}>
+                                    <h3 className={styles.previewSectionTitle}>
+                                        <Target size={18} />
+                                        נקודות דגש
+                                    </h3>
+                                    <div className={styles.previewSectionBody}>
+                                        {previewPlan.plan.focusPoints}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Weekly Themes */}
+                            <div className={styles.previewSection}>
+                                <h3 className={styles.previewSectionTitle}>
+                                    <Calendar size={18} />
+                                    נושאים שבועיים
+                                </h3>
+                                <div className={styles.previewWeeksGrid}>
+                                    {Object.entries(WEEK_STRUCTURE).map(([weekKey, weekInfo]) => {
+                                        const weekData = previewPlan.plan.weeks?.[weekKey];
+                                        const hasContent = weekData?.theme || weekData?.notes;
+                                        return (
+                                            <div key={weekKey} className={styles.previewWeekCard}>
+                                                <div className={styles.previewWeekHeader}>
+                                                    <span className={styles.previewWeekTitle}>{weekInfo.label}</span>
+                                                    <span className={styles.previewWeekDays}>({weekInfo.days})</span>
+                                                </div>
+                                                {hasContent ? (
+                                                    <>
+                                                        {weekData.theme && (
+                                                            <div className={styles.previewWeekTheme}>{weekData.theme}</div>
+                                                        )}
+                                                        {weekData.notes && (
+                                                            <div className={styles.previewWeekNotes}>{weekData.notes}</div>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <span className={styles.previewEmpty}>לא הוגדר נושא</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Manager Feedback */}
+                            {previewPlan.plan.managerFeedback && (
+                                <div className={styles.previewSection}>
+                                    <h3 className={styles.previewSectionTitle} style={{ color: 'var(--error-700)' }}>
+                                        <XCircle size={18} />
+                                        הערות המנהל
+                                    </h3>
+                                    <div className={styles.previewSectionBody} style={{ color: 'var(--error-700)', backgroundColor: 'var(--error-100)' }}>
+                                        {previewPlan.plan.managerFeedback}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        {(isSupervisor() || isCenterManager()) && previewPlan.plan.status === PLAN_STATUS.SUBMITTED && (
+                            <>
+                                <Button
+                                    size="small"
+                                    variant="primary"
+                                    onClick={(e) => {
+                                        const coach = coaches.find(c =>
+                                            c.displayName === previewPlan.coachName ||
+                                            `${c.firstName} ${c.lastName}` === previewPlan.coachName
+                                        );
+                                        handleApprovePlan(e, previewPlan.plan, coach?.id, previewPlan.groupName);
+                                        setPreviewPlan(null);
+                                    }}
+                                >
+                                    אישור תכנית
+                                </Button>
+                                <Button
+                                    size="small"
+                                    variant="danger"
+                                    onClick={(e) => {
+                                        handleRejectPlan(e, previewPlan.plan, previewPlan.groupName);
+                                        setPreviewPlan(null);
+                                    }}
+                                >
+                                    דחייה
+                                </Button>
+                            </>
+                        )}
+                        <Button
+                            variant="outline"
+                            size="small"
+                            onClick={() => {
+                                handleViewPlanFullPage(previewPlan.plan.groupId);
+                                setPreviewPlan(null);
+                            }}
+                        >
+                            פתח בעמוד מלא
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            )}
         </div>
     );
 }

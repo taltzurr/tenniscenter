@@ -98,7 +98,7 @@ const ManagerDashboard = () => {
                     <div className={styles.cardHeader}>
                         <div className={styles.contextTitle} style={{ color: 'var(--accent-700)' }}>
                             <Target size={18} />
-                            מטרות החודש לפי סוג קבוצה
+                            מטרות החודש
                         </div>
                     </div>
                     <div className={styles.goalsByGroup}>
@@ -125,7 +125,7 @@ const ManagerDashboard = () => {
                     <div className={styles.cardHeader}>
                         <div className={styles.contextTitle} style={{ color: 'var(--primary-700)' }}>
                             <Heart size={18} />
-                            ערכי החודש לכולם
+                            ערכי החודש
                         </div>
                     </div>
                     <div className={styles.cardContent}>
