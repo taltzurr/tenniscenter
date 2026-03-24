@@ -140,3 +140,51 @@
 .switch input:checked + .slider:before {
     transform: translateX(20px);
 }
+
+/* Desktop enhancements */
+@media (min-width: 768px) {
+    .page {
+        padding: var(--space-8) var(--space-12);
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--space-8);
+    }
+
+    .section {
+        padding: var(--space-8);
+        box-shadow: var(--shadow-md);
+    }
+
+    .sectionTitle {
+        font-size: var(--font-size-xl);
+    }
+
+    .settingRow {
+        padding: var(--space-4);
+    }
+
+    .settingLabel {
+        font-size: var(--font-size-base);
+    }
+
+    .settingDescription {
+        font-size: var(--font-size-sm);
+    }
+
+    .logoutButton {
+        max-width: 280px;
+        margin-inline-start: auto;
+        margin-inline-end: auto;
+    }
+}
+
+@media (min-width: 1024px) {
+    .page {
+        max-width: 800px;
+        padding: var(--space-10) var(--space-16);
+    }
+}

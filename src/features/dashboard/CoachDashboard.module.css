@@ -2,6 +2,7 @@
     animation: fadeIn 0.3s ease;
     background-color: var(--bg-secondary);
     padding: var(--space-4);
+    padding-bottom: 120px;
     min-height: 100vh;
 }
 
@@ -429,87 +430,73 @@
     text-decoration: underline;
 }
 
-/* Mobile-First / Responsive Overrides */
-@media (max-width: 768px) {
+/* Tablet breakpoint */
+@media (min-width: 768px) {
     .page {
-        padding-bottom: 120px;
-        /* More space for potential bottom safe area */
+        padding: var(--space-6);
+        padding-bottom: var(--space-6);
     }
-
-    /* Increase breathing room on mobile */
-    .section {
-        margin-bottom: var(--space-12);
-        /* 48px on mobile */
-    }
-
-    /* ... existing styles ... */
 
     .greetingTitle {
-        font-size: var(--font-size-xl);
+        font-size: var(--font-size-2xl);
     }
 
     .greetingSubtitle {
-        font-size: var(--font-size-sm);
-    }
-
-    /* Training Cards - Spacious & Verified Touch Targets */
-    .trainingItem {
-        padding: var(--space-5);
-        /* More inner spacing */
-        gap: var(--space-5);
-    }
-
-    .trainingTime {
-        min-width: 60px;
-        /* Slightly wider for better legibility */
-    }
-
-    .trainingTimeValue {
-        font-size: var(--font-size-xl);
-        /* Larger time */
-    }
-
-    .trainingGroup {
-        font-size: var(--font-size-lg);
-        /* Larger group name */
-        margin-bottom: var(--space-2);
-    }
-
-    .trainingMeta {
         font-size: var(--font-size-base);
     }
 
-    /* Larger status button for easier tapping */
-    .trainingStatus {
-        width: 52px;
-        height: 52px;
+    .sectionTitle {
+        font-size: var(--font-size-xl);
     }
 
-    /* Horizontal scrolling enhancement for mobile */
-    .valuesContent,
-    .goalsContent {
-        padding-bottom: 4px;
-        -webkit-overflow-scrolling: touch;
-        scroll-padding: 0 var(--space-4);
+    .todayList {
+        gap: var(--space-4);
     }
 
-    /* Ensure content isn't cut off at edges */
-    /* Ensure content isn't cut off at edges */
-    .valuesCard {
-        margin: 0 -4px;
-        /* Negative margin to align scroll with edges if needed, or keep standard */
+    .trainingItem {
+        padding: var(--space-5);
     }
-}
 
-/* Mobile adjustments for spacing */
-@media (max-width: 768px) {
     .dashSection {
-        margin-bottom: var(--space-8);
-        /* 32px - optimized for mobile */
+        margin-bottom: var(--space-12);
     }
 
     .greeting {
-        margin-bottom: var(--space-4);
-        /* 16px - tighter greeting gap */
+        margin-bottom: var(--space-8);
+    }
+}
+
+/* Desktop breakpoint */
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
+    }
+
+    .greetingTitle {
+        font-size: var(--font-size-3xl);
+    }
+
+    .greetingSubtitle {
+        font-size: var(--font-size-lg);
+    }
+
+    .sectionTitle {
+        font-size: var(--font-size-2xl);
+    }
+
+    .dashSection {
+        margin-bottom: var(--space-16);
+    }
+
+    .section {
+        margin-bottom: var(--space-8);
+    }
+
+    .trainingItem {
+        padding: var(--space-6);
+    }
+
+    .dashboardCard {
+        padding: var(--space-6);
     }
 }

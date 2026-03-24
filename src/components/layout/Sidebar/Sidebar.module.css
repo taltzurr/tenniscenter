@@ -193,4 +193,8 @@
         box-shadow: none;
         border-inline-start: 1px solid var(--gray-200);
     }
+
+    .closeButton {
+        display: none;
+    }
 }

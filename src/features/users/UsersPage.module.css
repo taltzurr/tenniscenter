@@ -270,6 +270,52 @@
     }
 }
 
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        margin-bottom: var(--space-6);
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .searchContainer {
+        max-width: 500px;
+    }
+
+    .tableContainer {
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+    }
+
+    .table th,
+    .table td {
+        padding: var(--space-5);
+    }
+
+    .table th {
+        font-size: var(--font-size-sm);
+    }
+
+    .table td {
+        font-size: var(--font-size-base);
+    }
+
+    .nameCell {
+        gap: var(--space-4);
+    }
+
+    .actions {
+        gap: var(--space-2);
+    }
+}
+
 /* Reset Link Modal */
 .resetLinkOverlay {
     position: fixed;

@@ -81,8 +81,26 @@
 }
 
 @media (min-width: 1024px) {
+    .page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
     .grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+
+    .header {
+        margin-bottom: var(--space-8);
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .groupCard {
+        padding: var(--space-6);
     }
 }
 

@@ -128,3 +128,48 @@
     color: var(--text-secondary);
     margin-bottom: var(--space-4);
 }
+
+/* Tablet */
+@media (min-width: 768px) {
+    .page {
+        padding: var(--space-8);
+    }
+
+    .header {
+        margin-bottom: var(--space-8);
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-5);
+    }
+
+    .card {
+        padding: var(--space-6);
+        border-radius: var(--radius-xl);
+    }
+
+    .emptyState {
+        padding: var(--space-16);
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+
+    .card {
+        padding: var(--space-8);
+    }
+
+    .cardTitle {
+        font-size: var(--font-size-xl);
+    }
+}

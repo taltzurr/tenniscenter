@@ -86,3 +86,44 @@
     border-radius: var(--radius-md);
     border: 1px dashed var(--border-color);
 }
+
+/* Desktop enhancements */
+@media (min-width: 768px) {
+    .list {
+        max-width: 900px;
+        margin: 0 auto;
+        gap: var(--space-3);
+    }
+
+    .item {
+        padding: var(--space-4) var(--space-5);
+        border-radius: var(--radius-lg);
+    }
+
+    .actions {
+        visibility: visible;
+        gap: var(--space-3);
+    }
+
+    .name {
+        font-size: var(--font-size-base);
+    }
+
+    .emptyState {
+        padding: var(--space-10);
+    }
+}
+
+@media (min-width: 1024px) {
+    .list {
+        max-width: 1000px;
+    }
+
+    .item {
+        padding: var(--space-5) var(--space-6);
+    }
+
+    .mainInfo {
+        gap: var(--space-4);
+    }
+}

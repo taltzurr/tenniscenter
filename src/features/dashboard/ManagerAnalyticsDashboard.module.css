@@ -1,5 +1,5 @@
 .page {
-    padding: var(--space-6);
+    padding: var(--space-4);
     background-color: var(--bg-secondary);
     min-height: 100vh;
 }
@@ -12,7 +12,7 @@
 }
 
 .title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     font-weight: 800;
     color: var(--text-primary);
 }
@@ -40,7 +40,7 @@
 /* Stats Cards */
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
     margin-bottom: var(--space-6);
 }
@@ -67,8 +67,7 @@
 }
 
 .statValue {
-    font-size: 2.5rem;
-    /* Larger font for impact */
+    font-size: var(--font-size-2xl);
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1.1;
@@ -78,9 +77,8 @@
 /* Charts Section */
 .chartsSection {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    /* 12-column grid for flexibility */
-    gap: var(--space-6);
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
     margin-bottom: var(--space-6);
 }
 
@@ -99,29 +97,81 @@
     border-color: var(--gray-200);
 }
 
-/* Specific Grid Placements */
-/* Pie Chart - Takes 4 columns on large screens */
-.pieCard {
-    grid-column: span 4;
+/* Tablet breakpoint */
+@media (min-width: 768px) {
+    .page {
+        padding: var(--space-6);
+    }
+
+    .title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .chartsSection {
+        gap: var(--space-6);
+    }
+
+    .card {
+        padding: var(--space-6);
+    }
+
+    .statValue {
+        font-size: var(--font-size-3xl);
+    }
 }
 
-/* Bar Chart (Top Performers) - Takes 8 columns on large screens */
-.barCard {
-    grid-column: span 8;
-}
+/* Desktop breakpoint - activate 12-column grid */
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
+    }
 
-/* Coaches Table - Full width */
-.tableCard {
-    grid-column: span 12;
-}
+    .title {
+        font-size: var(--font-size-3xl);
+    }
 
-/* Responsive Breakpoints */
-@media (max-width: 1024px) {
+    .statsGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-5);
+    }
 
-    .pieCard,
+    .chartsSection {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    /* Pie Chart - Takes 4 columns on desktop */
+    .pieCard {
+        grid-column: span 4;
+    }
+
+    /* Bar Chart (Top Performers) - Takes 8 columns on desktop */
     .barCard {
+        grid-column: span 8;
+    }
+
+    /* Coaches Table - Full width */
+    .tableCard {
         grid-column: span 12;
-        /* Stack on Tablet/Medium screens */
+    }
+
+    .statCard {
+        padding: var(--space-6);
+    }
+
+    .header {
+        margin-bottom: var(--space-8);
+    }
+
+    .statValue {
+        font-size: var(--font-size-4xl);
+    }
+
+    .cardTitle {
+        font-size: var(--font-size-xl);
     }
 }
 

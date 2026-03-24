@@ -204,10 +204,65 @@
 }
 
 @media (min-width: 768px) {
+    .page {
+        padding: var(--space-6);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: var(--space-6);
+    }
+
+    .header {
+        padding: var(--space-5);
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .headerTop {
+        width: auto;
+    }
+
+    .headerControls {
+        width: auto;
+        gap: var(--space-4);
+    }
+
+    .title {
+        font-size: var(--font-size-2xl);
+    }
+
     .weeklyListSection {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: var(--space-4);
+    }
+
+    .dayListCard {
+        border-radius: var(--radius-xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
+        max-width: 1400px;
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .weeklyListSection {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+
+    .calendarContainer {
+        padding: var(--space-4);
+    }
+
+    .dayCell {
+        min-height: 100px;
+        padding: var(--space-2);
     }
 }
 

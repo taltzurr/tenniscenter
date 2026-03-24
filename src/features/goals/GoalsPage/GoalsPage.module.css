@@ -325,3 +325,75 @@
     padding: var(--space-4) var(--space-5);
     border-top: 1px solid var(--gray-200);
 }
+
+/* Tablet */
+@media (min-width: 768px) {
+    .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-6);
+    }
+
+    .header {
+        margin-bottom: var(--space-8);
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .goalsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-5);
+    }
+
+    .valuesGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-5);
+    }
+
+    .section {
+        margin-bottom: var(--space-10);
+    }
+
+    .goalCard {
+        padding: var(--space-6);
+    }
+
+    .valueCard {
+        padding: var(--space-6);
+    }
+
+    .emptyState {
+        padding: var(--space-12);
+    }
+
+    .modal {
+        max-width: 560px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
+    }
+
+    .goalsGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+
+    .valuesGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-6);
+    }
+
+    .tabs {
+        gap: var(--space-3);
+    }
+
+    .tab {
+        padding: var(--space-3) var(--space-5);
+    }
+}

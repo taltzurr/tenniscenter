@@ -214,3 +214,20 @@
     color: var(--error-500);
     background: var(--error-50);
 }
+
+/* Desktop enhancements */
+@media (min-width: 768px) {
+    .dropdown {
+        width: 400px;
+    }
+
+    .list {
+        max-height: 480px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .dropdown {
+        width: 440px;
+    }
+}

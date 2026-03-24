@@ -55,3 +55,43 @@
     font-size: var(--font-size-sm);
     font-weight: 500;
 }
+
+/* ── Tablet (768px+) ── */
+@media (min-width: 768px) {
+    .page {
+        padding: var(--space-6) var(--space-8);
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .listContainer {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-4);
+    }
+
+    .emptyState {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ── Desktop (1024px+) ── */
+@media (min-width: 1024px) {
+    .page {
+        max-width: 1100px;
+        padding: var(--space-8) var(--space-10);
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .listContainer {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-5);
+    }
+}

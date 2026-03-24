@@ -175,3 +175,58 @@
     font-weight: 700;
     cursor: pointer;
 }
+
+/* ── Tablet (768px+) ── */
+@media (min-width: 768px) {
+    .container {
+        max-width: 700px;
+        padding: var(--space-6);
+    }
+
+    .exerciseTitle {
+        font-size: 2.5rem;
+    }
+
+    .notes {
+        max-width: 500px;
+    }
+
+    .timerDisplay {
+        font-size: 96px;
+    }
+
+    .footer {
+        padding-top: var(--space-6);
+    }
+}
+
+/* ── Desktop (1024px+) ── */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 800px;
+        padding: var(--space-8);
+    }
+
+    .exerciseTitle {
+        font-size: 3rem;
+    }
+
+    .timerDisplay {
+        font-size: 112px;
+    }
+
+    .controlBtn {
+        width: 96px;
+        height: 96px;
+    }
+
+    .resetBtn {
+        width: 56px;
+        height: 56px;
+    }
+
+    .notes {
+        max-width: 560px;
+        padding: var(--space-5);
+    }
+}

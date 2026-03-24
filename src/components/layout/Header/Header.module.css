@@ -125,3 +125,13 @@
     font-weight: var(--font-weight-semibold);
     color: white;
 }
+
+@media (min-width: 1024px) {
+    .menuButton {
+        display: none;
+    }
+
+    .header {
+        padding: var(--space-3) var(--space-8);
+    }
+}
