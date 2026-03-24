@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Mail, Link, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
@@ -29,7 +29,7 @@ const getRoleClass = (role) => {
 
 function UsersPage() {
     const { userData, isCenterManager, isSupervisor } = useAuthStore();
-    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser, resendInvitation, generateResetLink } = useUsersStore();
+    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser } = useUsersStore();
     const { centers, fetchCenters, getCenterName } = useCentersStore();
     const { addToast } = useUIStore();
 
@@ -37,8 +37,6 @@ function UsersPage() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [resendCooldowns, setResendCooldowns] = useState({});
-    const [resetLink, setResetLink] = useState(null);
 
     useEffect(() => {
         fetchUsers();
@@ -56,7 +54,6 @@ function UsersPage() {
     };
 
     const handleDeleteUser = async (user) => {
-        // Center managers can only delete users from their own center
         if (isCenterManager() && !user.centerIds?.includes(userData.managedCenterId)) {
             return;
         }
@@ -69,39 +66,6 @@ function UsersPage() {
             } else {
                 addToast({ type: 'error', message: result.error });
             }
-        }
-    };
-
-    const handleResendInvitation = async (user) => {
-        if (resendCooldowns[user.id]) return;
-
-        const result = await resendInvitation(user.email);
-        if (result.success) {
-            addToast({
-                type: 'success',
-                message: `אימייל איפוס סיסמה נשלח ל-${user.email}`,
-                duration: 5000,
-            });
-            // Set cooldown for 30 seconds
-            setResendCooldowns(prev => ({ ...prev, [user.id]: true }));
-            setTimeout(() => {
-                setResendCooldowns(prev => {
-                    const next = { ...prev };
-                    delete next[user.id];
-                    return next;
-                });
-            }, 30000);
-        } else {
-            addToast({ type: 'error', message: result.error || 'שגיאה בשליחת האימייל' });
-        }
-    };
-
-    const handleGenerateResetLink = async (user) => {
-        const result = await generateResetLink(user.email);
-        if (result.success) {
-            setResetLink({ email: user.email, link: result.link });
-        } else {
-            addToast({ type: 'error', message: result.error || 'שגיאה ביצירת הקישור' });
         }
     };
 
@@ -218,25 +182,6 @@ function UsersPage() {
                                             <td>{user.phone || '-'}</td>
                                             <td>
                                                 <div className={styles.actions}>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="small"
-                                                        iconOnly
-                                                        onClick={() => handleGenerateResetLink(user)}
-                                                        title="צור קישור איפוס סיסמה"
-                                                    >
-                                                        <Link size={16} color="var(--primary-500)" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="small"
-                                                        iconOnly
-                                                        onClick={() => handleResendInvitation(user)}
-                                                        title="שלח מייל איפוס סיסמה"
-                                                        disabled={resendCooldowns[user.id]}
-                                                    >
-                                                        <Mail size={16} color={resendCooldowns[user.id] ? 'var(--gray-300)' : 'var(--primary-500)'} />
-                                                    </Button>
                                                     <Button variant="ghost" size="small" iconOnly onClick={() => handleEditUser(user)} title="ערוך">
                                                         <Edit2 size={16} />
                                                     </Button>
@@ -270,21 +215,6 @@ function UsersPage() {
                                         </span>
                                     </div>
                                     <div className={styles.cardActions}>
-                                        <button
-                                            className={`${styles.cardActionBtn} ${styles.mailBtn}`}
-                                            onClick={() => handleGenerateResetLink(user)}
-                                            title="צור קישור איפוס סיסמה"
-                                        >
-                                            <Link size={18} />
-                                        </button>
-                                        <button
-                                            className={`${styles.cardActionBtn} ${styles.mailBtn}`}
-                                            onClick={() => handleResendInvitation(user)}
-                                            title="שלח מייל איפוס סיסמה"
-                                            disabled={resendCooldowns[user.id]}
-                                        >
-                                            <Mail size={18} />
-                                        </button>
                                         <button className={styles.cardActionBtn} onClick={() => handleEditUser(user)} title="ערוך">
                                             <Edit2 size={18} />
                                         </button>
@@ -309,33 +239,6 @@ function UsersPage() {
                         ))}
                     </div>
                 </>
-            )}
-
-            {resetLink && (
-                <div className={styles.resetLinkOverlay} onClick={() => setResetLink(null)}>
-                    <div className={styles.resetLinkModal} onClick={e => e.stopPropagation()}>
-                        <div className={styles.resetLinkHeader}>
-                            <h3>קישור איפוס סיסמה</h3>
-                            <button className={styles.resetLinkClose} onClick={() => setResetLink(null)}>
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <p className={styles.resetLinkEmail}>{resetLink.email}</p>
-                        <p className={styles.resetLinkNote}>שלח את הקישור הבא למשתמש. תקף ל-60 דקות.</p>
-                        <div className={styles.resetLinkBox}>
-                            <span className={styles.resetLinkText}>{resetLink.link}</span>
-                        </div>
-                        <Button
-                            fullWidth
-                            onClick={() => {
-                                navigator.clipboard.writeText(resetLink.link);
-                                addToast({ type: 'success', message: 'הקישור הועתק ללוח' });
-                            }}
-                        >
-                            העתק קישור
-                        </Button>
-                    </div>
-                </div>
             )}
 
             <UserFormModal

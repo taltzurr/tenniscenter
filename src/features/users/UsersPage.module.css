@@ -227,14 +227,6 @@
     cursor: not-allowed;
 }
 
-.mailBtn {
-    color: var(--primary-500);
-}
-
-.mailBtn:active {
-    background: var(--primary-50);
-}
-
 .deleteBtn {
     color: var(--error-500);
 }
@@ -329,87 +321,3 @@
     }
 }
 
-/* Reset Link Modal */
-.resetLinkOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: var(--space-4);
-}
-
-.resetLinkModal {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    width: 100%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    box-shadow: var(--shadow-xl);
-}
-
-.resetLinkHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.resetLinkHeader h3 {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    margin: 0;
-}
-
-.resetLinkClose {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--gray-500);
-    padding: var(--space-2);
-    display: flex;
-    min-width: 44px;
-    min-height: 44px;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.resetLinkClose:active {
-    background-color: var(--gray-100);
-}
-
-.resetLinkEmail {
-    font-weight: 500;
-    color: var(--gray-700);
-    margin: 0;
-}
-
-.resetLinkNote {
-    font-size: var(--font-size-sm);
-    color: var(--gray-500);
-    margin: 0;
-}
-
-.resetLinkBox {
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    padding: var(--space-3);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.resetLinkText {
-    font-size: var(--font-size-xs);
-    color: var(--gray-600);
-    word-break: break-all;
-    font-family: monospace;
-    direction: ltr;
-    display: block;
-}
