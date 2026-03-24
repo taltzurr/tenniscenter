@@ -18,12 +18,14 @@ function CentersPage() {
     const [selectedCenter, setSelectedCenter] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Defense-in-depth: route is already protected by RoleRoute
-    if (!isSupervisor()) return <Navigate to="/dashboard" replace />;
+    const authorized = isSupervisor();
 
     useEffect(() => {
-        fetchCenters();
-    }, [fetchCenters]);
+        if (authorized) fetchCenters();
+    }, [fetchCenters, authorized]);
+
+    // Defense-in-depth: route is already protected by RoleRoute
+    if (!authorized) return <Navigate to="/dashboard" replace />;
 
     const handleAddCenter = () => {
         setSelectedCenter(null);
