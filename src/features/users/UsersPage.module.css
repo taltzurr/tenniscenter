@@ -34,6 +34,7 @@
     box-shadow: var(--shadow-sm);
     overflow: hidden;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .table {
@@ -124,12 +125,24 @@
     color: var(--error-700);
 }
 
-/* Inactive row/card */
-.rowInactive {
+/* Inactive row/card - dim content but keep actions visible */
+.rowInactive td {
     opacity: 0.6;
 }
 
+.rowInactive td:last-child {
+    opacity: 1;
+}
+
 .cardInactive {
+    background-color: var(--gray-50);
+}
+
+.cardInactive .cardInfo {
+    opacity: 0.6;
+}
+
+.cardInactive .cardDetails {
     opacity: 0.6;
 }
 
@@ -357,8 +370,18 @@
     border: none;
     cursor: pointer;
     color: var(--gray-500);
-    padding: var(--space-1);
+    padding: var(--space-2);
     display: flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+}
+
+.resetLinkClose:active {
+    background-color: var(--gray-100);
 }
 
 .resetLinkEmail {

@@ -71,11 +71,17 @@ function UserFormModal({ isOpen, onClose, user, onSubmit, isSubmitting, currentR
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const { centerId, ...rest } = formData;
         const payload = {
-            ...formData,
-            centerIds: formData.centerId ? [formData.centerId] : [],
+            ...rest,
+            centerIds: centerId ? [centerId] : [],
         };
+        // Don't send email on edit — it can't be changed and may confuse Firestore
+        if (user) {
+            delete payload.email;
+        }
         if (!user) {
+            payload.email = formData.email;
             payload.onboardingMethod = onboardingMethod;
             if (onboardingMethod === 'password') {
                 payload.initialPassword = initialPassword;

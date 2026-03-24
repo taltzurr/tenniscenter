@@ -222,7 +222,17 @@
 }
 
 .switchInput:checked + .slider::before {
-    transform: translateX(-18px);
+    transform: translateX(-20px);
+}
+
+/* LTR override (if ever needed) */
+:root[dir="ltr"] .switchInput:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+.switchInput:focus-visible + .slider {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
 }
 
 .inactiveWarning {

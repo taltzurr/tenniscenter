@@ -12,15 +12,8 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-const COLLECTION = 'goals';
-
-// Goal types
-export const GOAL_TYPES = {
-    CENTER: 'center',      // Center-wide goals
-    GROUP: 'group',        // Group-specific goals
-    SEASONAL: 'seasonal',  // Seasonal goals
-    VALUE: 'value'         // Center values
-};
+const GOALS_COLLECTION = 'goals';
+const ASSIGNMENTS_COLLECTION = 'monthlyAssignments';
 
 // Value categories
 export const VALUE_CATEGORIES = {
@@ -42,152 +35,127 @@ export const GOAL_CATEGORIES = {
     VALUES: { id: 'values', label: 'ערכים', icon: 'Heart' }
 };
 
+// ==========================================
+// Goal / Value DEFINITIONS (goals collection)
+// ==========================================
+
 /**
- * Get all center values
+ * Get all goal definitions (type='goal')
  */
-export const getCenterValues = async () => {
+export const getAllGoalDefinitions = async () => {
     try {
         const q = query(
-            collection(db, COLLECTION),
-            where('type', '==', GOAL_TYPES.VALUE),
-            orderBy('order', 'asc')
+            collection(db, GOALS_COLLECTION),
+            where('type', '==', 'goal'),
+            orderBy('createdAt', 'desc')
         );
-
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+        return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (error) {
-        console.error('Error fetching center values:', error);
+        console.error('Error fetching goal definitions:', error);
         return [];
     }
 };
 
 /**
- * Get all goals for a center
+ * Get all value definitions (type='value')
  */
-export const getCenterGoals = async () => {
+export const getAllValueDefinitions = async () => {
     try {
         const q = query(
-            collection(db, COLLECTION),
-            where('type', '==', GOAL_TYPES.CENTER),
-            orderBy('order', 'asc')
+            collection(db, GOALS_COLLECTION),
+            where('type', '==', 'value'),
+            orderBy('createdAt', 'desc')
         );
-
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+        return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (error) {
-        console.error('Error fetching center goals:', error);
+        console.error('Error fetching value definitions:', error);
         return [];
     }
 };
 
 /**
- * Get goals for a specific group
+ * Save a goal or value definition (create or update)
  */
-export const getGroupGoals = async (groupId) => {
+export const saveGoalDefinition = async (data) => {
     try {
-        const q = query(
-            collection(db, COLLECTION),
-            where('type', '==', GOAL_TYPES.GROUP),
-            where('groupId', '==', groupId),
-            orderBy('order', 'asc')
-        );
-
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-    } catch (error) {
-        console.error('Error fetching group goals:', error);
-        return [];
-    }
-};
-
-/**
- * Get seasonal goals
- */
-export const getSeasonalGoals = async (season, year) => {
-    try {
-        const q = query(
-            collection(db, COLLECTION),
-            where('type', '==', GOAL_TYPES.SEASONAL),
-            where('season', '==', season),
-            where('year', '==', year)
-        );
-
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-    } catch (error) {
-        console.error('Error fetching seasonal goals:', error);
-        return [];
-    }
-};
-
-/**
- * Save a goal (create or update)
- */
-export const saveGoal = async (goalData) => {
-    try {
-        const id = goalData.id || doc(collection(db, COLLECTION)).id;
-        const docRef = doc(db, COLLECTION, id);
-
+        const id = data.id || doc(collection(db, GOALS_COLLECTION)).id;
+        const docRef = doc(db, GOALS_COLLECTION, id);
         await setDoc(docRef, {
-            ...goalData,
+            ...data,
             id,
             updatedAt: serverTimestamp(),
-            createdAt: goalData.createdAt || serverTimestamp()
+            createdAt: data.createdAt || serverTimestamp()
         }, { merge: true });
-
-        return { id, ...goalData };
+        return { id, ...data };
     } catch (error) {
-        console.error('Error saving goal:', error);
+        console.error('Error saving goal definition:', error);
         throw error;
     }
 };
 
 /**
- * Delete a goal
+ * Delete a goal or value definition
  */
-export const deleteGoal = async (id) => {
+export const deleteGoalDefinition = async (id) => {
     try {
-        await deleteDoc(doc(db, COLLECTION, id));
+        await deleteDoc(doc(db, GOALS_COLLECTION, id));
         return { success: true };
     } catch (error) {
-        console.error('Error deleting goal:', error);
+        console.error('Error deleting goal definition:', error);
         throw error;
+    }
+};
+
+// ==========================================
+// Monthly Assignments (monthlyAssignments collection)
+// ==========================================
+
+/**
+ * Get monthly assignment for a specific year/month
+ * Document ID format: {year}_{month}
+ */
+export const getMonthlyAssignment = async (year, month) => {
+    try {
+        const docId = `${year}_${month}`;
+        const docRef = doc(db, ASSIGNMENTS_COLLECTION, docId);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+            return { id: snapshot.id, ...snapshot.data() };
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching monthly assignment:', error);
+        return null;
     }
 };
 
 /**
- * Reorder goals
+ * Save monthly assignment (create or update)
  */
-export const reorderGoals = async (goals) => {
+export const saveMonthlyAssignment = async (year, month, goalIds, valueIds) => {
     try {
-        const updates = goals.map((goal, index) =>
-            setDoc(doc(db, COLLECTION, goal.id), { order: index }, { merge: true })
-        );
-        await Promise.all(updates);
-        return { success: true };
+        const docId = `${year}_${month}`;
+        const docRef = doc(db, ASSIGNMENTS_COLLECTION, docId);
+        const data = {
+            year,
+            month,
+            goalIds: goalIds || [],
+            valueIds: valueIds || [],
+            updatedAt: serverTimestamp()
+        };
+
+        // Check if it exists to preserve createdAt
+        const existing = await getDoc(docRef);
+        if (!existing.exists()) {
+            data.createdAt = serverTimestamp();
+        }
+
+        await setDoc(docRef, data, { merge: true });
+        return { id: docId, ...data };
     } catch (error) {
-        console.error('Error reordering goals:', error);
+        console.error('Error saving monthly assignment:', error);
         throw error;
     }
 };
-
-// Default center values
-export const DEFAULT_VALUES = [
-    { id: 'respect', title: 'כבוד', description: 'כבוד לעצמי, למאמנים, לשחקנים אחרים ולמגרש', icon: '🙏' },
-    { id: 'effort', title: 'מאמץ', description: 'לתת את המקסימום בכל אימון', icon: '💪' },
-    { id: 'teamwork', title: 'עבודת צוות', description: 'לעזור ולתמוך בחברי הקבוצה', icon: '🤝' },
-    { id: 'discipline', title: 'משמעת', description: 'הגעה בזמן, הקשבה, ציות להוראות', icon: '⏰' },
-    { id: 'enjoyment', title: 'הנאה', description: 'ליהנות מהמשחק והתהליך', icon: '😊' }
-];

@@ -1,92 +1,81 @@
 import { create } from 'zustand';
 import {
-    getCenterGoals,
-    getCenterValues,
-    getGroupGoals,
-    saveGoal as saveGoalService,
-    deleteGoal as deleteGoalService,
-    reorderGoals as reorderGoalsService
+    getAllGoalDefinitions,
+    getAllValueDefinitions,
+    saveGoalDefinition,
+    deleteGoalDefinition,
+    getMonthlyAssignment,
+    saveMonthlyAssignment as saveMonthlyAssignmentService
 } from '../services/goals';
 
 const useGoalsStore = create((set, get) => ({
-    centerGoals: [],
-    centerValues: [],
-    groupGoals: {},
+    goals: [],              // all goal definitions
+    values: [],             // all value definitions
+    currentAssignment: null, // { goalIds: [], valueIds: [] } for selected month
     isLoading: false,
     error: null,
 
-    // Fetch center values
-    fetchCenterValues: async () => {
+    // Fetch all goal definitions
+    fetchGoals: async () => {
         set({ isLoading: true, error: null });
         try {
-            const values = await getCenterValues();
-            set({ centerValues: values, isLoading: false });
+            const goals = await getAllGoalDefinitions();
+            set({ goals, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
         }
     },
 
-    // Fetch center goals
-    fetchCenterGoals: async () => {
+    // Fetch all value definitions
+    fetchValues: async () => {
         set({ isLoading: true, error: null });
         try {
-            const goals = await getCenterGoals();
-            set({ centerGoals: goals, isLoading: false });
+            const values = await getAllValueDefinitions();
+            set({ values, isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
         }
     },
 
-    // Fetch group goals
-    fetchGroupGoals: async (groupId) => {
+    // Fetch monthly assignment for a given year/month
+    fetchMonthlyAssignment: async (year, month) => {
         set({ isLoading: true, error: null });
         try {
-            const goals = await getGroupGoals(groupId);
-            set(state => ({
-                groupGoals: { ...state.groupGoals, [groupId]: goals },
+            const assignment = await getMonthlyAssignment(year, month);
+            set({ currentAssignment: assignment, isLoading: false });
+        } catch (error) {
+            set({ error: error.message, isLoading: false });
+        }
+    },
+
+    // Save monthly assignment
+    saveMonthlyAssignment: async (year, month, goalIds, valueIds) => {
+        set({ isLoading: true, error: null });
+        try {
+            const saved = await saveMonthlyAssignmentService(year, month, goalIds, valueIds);
+            set({
+                currentAssignment: saved,
                 isLoading: false
-            }));
+            });
+            return { success: true };
         } catch (error) {
             set({ error: error.message, isLoading: false });
+            return { success: false, error: error.message };
         }
     },
 
-    // Add or update goal
-    saveGoal: async (goalData) => {
+    // Save a goal definition (add or edit)
+    saveGoal: async (data) => {
         set({ isLoading: true, error: null });
         try {
-            const saved = await saveGoalService(goalData);
-
-            if (goalData.type === 'value') {
-                set(state => {
-                    const exists = state.centerValues.find(g => g.id === saved.id);
-                    const updatedValues = exists
-                        ? state.centerValues.map(g => g.id === saved.id ? saved : g)
-                        : [...state.centerValues, saved];
-                    return { centerValues: updatedValues, isLoading: false };
-                });
-            } else if (goalData.type === 'center') {
-                set(state => {
-                    const exists = state.centerGoals.find(g => g.id === saved.id);
-                    const updatedGoals = exists
-                        ? state.centerGoals.map(g => g.id === saved.id ? saved : g)
-                        : [...state.centerGoals, saved];
-                    return { centerGoals: updatedGoals, isLoading: false };
-                });
-            } else if (goalData.type === 'group' && goalData.groupId) {
-                set(state => {
-                    const groupGoals = state.groupGoals[goalData.groupId] || [];
-                    const exists = groupGoals.find(g => g.id === saved.id);
-                    const updatedGoals = exists
-                        ? groupGoals.map(g => g.id === saved.id ? saved : g)
-                        : [...groupGoals, saved];
-                    return {
-                        groupGoals: { ...state.groupGoals, [goalData.groupId]: updatedGoals },
-                        isLoading: false
-                    };
-                });
-            }
-
+            const saved = await saveGoalDefinition({ ...data, type: 'goal' });
+            set(state => {
+                const exists = state.goals.find(g => g.id === saved.id);
+                const updatedGoals = exists
+                    ? state.goals.map(g => g.id === saved.id ? saved : g)
+                    : [saved, ...state.goals];
+                return { goals: updatedGoals, isLoading: false };
+            });
             return { success: true, goal: saved };
         } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -94,32 +83,15 @@ const useGoalsStore = create((set, get) => ({
         }
     },
 
-    // Delete goal
-    deleteGoal: async (goalId, type, groupId) => {
+    // Delete a goal definition
+    deleteGoal: async (id) => {
         set({ isLoading: true, error: null });
         try {
-            await deleteGoalService(goalId);
-
-            if (type === 'value') {
-                set(state => ({
-                    centerValues: state.centerValues.filter(g => g.id !== goalId),
-                    isLoading: false
-                }));
-            } else if (type === 'center') {
-                set(state => ({
-                    centerGoals: state.centerGoals.filter(g => g.id !== goalId),
-                    isLoading: false
-                }));
-            } else if (type === 'group' && groupId) {
-                set(state => ({
-                    groupGoals: {
-                        ...state.groupGoals,
-                        [groupId]: (state.groupGoals[groupId] || []).filter(g => g.id !== goalId)
-                    },
-                    isLoading: false
-                }));
-            }
-
+            await deleteGoalDefinition(id);
+            set(state => ({
+                goals: state.goals.filter(g => g.id !== id),
+                isLoading: false
+            }));
             return { success: true };
         } catch (error) {
             set({ error: error.message, isLoading: false });
@@ -127,21 +99,37 @@ const useGoalsStore = create((set, get) => ({
         }
     },
 
-    // Reorder goals
-    reorderGoals: async (goals, type, groupId) => {
+    // Save a value definition (add or edit)
+    saveValue: async (data) => {
+        set({ isLoading: true, error: null });
         try {
-            await reorderGoalsService(goals);
+            const saved = await saveGoalDefinition({ ...data, type: 'value' });
+            set(state => {
+                const exists = state.values.find(v => v.id === saved.id);
+                const updatedValues = exists
+                    ? state.values.map(v => v.id === saved.id ? saved : v)
+                    : [saved, ...state.values];
+                return { values: updatedValues, isLoading: false };
+            });
+            return { success: true, value: saved };
+        } catch (error) {
+            set({ error: error.message, isLoading: false });
+            return { success: false, error: error.message };
+        }
+    },
 
-            if (type === 'center') {
-                set({ centerGoals: goals });
-            } else if (type === 'group' && groupId) {
-                set(state => ({
-                    groupGoals: { ...state.groupGoals, [groupId]: goals }
-                }));
-            }
-
+    // Delete a value definition
+    deleteValue: async (id) => {
+        set({ isLoading: true, error: null });
+        try {
+            await deleteGoalDefinition(id);
+            set(state => ({
+                values: state.values.filter(v => v.id !== id),
+                isLoading: false
+            }));
             return { success: true };
         } catch (error) {
+            set({ error: error.message, isLoading: false });
             return { success: false, error: error.message };
         }
     },

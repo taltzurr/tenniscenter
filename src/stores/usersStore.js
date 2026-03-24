@@ -104,6 +104,10 @@ const useUsersStore = create((set, get) => ({
 
             // Sync managedCenterId for center managers if role or center is updated
             const processedUpdates = { ...updates };
+            // Remove transient form fields that shouldn't be stored
+            delete processedUpdates.centerId;
+            delete processedUpdates.onboardingMethod;
+            delete processedUpdates.initialPassword;
             if (processedUpdates.role === ROLES.CENTER_MANAGER && processedUpdates.centerIds && processedUpdates.centerIds.length > 0) {
                 processedUpdates.managedCenterId = processedUpdates.centerIds[0];
             }

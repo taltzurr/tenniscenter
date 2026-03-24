@@ -1,133 +1,230 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     Target,
     Heart,
     Plus,
     Edit2,
     Trash2,
-    X,
-    Users
+    ChevronRight,
+    ChevronLeft,
+    Settings,
+    Check
 } from 'lucide-react';
 import useGoalsStore from '../../../stores/goalsStore';
-import useGroupsStore from '../../../stores/groupsStore';
 import useAuthStore from '../../../stores/authStore';
 import useUIStore from '../../../stores/uiStore';
 import { GOAL_CATEGORIES, VALUE_CATEGORIES } from '../../../services/goals';
-import { HEBREW_MONTHS } from '../../../services/monthlyThemes';
+import { HEBREW_MONTHS } from '../../../config/constants';
+import Modal from '../../../components/ui/Modal';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import styles from './GoalsPage.module.css';
 
 function GoalsPage() {
     const { userData } = useAuthStore();
-    const { centerValues, groupGoals, fetchCenterValues, fetchGroupGoals, saveGoal, deleteGoal, isLoading } = useGoalsStore();
-    const { groups, fetchGroups } = useGroupsStore();
+    const {
+        goals, values, currentAssignment,
+        fetchGoals, fetchValues, fetchMonthlyAssignment,
+        saveMonthlyAssignment, saveGoal, deleteGoal,
+        saveValue, deleteValue, isLoading
+    } = useGoalsStore();
     const { addToast } = useUIStore();
 
-    const [activeTab, setActiveTab] = useState('groups');
-    const [selectedGroupId, setSelectedGroupId] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const [editingGoal, setEditingGoal] = useState(null);
-    const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        category: 'technical',
-        icon: '🎯',
-        month: ''
-    });
+    const now = new Date();
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
 
+    // Modal states
+    const [assignGoalsOpen, setAssignGoalsOpen] = useState(false);
+    const [assignValuesOpen, setAssignValuesOpen] = useState(false);
+    const [manageGoalsOpen, setManageGoalsOpen] = useState(false);
+    const [manageValuesOpen, setManageValuesOpen] = useState(false);
+
+    // Assignment selection (temporary until saved)
+    const [selectedGoalIds, setSelectedGoalIds] = useState([]);
+    const [selectedValueIds, setSelectedValueIds] = useState([]);
+
+    // Definition form
+    const [editingItem, setEditingItem] = useState(null);
+    const [formData, setFormData] = useState({ title: '', description: '', category: '', icon: '' });
+    const [showDefinitionForm, setShowDefinitionForm] = useState(false);
+
+    const canEdit = userData?.role === 'supervisor';
+
+    // Fetch definitions on mount
     useEffect(() => {
-        fetchCenterValues();
-        if (userData?.id) {
-            fetchGroups(userData.id, userData.role === 'supervisor');
-        }
-    }, [fetchCenterValues, fetchGroups, userData]);
+        fetchGoals();
+        fetchValues();
+    }, [fetchGoals, fetchValues]);
 
+    // Fetch assignment when month changes
     useEffect(() => {
-        if (selectedGroupId) {
-            fetchGroupGoals(selectedGroupId);
+        fetchMonthlyAssignment(selectedYear, selectedMonth);
+    }, [fetchMonthlyAssignment, selectedYear, selectedMonth]);
+
+    // Month navigation
+    const navigateMonth = useCallback((direction) => {
+        let newMonth = selectedMonth + direction;
+        let newYear = selectedYear;
+        if (newMonth < 0) { newMonth = 11; newYear--; }
+        if (newMonth > 11) { newMonth = 0; newYear++; }
+        setSelectedMonth(newMonth);
+        setSelectedYear(newYear);
+    }, [selectedMonth, selectedYear]);
+
+    // Resolve assigned items to full objects
+    const assignedGoals = useMemo(() => {
+        const ids = currentAssignment?.goalIds || [];
+        return ids.map(id => goals.find(g => g.id === id)).filter(Boolean);
+    }, [currentAssignment, goals]);
+
+    const assignedValues = useMemo(() => {
+        const ids = currentAssignment?.valueIds || [];
+        return ids.map(id => values.find(v => v.id === id)).filter(Boolean);
+    }, [currentAssignment, values]);
+
+    // ==========================================
+    // Assign Goals Modal
+    // ==========================================
+    const openAssignGoals = () => {
+        setSelectedGoalIds(currentAssignment?.goalIds || []);
+        setAssignGoalsOpen(true);
+    };
+
+    const toggleGoalSelection = (id) => {
+        setSelectedGoalIds(prev => {
+            if (prev.includes(id)) return prev.filter(x => x !== id);
+            if (prev.length >= 3) return prev;
+            return [...prev, id];
+        });
+    };
+
+    const handleSaveGoalAssignment = async () => {
+        const result = await saveMonthlyAssignment(
+            selectedYear, selectedMonth,
+            selectedGoalIds,
+            currentAssignment?.valueIds || []
+        );
+        if (result.success) {
+            addToast({ type: 'success', message: 'המטרות שובצו בהצלחה' });
+            setAssignGoalsOpen(false);
+        } else {
+            addToast({ type: 'error', message: 'שגיאה בשיבוץ המטרות' });
         }
-    }, [selectedGroupId, fetchGroupGoals]);
+    };
 
-    const isValueTab = activeTab === 'values';
+    // ==========================================
+    // Assign Values Modal
+    // ==========================================
+    const openAssignValues = () => {
+        setSelectedValueIds(currentAssignment?.valueIds || []);
+        setAssignValuesOpen(true);
+    };
 
-    const handleOpenModal = (goal = null) => {
-        if (goal) {
-            setEditingGoal(goal);
+    const toggleValueSelection = (id) => {
+        setSelectedValueIds(prev => {
+            if (prev.includes(id)) return prev.filter(x => x !== id);
+            if (prev.length >= 3) return prev;
+            return [...prev, id];
+        });
+    };
+
+    const handleSaveValueAssignment = async () => {
+        const result = await saveMonthlyAssignment(
+            selectedYear, selectedMonth,
+            currentAssignment?.goalIds || [],
+            selectedValueIds
+        );
+        if (result.success) {
+            addToast({ type: 'success', message: 'הערכים שובצו בהצלחה' });
+            setAssignValuesOpen(false);
+        } else {
+            addToast({ type: 'error', message: 'שגיאה בשיבוץ הערכים' });
+        }
+    };
+
+    // ==========================================
+    // Manage Definitions (Goals / Values)
+    // ==========================================
+    const openDefinitionForm = (item = null, isValue = false) => {
+        if (item) {
+            setEditingItem(item);
             setFormData({
-                title: goal.title,
-                description: goal.description,
-                category: goal.category || (isValueTab ? 'respect' : 'technical'),
-                icon: goal.icon || (isValueTab ? '❤️' : '🎯'),
-                month: goal.month ?? ''
+                title: item.title || '',
+                description: item.description || '',
+                category: item.category || (isValue ? 'respect' : 'technical'),
+                icon: item.icon || (isValue ? '❤️' : '🎯')
             });
         } else {
-            setEditingGoal(null);
+            setEditingItem(null);
             setFormData({
                 title: '',
                 description: '',
-                category: isValueTab ? 'respect' : 'technical',
-                icon: isValueTab ? '❤️' : '🎯',
-                month: ''
+                category: isValue ? 'respect' : 'technical',
+                icon: isValue ? '❤️' : '🎯'
             });
         }
-        setShowModal(true);
+        setShowDefinitionForm(true);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setEditingGoal(null);
+    const closeDefinitionForm = () => {
+        setShowDefinitionForm(false);
+        setEditingItem(null);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSaveGoalDefinition = async (e) => {
         e.preventDefault();
-
-        const goalData = {
-            ...formData,
-            month: formData.month === '' ? null : parseInt(formData.month),
-            type: isValueTab ? 'value' : 'group',
-            groupId: isValueTab ? null : selectedGroupId,
-            order: editingGoal?.order ?? (
-                isValueTab ? centerValues.length :
-                (groupGoals[selectedGroupId] || []).length
-            )
-        };
-
-        if (editingGoal) {
-            goalData.id = editingGoal.id;
-            goalData.createdAt = editingGoal.createdAt;
+        const data = { ...formData };
+        if (editingItem) {
+            data.id = editingItem.id;
+            data.createdAt = editingItem.createdAt;
         }
-
-        const result = await saveGoal(goalData);
-
+        const result = await saveGoal(data);
         if (result.success) {
-            const label = isValueTab ? 'הערך' : 'המטרה';
-            addToast({ type: 'success', message: editingGoal ? `${label} עודכן` : `${label} נוסף` });
-            handleCloseModal();
+            addToast({ type: 'success', message: editingItem ? 'המטרה עודכנה' : 'המטרה נוספה' });
+            closeDefinitionForm();
         } else {
-            addToast({ type: 'error', message: isValueTab ? 'שגיאה בשמירת הערך' : 'שגיאה בשמירת המטרה' });
+            addToast({ type: 'error', message: 'שגיאה בשמירת המטרה' });
         }
     };
 
-    const handleDelete = async (goal) => {
-        const label = goal.type === 'value' ? 'הערך' : 'המטרה';
-        if (!confirm(`האם למחוק את ${label}?`)) return;
-
-        const result = await deleteGoal(goal.id, goal.type, goal.groupId);
+    const handleSaveValueDefinition = async (e) => {
+        e.preventDefault();
+        const data = { ...formData };
+        if (editingItem) {
+            data.id = editingItem.id;
+            data.createdAt = editingItem.createdAt;
+        }
+        const result = await saveValue(data);
         if (result.success) {
-            addToast({ type: 'success', message: `${label} נמחק` });
+            addToast({ type: 'success', message: editingItem ? 'הערך עודכן' : 'הערך נוסף' });
+            closeDefinitionForm();
+        } else {
+            addToast({ type: 'error', message: 'שגיאה בשמירת הערך' });
+        }
+    };
+
+    const handleDeleteGoal = async (goal) => {
+        if (!confirm('האם למחוק את המטרה?')) return;
+        const result = await deleteGoal(goal.id);
+        if (result.success) {
+            addToast({ type: 'success', message: 'המטרה נמחקה' });
         } else {
             addToast({ type: 'error', message: 'שגיאה במחיקה' });
         }
     };
 
-    const currentGoals = selectedGroupId ? groupGoals[selectedGroupId] || [] : [];
+    const handleDeleteValue = async (value) => {
+        if (!confirm('האם למחוק את הערך?')) return;
+        const result = await deleteValue(value.id);
+        if (result.success) {
+            addToast({ type: 'success', message: 'הערך נמחק' });
+        } else {
+            addToast({ type: 'error', message: 'שגיאה במחיקה' });
+        }
+    };
 
-    const canEdit = userData?.role === 'supervisor';
-
-    const currentCategories = isValueTab ? VALUE_CATEGORIES : GOAL_CATEGORIES;
-
-    if (isLoading && centerValues.length === 0) {
+    if (isLoading && goals.length === 0 && values.length === 0) {
         return <Spinner.FullPage />;
     }
 
@@ -138,26 +235,72 @@ function GoalsPage() {
                 <h1 className={styles.title}>מטרות וערכים</h1>
             </div>
 
-            {/* Tabs */}
-            <div className={styles.tabs}>
+            {/* Month Navigator */}
+            <div className={styles.monthNav}>
                 <button
-                    className={`${styles.tab} ${activeTab === 'groups' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('groups')}
+                    className={styles.monthNavBtn}
+                    onClick={() => navigateMonth(-1)}
+                    aria-label="חודש קודם"
                 >
-                    <Target size={18} />
-                    מטרות
+                    <ChevronRight size={20} />
                 </button>
+                <span className={styles.monthLabel}>
+                    {HEBREW_MONTHS[selectedMonth]} {selectedYear}
+                </span>
                 <button
-                    className={`${styles.tab} ${activeTab === 'values' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('values')}
+                    className={styles.monthNavBtn}
+                    onClick={() => navigateMonth(1)}
+                    aria-label="חודש הבא"
                 >
-                    <Heart size={18} />
-                    ערכים
+                    <ChevronLeft size={20} />
                 </button>
             </div>
 
-            {/* Content */}
-            {isValueTab ? (
+            {/* Two sections */}
+            <div className={styles.sectionsGrid}>
+                {/* Goals Section */}
+                <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>
+                            <Target size={20} />
+                            מטרות
+                        </h2>
+                        {canEdit && (
+                            <div className={styles.adminButtons}>
+                                <Button size="small" onClick={openAssignGoals}>
+                                    שבץ מטרות
+                                </Button>
+                                <Button size="small" variant="ghost" onClick={() => setManageGoalsOpen(true)}>
+                                    <Settings size={16} />
+                                    נהל מטרות
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                    {assignedGoals.length > 0 ? (
+                        <div className={styles.cardsGrid}>
+                            {assignedGoals.map(goal => (
+                                <div key={goal.id} className={styles.goalCard}>
+                                    <div className={styles.cardIcon}>{goal.icon || '🎯'}</div>
+                                    <h3 className={styles.cardTitle}>{goal.title}</h3>
+                                    <p className={styles.cardDescription}>{goal.description}</p>
+                                    {goal.category && (
+                                        <span className={styles.cardCategory}>
+                                            {GOAL_CATEGORIES[goal.category.toUpperCase()]?.label || goal.category}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={styles.emptyState}>
+                            <Target className={styles.emptyIcon} />
+                            <div className={styles.emptyTitle}>לא שובצו מטרות לחודש זה</div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Values Section */}
                 <div className={styles.section}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
@@ -165,40 +308,27 @@ function GoalsPage() {
                             ערכים
                         </h2>
                         {canEdit && (
-                            <Button size="small" onClick={() => handleOpenModal()}>
-                                <Plus size={16} />
-                                הוסף ערך
-                            </Button>
+                            <div className={styles.adminButtons}>
+                                <Button size="small" onClick={openAssignValues}>
+                                    שבץ ערכים
+                                </Button>
+                                <Button size="small" variant="ghost" onClick={() => setManageValuesOpen(true)}>
+                                    <Settings size={16} />
+                                    נהל ערכים
+                                </Button>
+                            </div>
                         )}
                     </div>
-                    {centerValues.length > 0 ? (
-                        <div className={styles.valuesGrid}>
-                            {centerValues.map(value => (
+                    {assignedValues.length > 0 ? (
+                        <div className={styles.cardsGrid}>
+                            {assignedValues.map(value => (
                                 <div key={value.id} className={styles.valueCard}>
-                                    <div className={styles.valueCardHeader}>
-                                        <div className={styles.valueIcon}>{value.icon || '❤️'}</div>
-                                        {canEdit && (
-                                            <div className={styles.goalActions}>
-                                                <button
-                                                    className={styles.iconButton}
-                                                    onClick={() => handleOpenModal(value)}
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    className={`${styles.iconButton} ${styles.delete}`}
-                                                    onClick={() => handleDelete(value)}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={styles.valueTitle}>{value.title}</div>
-                                    <div className={styles.valueDescription}>{value.description}</div>
-                                    {value.month != null && (
-                                        <span className={styles.goalCategory}>
-                                            {HEBREW_MONTHS[value.month]}
+                                    <div className={styles.cardIcon}>{value.icon || '❤️'}</div>
+                                    <h3 className={styles.cardTitle}>{value.title}</h3>
+                                    <p className={styles.cardDescription}>{value.description}</p>
+                                    {value.category && (
+                                        <span className={styles.cardCategory}>
+                                            {VALUE_CATEGORIES[value.category.toUpperCase()]?.label || value.category}
                                         </span>
                                     )}
                                 </div>
@@ -207,180 +337,329 @@ function GoalsPage() {
                     ) : (
                         <div className={styles.emptyState}>
                             <Heart className={styles.emptyIcon} />
-                            <div className={styles.emptyTitle}>אין ערכים עדיין</div>
-                            <div className={styles.emptyDescription}>הגדר ערכים עבור המרכז</div>
+                            <div className={styles.emptyTitle}>לא שובצו ערכים לחודש זה</div>
                         </div>
                     )}
                 </div>
-            ) : (
-                <>
-                    {activeTab === 'groups' && (
-                        <div className={styles.formGroup} style={{ marginBottom: '24px' }}>
-                            <label className={styles.label}>בחר קבוצה</label>
-                            <select
-                                className={styles.select}
-                                value={selectedGroupId || ''}
-                                onChange={(e) => setSelectedGroupId(e.target.value)}
-                            >
-                                <option value="">-- בחר קבוצה --</option>
-                                {groups.map(group => (
-                                    <option key={group.id} value={group.id}>{group.name}</option>
-                                ))}
-                            </select>
+            </div>
+
+            {/* ==========================================
+                MODAL: Assign Goals
+            ========================================== */}
+            <Modal
+                isOpen={assignGoalsOpen}
+                onClose={() => setAssignGoalsOpen(false)}
+                title="שבץ מטרות"
+                size="medium"
+            >
+                <Modal.Body>
+                    <p className={styles.modalHint}>בחר עד 3 מטרות עבור {HEBREW_MONTHS[selectedMonth]} {selectedYear}</p>
+                    {goals.length > 0 ? (
+                        <div className={styles.selectionList}>
+                            {goals.map(goal => {
+                                const isSelected = selectedGoalIds.includes(goal.id);
+                                return (
+                                    <button
+                                        key={goal.id}
+                                        className={`${styles.selectionItem} ${isSelected ? styles.selected : ''}`}
+                                        onClick={() => toggleGoalSelection(goal.id)}
+                                        disabled={!isSelected && selectedGoalIds.length >= 3}
+                                    >
+                                        <div className={styles.selectionInfo}>
+                                            <span className={styles.selectionIcon}>{goal.icon || '🎯'}</span>
+                                            <div>
+                                                <div className={styles.selectionTitle}>{goal.title}</div>
+                                                {goal.description && (
+                                                    <div className={styles.selectionDesc}>{goal.description}</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {isSelected && (
+                                            <div className={styles.checkMark}>
+                                                <Check size={16} />
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className={styles.noItems}>
+                            אין מטרות מוגדרות. הוסף מטרות דרך &quot;נהל מטרות&quot;.
                         </div>
                     )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="ghost" onClick={() => setAssignGoalsOpen(false)}>ביטול</Button>
+                    <Button onClick={handleSaveGoalAssignment} disabled={isLoading}>שמור</Button>
+                </Modal.Footer>
+            </Modal>
 
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>
-                                <Target size={20} />
-                                מטרות
-                            </h2>
-                            {canEdit && selectedGroupId && (
-                                <Button size="small" onClick={() => handleOpenModal()}>
+            {/* ==========================================
+                MODAL: Assign Values
+            ========================================== */}
+            <Modal
+                isOpen={assignValuesOpen}
+                onClose={() => setAssignValuesOpen(false)}
+                title="שבץ ערכים"
+                size="medium"
+            >
+                <Modal.Body>
+                    <p className={styles.modalHint}>בחר עד 3 ערכים עבור {HEBREW_MONTHS[selectedMonth]} {selectedYear}</p>
+                    {values.length > 0 ? (
+                        <div className={styles.selectionList}>
+                            {values.map(value => {
+                                const isSelected = selectedValueIds.includes(value.id);
+                                return (
+                                    <button
+                                        key={value.id}
+                                        className={`${styles.selectionItem} ${isSelected ? styles.selected : ''}`}
+                                        onClick={() => toggleValueSelection(value.id)}
+                                        disabled={!isSelected && selectedValueIds.length >= 3}
+                                    >
+                                        <div className={styles.selectionInfo}>
+                                            <span className={styles.selectionIcon}>{value.icon || '❤️'}</span>
+                                            <div>
+                                                <div className={styles.selectionTitle}>{value.title}</div>
+                                                {value.description && (
+                                                    <div className={styles.selectionDesc}>{value.description}</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {isSelected && (
+                                            <div className={styles.checkMark}>
+                                                <Check size={16} />
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className={styles.noItems}>
+                            אין ערכים מוגדרים. הוסף ערכים דרך &quot;נהל ערכים&quot;.
+                        </div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="ghost" onClick={() => setAssignValuesOpen(false)}>ביטול</Button>
+                    <Button onClick={handleSaveValueAssignment} disabled={isLoading}>שמור</Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* ==========================================
+                MODAL: Manage Goal Definitions
+            ========================================== */}
+            <Modal
+                isOpen={manageGoalsOpen}
+                onClose={() => { setManageGoalsOpen(false); closeDefinitionForm(); }}
+                title="נהל מטרות"
+                size="large"
+            >
+                <Modal.Body>
+                    {!showDefinitionForm ? (
+                        <>
+                            <div className={styles.manageHeader}>
+                                <Button size="small" onClick={() => openDefinitionForm(null, false)}>
                                     <Plus size={16} />
                                     הוסף מטרה
                                 </Button>
-                            )}
-                        </div>
-
-                        {currentGoals.length > 0 ? (
-                            <div className={styles.goalsGrid}>
-                                {currentGoals.map(goal => (
-                                    <div key={goal.id} className={styles.goalCard}>
-                                        <div className={styles.goalCardHeader}>
-                                            <div className={styles.goalIcon}>{goal.icon || '🎯'}</div>
-                                            {canEdit && (
-                                                <div className={styles.goalActions}>
-                                                    <button
-                                                        className={styles.iconButton}
-                                                        onClick={() => handleOpenModal(goal)}
-                                                    >
-                                                        <Edit2 size={16} />
-                                                    </button>
-                                                    <button
-                                                        className={`${styles.iconButton} ${styles.delete}`}
-                                                        onClick={() => handleDelete(goal)}
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
+                            </div>
+                            {goals.length > 0 ? (
+                                <div className={styles.manageList}>
+                                    {goals.map(goal => (
+                                        <div key={goal.id} className={styles.manageItem}>
+                                            <div className={styles.manageItemInfo}>
+                                                <span className={styles.manageItemIcon}>{goal.icon || '🎯'}</span>
+                                                <div>
+                                                    <div className={styles.manageItemTitle}>{goal.title}</div>
+                                                    {goal.description && (
+                                                        <div className={styles.manageItemDesc}>{goal.description}</div>
+                                                    )}
                                                 </div>
-                                            )}
+                                            </div>
+                                            <div className={styles.manageItemActions}>
+                                                <button
+                                                    className={styles.iconButton}
+                                                    onClick={() => openDefinitionForm(goal, false)}
+                                                    aria-label="ערוך"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    className={`${styles.iconButton} ${styles.deleteBtn}`}
+                                                    onClick={() => handleDeleteGoal(goal)}
+                                                    aria-label="מחק"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </div>
-                                        <h3 className={styles.goalTitle}>{goal.title}</h3>
-                                        <p className={styles.goalDescription}>{goal.description}</p>
-                                        {goal.category && (
-                                            <span className={styles.goalCategory}>
-                                                {GOAL_CATEGORIES[goal.category]?.label || goal.category}
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.noItems}>אין מטרות מוגדרות עדיין</div>
+                            )}
+                        </>
+                    ) : (
+                        <form onSubmit={handleSaveGoalDefinition}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>כותרת</label>
+                                <input
+                                    type="text"
+                                    className={styles.input}
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    required
+                                />
                             </div>
-                        ) : (
-                            <div className={styles.emptyState}>
-                                <Target className={styles.emptyIcon} />
-                                <div className={styles.emptyTitle}>
-                                    {activeTab === 'groups' && !selectedGroupId
-                                        ? 'בחר קבוצה כדי לראות מטרות'
-                                        : 'אין מטרות עדיין'}
-                                </div>
-                                <div className={styles.emptyDescription}>
-                                    {activeTab === 'groups' && !selectedGroupId
-                                        ? 'בחר קבוצה מהרשימה למעלה'
-                                        : 'הגדר מטרות כדי לעקוב אחרי ההתקדמות'}
-                                </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>תיאור</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                />
                             </div>
-                        )}
-                    </div>
-                </>
-            )}
-
-            {/* Add/Edit Modal */}
-            {showModal && (
-                <div className={styles.modalOverlay} onClick={handleCloseModal}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
-                        <div className={styles.modalHeader}>
-                            <h3 className={styles.modalTitle}>
-                                {editingGoal
-                                    ? (isValueTab ? 'עריכת ערך' : 'עריכת מטרה')
-                                    : (isValueTab ? 'הוספת ערך' : 'הוספת מטרה')
-                                }
-                            </h3>
-                            <button className={styles.modalClose} onClick={handleCloseModal}>
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className={styles.modalBody}>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>כותרת</label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>תיאור</label>
-                                    <textarea
-                                        className={styles.textarea}
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>קטגוריה</label>
-                                    <select
-                                        className={styles.select}
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    >
-                                        {Object.values(currentCategories).map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>אייקון</label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={formData.icon}
-                                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                        placeholder={isValueTab ? '❤️' : '🎯'}
-                                    />
-                                </div>
-                                {isValueTab && (
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>חודש (אופציונלי)</label>
-                                        <select
-                                            className={styles.select}
-                                            value={formData.month}
-                                            onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-                                        >
-                                            <option value="">כל השנה</option>
-                                            {HEBREW_MONTHS.map((name, idx) => (
-                                                <option key={idx} value={idx}>{name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>קטגוריה</label>
+                                <select
+                                    className={styles.select}
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                >
+                                    {Object.values(GOAL_CATEGORIES).map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.label}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <div className={styles.modalFooter}>
-                                <Button type="button" variant="ghost" onClick={handleCloseModal}>
-                                    ביטול
-                                </Button>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>אייקון</label>
+                                <input
+                                    type="text"
+                                    className={styles.input}
+                                    value={formData.icon}
+                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                    placeholder="🎯"
+                                />
+                            </div>
+                            <div className={styles.formActions}>
+                                <Button type="button" variant="ghost" onClick={closeDefinitionForm}>ביטול</Button>
                                 <Button type="submit" disabled={isLoading}>
-                                    {editingGoal ? 'שמור' : 'הוסף'}
+                                    {editingItem ? 'שמור' : 'הוסף'}
                                 </Button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
+                    )}
+                </Modal.Body>
+            </Modal>
+
+            {/* ==========================================
+                MODAL: Manage Value Definitions
+            ========================================== */}
+            <Modal
+                isOpen={manageValuesOpen}
+                onClose={() => { setManageValuesOpen(false); closeDefinitionForm(); }}
+                title="נהל ערכים"
+                size="large"
+            >
+                <Modal.Body>
+                    {!showDefinitionForm ? (
+                        <>
+                            <div className={styles.manageHeader}>
+                                <Button size="small" onClick={() => openDefinitionForm(null, true)}>
+                                    <Plus size={16} />
+                                    הוסף ערך
+                                </Button>
+                            </div>
+                            {values.length > 0 ? (
+                                <div className={styles.manageList}>
+                                    {values.map(value => (
+                                        <div key={value.id} className={styles.manageItem}>
+                                            <div className={styles.manageItemInfo}>
+                                                <span className={styles.manageItemIcon}>{value.icon || '❤️'}</span>
+                                                <div>
+                                                    <div className={styles.manageItemTitle}>{value.title}</div>
+                                                    {value.description && (
+                                                        <div className={styles.manageItemDesc}>{value.description}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className={styles.manageItemActions}>
+                                                <button
+                                                    className={styles.iconButton}
+                                                    onClick={() => openDefinitionForm(value, true)}
+                                                    aria-label="ערוך"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    className={`${styles.iconButton} ${styles.deleteBtn}`}
+                                                    onClick={() => handleDeleteValue(value)}
+                                                    aria-label="מחק"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.noItems}>אין ערכים מוגדרים עדיין</div>
+                            )}
+                        </>
+                    ) : (
+                        <form onSubmit={handleSaveValueDefinition}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>כותרת</label>
+                                <input
+                                    type="text"
+                                    className={styles.input}
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>תיאור</label>
+                                <textarea
+                                    className={styles.textarea}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>קטגוריה</label>
+                                <select
+                                    className={styles.select}
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                >
+                                    {Object.values(VALUE_CATEGORIES).map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>אייקון</label>
+                                <input
+                                    type="text"
+                                    className={styles.input}
+                                    value={formData.icon}
+                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                    placeholder="❤️"
+                                />
+                            </div>
+                            <div className={styles.formActions}>
+                                <Button type="button" variant="ghost" onClick={closeDefinitionForm}>ביטול</Button>
+                                <Button type="submit" disabled={isLoading}>
+                                    {editingItem ? 'שמור' : 'הוסף'}
+                                </Button>
+                            </div>
+                        </form>
+                    )}
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

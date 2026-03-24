@@ -17,7 +17,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
 }
 
 .title {
@@ -26,49 +26,66 @@
     color: var(--text-primary);
 }
 
-/* Tabs */
-.tabs {
-    display: flex;
-    gap: var(--space-2);
-    margin-bottom: var(--space-6);
-    border-bottom: 1px solid var(--gray-200);
-    padding-bottom: var(--space-2);
-}
-
-.tab {
+/* Month Navigation */
+.monthNav {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    justify-content: center;
+    gap: var(--space-4);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
     padding: var(--space-3) var(--space-4);
-    border: none;
-    background: transparent;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
+}
+
+.monthNavBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background-color: var(--gray-100);
     color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
+    border: none;
     cursor: pointer;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
-.tab:hover {
-    background: var(--gray-100);
-    color: var(--text-primary);
-}
-
-.tab.active {
-    background: var(--primary-50);
+.monthNavBtn:hover {
+    background-color: var(--primary-100);
     color: var(--primary-700);
+}
+
+.monthLabel {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    min-width: 140px;
+    text-align: center;
+}
+
+/* Sections Grid - stacked on mobile, side by side on desktop */
+.sectionsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
 }
 
 /* Section */
 .section {
-    margin-bottom: var(--space-8);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
 }
 
 .sectionHeader {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--space-3);
     margin-bottom: var(--space-4);
 }
 
@@ -81,20 +98,25 @@
     gap: var(--space-2);
 }
 
-/* Goals Grid */
-.goalsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-4);
+.adminButtons {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+/* Cards Grid */
+.cardsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 /* Goal Card */
 .goalCard {
-    background: var(--bg-primary);
+    background: linear-gradient(135deg, var(--primary-50), white);
     border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--gray-200);
+    padding: var(--space-4);
+    border: 1px solid var(--primary-200);
     transition: all 0.2s ease;
 }
 
@@ -103,27 +125,209 @@
     border-color: var(--primary-300);
 }
 
-.goalCardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--space-3);
+/* Value Card */
+.valueCard {
+    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    border: 1px solid var(--primary-200);
+    transition: all 0.2s ease;
 }
 
-.goalIcon {
-    width: 40px;
-    height: 40px;
+.valueCard:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-300);
+}
+
+.cardIcon {
+    font-size: 28px;
+    margin-bottom: var(--space-2);
+}
+
+.cardTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.cardDescription {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.cardCategory {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+/* Empty State */
+.emptyState {
+    text-align: center;
+    padding: var(--space-8);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+}
+
+.emptyIcon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--space-3);
+    color: var(--gray-300);
+}
+
+.emptyTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+}
+
+/* Modal Hint */
+.modalHint {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+/* Selection List (for assignment modals) */
+.selectionList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.selectionItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: start;
+}
+
+.selectionItem:hover:not(:disabled) {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.selectionItem.selected {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+}
+
+.selectionItem:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.selectionInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.selectionIcon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.selectionTitle {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.selectionDesc {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin-top: var(--space-1);
+}
+
+.checkMark {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    background: var(--primary-50);
-    border-radius: var(--radius-md);
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--primary-500);
+    color: white;
+    flex-shrink: 0;
 }
 
-.goalActions {
+.noItems {
+    text-align: center;
+    padding: var(--space-6);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Manage Definitions */
+.manageHeader {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--space-4);
+}
+
+.manageList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.manageItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+}
+
+.manageItemInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 1;
+    min-width: 0;
+}
+
+.manageItemIcon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.manageItemTitle {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.manageItemDesc {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin-top: var(--space-1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.manageItemActions {
     display: flex;
     gap: var(--space-1);
+    flex-shrink: 0;
 }
 
 .iconButton {
@@ -134,6 +338,9 @@
     cursor: pointer;
     border-radius: var(--radius-sm);
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .iconButton:hover {
@@ -141,148 +348,12 @@
     color: var(--gray-600);
 }
 
-.iconButton.delete:hover {
+.deleteBtn:hover {
     background: var(--error-100);
     color: var(--error-600);
 }
 
-.goalTitle {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-}
-
-.goalDescription {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    line-height: 1.5;
-}
-
-.goalCategory {
-    display: inline-block;
-    margin-top: var(--space-3);
-    padding: var(--space-1) var(--space-2);
-    background: var(--gray-100);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    color: var(--text-tertiary);
-}
-
-/* Values Grid */
-.valuesGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: var(--space-4);
-}
-
-.valueCard {
-    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    text-align: center;
-    border: 1px solid var(--primary-200);
-}
-
-.valueCardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--space-2);
-}
-
-.valueIcon {
-    font-size: 36px;
-    margin-bottom: var(--space-3);
-}
-
-.valueTitle {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--primary-800);
-    margin-bottom: var(--space-2);
-}
-
-.valueDescription {
-    font-size: var(--font-size-sm);
-    color: var(--primary-600);
-    line-height: 1.4;
-}
-
-/* Empty State */
-.emptyState {
-    text-align: center;
-    padding: var(--space-10);
-    background: var(--gray-50);
-    border-radius: var(--radius-lg);
-}
-
-.emptyIcon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto var(--space-4);
-    color: var(--gray-300);
-}
-
-.emptyTitle {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-secondary);
-    margin-bottom: var(--space-2);
-}
-
-.emptyDescription {
-    font-size: var(--font-size-sm);
-    color: var(--text-tertiary);
-    margin-bottom: var(--space-4);
-}
-
-/* Modal Form */
-.modalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal {
-    background: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-xl);
-}
-
-.modalHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-4) var(--space-5);
-    border-bottom: 1px solid var(--gray-200);
-}
-
-.modalTitle {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-}
-
-.modalClose {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: var(--space-2);
-    color: var(--gray-500);
-}
-
-.modalBody {
-    padding: var(--space-5);
-}
-
+/* Form styles (inside modals) */
 .formGroup {
     margin-bottom: var(--space-4);
 }
@@ -304,6 +375,8 @@
     border-radius: var(--radius-md);
     font-family: inherit;
     font-size: var(--font-size-sm);
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .input:focus,
@@ -311,18 +384,20 @@
 .select:focus {
     outline: none;
     border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px var(--primary-100);
 }
 
 .textarea {
-    min-height: 100px;
+    min-height: 80px;
     resize: vertical;
 }
 
-.modalFooter {
+.formActions {
     display: flex;
     justify-content: flex-end;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--gray-200);
 }
 
@@ -335,41 +410,40 @@
     }
 
     .header {
-        margin-bottom: var(--space-8);
+        margin-bottom: var(--space-6);
     }
 
     .title {
         font-size: var(--font-size-3xl);
     }
 
-    .goalsGrid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-5);
-    }
-
-    .valuesGrid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-5);
+    .sectionsGrid {
+        flex-direction: row;
+        gap: var(--space-6);
     }
 
     .section {
-        margin-bottom: var(--space-10);
+        flex: 1;
+        padding: var(--space-5);
     }
 
-    .goalCard {
-        padding: var(--space-6);
+    .sectionHeader {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     }
 
+    .cardsGrid {
+        gap: var(--space-4);
+    }
+
+    .goalCard,
     .valueCard {
-        padding: var(--space-6);
+        padding: var(--space-5);
     }
 
     .emptyState {
-        padding: var(--space-12);
-    }
-
-    .modal {
-        max-width: 560px;
+        padding: var(--space-10);
     }
 }
 
@@ -379,21 +453,11 @@
         padding: var(--space-8);
     }
 
-    .goalsGrid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-6);
+    .sectionsGrid {
+        gap: var(--space-8);
     }
 
-    .valuesGrid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: var(--space-6);
-    }
-
-    .tabs {
-        gap: var(--space-3);
-    }
-
-    .tab {
-        padding: var(--space-3) var(--space-5);
+    .section {
+        padding: var(--space-6);
     }
 }
