@@ -110,36 +110,38 @@ function GroupList() {
                 </Button>
             </div>
 
-            {/* Search */}
-            <div className={styles.searchWrapper}>
-                <Search size={18} className={styles.searchIcon} />
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="חיפוש קבוצה..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-            </div>
-
-            {/* Center Filter - only for supervisors */}
-            {isSupervisor && centers.length > 0 && (
-                <div className={styles.centerFilter}>
-                    <MapPin size={16} className={styles.centerFilterIcon} />
-                    <select
-                        className={styles.centerSelect}
-                        value={selectedCenter}
-                        onChange={(e) => setSelectedCenter(e.target.value)}
-                    >
-                        <option value="all">כל המרכזים</option>
-                        {centers.map(center => (
-                            <option key={center.id} value={center.id}>
-                                {center.name}
-                            </option>
-                        ))}
-                    </select>
+            {/* Filters Row */}
+            <div className={styles.filtersRow}>
+                <div className={styles.searchWrapper}>
+                    <Search size={18} className={styles.searchIcon} />
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="חיפוש קבוצה..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-            )}
+
+                {/* Center Filter - only for supervisors */}
+                {isSupervisor && centers.length > 0 && (
+                    <div className={styles.centerSelectWrapper}>
+                        <MapPin size={16} className={styles.centerFilterIcon} />
+                        <select
+                            className={styles.centerSelect}
+                            value={selectedCenter}
+                            onChange={(e) => setSelectedCenter(e.target.value)}
+                        >
+                            <option value="all">כל המרכזים</option>
+                            {centers.map(center => (
+                                <option key={center.id} value={center.id}>
+                                    {center.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+            </div>
 
             {/* Type Tabs */}
             {groupTypes.length > 0 && (
