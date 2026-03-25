@@ -127,7 +127,7 @@ const ManagerDashboard = () => {
                                 return (
                                     <div key={groupType.id} className={styles.goalRow}>
                                         <span className={styles.goalGroupLabel}>{groupType.name}</span>
-                                        <span className={styles.goalText}>{goal}</span>
+                                        <span className={`${styles.tag} ${styles.tagGoal}`}>{goal}</span>
                                     </div>
                                 );
                             })

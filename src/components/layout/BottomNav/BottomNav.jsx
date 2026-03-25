@@ -13,9 +13,9 @@ function BottomNav() {
         if (userData?.role === ROLES.CENTER_MANAGER) {
             return [
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-                { to: '/users', icon: UserCog, label: 'מאמנים' },
-                { to: '/groups', icon: Users, label: 'קבוצות' },
+                { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
                 { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
+                { to: '/users', icon: UserCog, label: 'מאמנים' },
             ];
         }
 
@@ -23,7 +23,7 @@ function BottomNav() {
         if (userData?.role === ROLES.SUPERVISOR) {
             return [
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-                { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
+                { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
                 { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                 { to: '/users', icon: UserCog, label: 'משתמשים' },
             ];

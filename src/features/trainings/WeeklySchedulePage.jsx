@@ -14,6 +14,7 @@ import {
     ChevronRight,
     AlertCircle,
     Plus,
+    Filter,
 } from 'lucide-react';
 
 import useAuthStore from '../../stores/authStore';
@@ -21,6 +22,7 @@ import useTrainingsStore from '../../stores/trainingsStore';
 import useEventsStore from '../../stores/eventsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import useUsersStore from '../../stores/usersStore';
+import useCentersStore from '../../stores/centersStore';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
@@ -45,8 +47,12 @@ export default function WeeklySchedulePage() {
     const { events, fetchEvents, isLoading: isEventsLoading } = useEventsStore();
     const { groups, fetchGroups } = useGroupsStore();
     const { users, fetchUsers } = useUsersStore();
+    const { centers, fetchCenters } = useCentersStore();
     const isCenterManager = userData?.role === 'centerManager';
+    const isSupervisor = userData?.role === 'supervisor';
+    const isViewOnly = isCenterManager || isSupervisor;
     const [selectedGroup, setSelectedGroup] = useState('all');
+    const [filterCenterId, setFilterCenterId] = useState('all');
     const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Calculate week range
@@ -63,14 +69,18 @@ export default function WeeklySchedulePage() {
             fetchEvents(today.getFullYear(), weekEnd.getMonth());
         }
 
-        if (isCenterManager) {
+        if (isSupervisor) {
+            fetchUsers();
+            fetchCenters();
+            fetchGroups(userData.id, false);
+        } else if (isCenterManager) {
             fetchUsers();
             fetchGroups(userData.id, false, userData.managedCenterId);
         } else {
             fetchGroups(userData.id);
             fetchTrainings(userData.id, weekStart, weekEnd);
         }
-    }, [userData?.id, isCenterManager]);
+    }, [userData?.id, isCenterManager, isSupervisor]);
 
     // For center managers: fetch trainings for all center coaches once users are loaded
     useEffect(() => {
@@ -82,6 +92,25 @@ export default function WeeklySchedulePage() {
         useTrainingsStore.getState().fetchCenterTrainings(coachIds, weekStart, weekEnd);
     }, [isCenterManager, users?.length]);
 
+    // For supervisors: fetch trainings for ALL coaches once users are loaded
+    useEffect(() => {
+        if (!isSupervisor || !users || users.length === 0) return;
+        const coachIds = users
+            .filter(u => u.role === 'coach')
+            .map(u => u.id);
+        useTrainingsStore.getState().fetchCenterTrainings(coachIds, weekStart, weekEnd);
+    }, [isSupervisor, users?.length]);
+
+    // Build a set of coach IDs belonging to the selected center (for supervisor filtering)
+    const filteredCoachIds = useMemo(() => {
+        if (!isSupervisor || filterCenterId === 'all' || !users) return null;
+        return new Set(
+            users
+                .filter(u => u.role === 'coach' && u.centerIds?.includes(filterCenterId))
+                .map(u => u.id)
+        );
+    }, [isSupervisor, filterCenterId, users]);
+
     const getDayContent = (day) => {
         const dayEvents = events.filter(e => {
             const d = normalizeDate(e.date);
@@ -91,6 +120,7 @@ export default function WeeklySchedulePage() {
         const dayTrainings = trainings
             .filter(t => {
                 if (selectedGroup !== 'all' && t.groupId !== selectedGroup) return false;
+                if (filteredCoachIds && !filteredCoachIds.has(t.coachId)) return false;
                 const d = normalizeDate(t.date);
                 return isSameDay(d, day);
             })
@@ -126,7 +156,7 @@ export default function WeeklySchedulePage() {
                         {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
                     </p>
                 </div>
-                {!isCenterManager && (
+                {!isViewOnly && (
                 <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
                     <Plus size={20} />
                 </Button>
@@ -168,6 +198,25 @@ export default function WeeklySchedulePage() {
                     );
                 })}
             </div>
+
+            {/* Center Filter (supervisor only) */}
+            {isSupervisor && (
+                <div className={styles.centerFilter}>
+                    <Filter size={18} color="var(--text-secondary)" />
+                    <select
+                        className={styles.centerSelect}
+                        value={filterCenterId}
+                        onChange={(e) => setFilterCenterId(e.target.value)}
+                    >
+                        <option value="all">כל המרכזים</option>
+                        {centers.map(center => (
+                            <option key={center.id} value={center.id}>
+                                {center.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             <div className={styles.listContainer}>
                 {days.map((day) => {
@@ -215,7 +264,7 @@ export default function WeeklySchedulePage() {
                                             duration: `${t.durationMinutes || 60} דק'`,
                                             location: t.location || 'מגרש ראשי'
                                         })}
-                                        onStatusToggle={isCenterManager ? undefined : handleStatusToggle}
+                                        onStatusToggle={isViewOnly ? undefined : handleStatusToggle}
                                     />
                                 );
                             })}
@@ -224,7 +273,7 @@ export default function WeeklySchedulePage() {
                                 <div className={styles.emptyText}>אין פעילות</div>
                             )}
 
-                            {!isCenterManager && (
+                            {!isViewOnly && (
                             <Button
                                 variant="ghost"
                                 className={styles.addTrainingButton}

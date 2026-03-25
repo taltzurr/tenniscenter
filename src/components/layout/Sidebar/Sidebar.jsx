@@ -52,8 +52,7 @@ function Sidebar() {
                         { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                         { to: '/users', icon: UserCog, label: 'מאמנים' },
                         { to: '/groups', icon: Users, label: 'קבוצות' },
-                        { to: '/weekly-schedule', icon: Calendar, label: 'לוז שבועי' },
-                        { to: '/calendar', icon: CalendarDays, label: 'לוח חודשי' },
+                        { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
                     ]
                 },
                 {
@@ -61,14 +60,43 @@ function Sidebar() {
                     items: [
                         { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
                         { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
-                        { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
+                        { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]
                 }
             ];
         }
 
-        // Coach and Supervisor navigation (original)
+        // Supervisor navigation
+        if (userData?.role === ROLES.SUPERVISOR) {
+            return [
+                {
+                    section: 'ראשי',
+                    items: [
+                        { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
+                        { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
+                    ]
+                },
+                {
+                    section: 'ניהול',
+                    items: [
+                        { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
+                        { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
+                        { to: '/monthly-plans/review', icon: CalendarCheck, label: 'אישור תכניות' },
+                    ]
+                },
+                {
+                    section: 'ניהול מערכת',
+                    items: [
+                        { to: '/centers', icon: Building2, label: 'מרכזים' },
+                        { to: '/users', icon: UserCog, label: 'משתמשים' },
+                        { to: '/settings', icon: Settings, label: 'הגדרות' },
+                    ]
+                }
+            ];
+        }
+
+        // Coach navigation
         const items = [
             {
                 section: 'ראשי',
@@ -84,25 +112,11 @@ function Sidebar() {
                     { to: '/groups', icon: Users, label: 'קבוצות' },
                     { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
                     { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
-                    { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
+                    { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
                     { to: '/settings', icon: Settings, label: 'הגדרות' },
                 ]
             }
         ];
-
-        // Add supervisor-only items
-        if (userData?.role === ROLES.SUPERVISOR) {
-            items.push({
-                section: 'ניהול מערכת',
-                items: [
-                    { to: '/centers', icon: Building2, label: 'מרכזים' },
-                    { to: '/users', icon: UserCog, label: 'משתמשים' },
-                    { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
-                    { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
-                    { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
-                ]
-            });
-        }
 
         return items;
     };

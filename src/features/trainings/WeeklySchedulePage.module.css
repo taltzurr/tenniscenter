@@ -111,6 +111,29 @@
     display: none;
 }
 
+/* Center Filter (supervisor) */
+.centerFilter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    margin-bottom: var(--space-3);
+}
+
+.centerSelect {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+    outline: none;
+}
+
 /* Group Filter Chips */
 .groupChips {
     display: flex;

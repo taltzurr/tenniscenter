@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, Filter } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useEventsStore from '../../../stores/eventsStore';
@@ -16,6 +16,8 @@ import styles from './EventsCalendarPage.module.css';
 
 function EventsCalendarPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const calendarRef = useRef(null);
     const { userData, isSupervisor } = useAuthStore();
     const { fetchTheme, saveTheme, isLoading: themesLoading } = useMonthlyThemesStore();
     const { events, fetchEvents, addEvent, editEvent, removeEvent, isLoading: eventsLoading } = useEventsStore();
@@ -59,6 +61,15 @@ function EventsCalendarPage() {
     const [showEventModal, setShowEventModal] = useState(false);
     const [currentEvent, setCurrentEvent] = useState(null); // If editing
     const [eventDate, setEventDate] = useState(null); // Selected date for new event
+
+    // Scroll to calendar section if hash is #calendar
+    useEffect(() => {
+        if (location.hash === '#calendar' && calendarRef.current) {
+            setTimeout(() => {
+                calendarRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+    }, [location.hash]);
 
     // Fetch centers list for supervisor filter
     useEffect(() => {
@@ -327,7 +338,7 @@ function EventsCalendarPage() {
 
             <div className={styles.container}>
                 {/* Left: Interactive Calendar */}
-                <div className={styles.calendarSection}>
+                <div ref={calendarRef} className={styles.calendarSection}>
                     <div className={styles.calendarHeader}>
                         <h2 className={styles.cardTitle}>לוח שנה ארגוני</h2>
                         <div className={styles.calendarLegend}>
