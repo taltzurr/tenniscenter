@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, Filter } from 'lucide-react';
+import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, Building2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
@@ -54,8 +54,8 @@ function EventsCalendarPage() {
         goals: emptyGoals()
     });
 
-    // Center filter (supervisors can filter by center)
-    const [filterCenterId, setFilterCenterId] = useState('all');
+    // Center filter (supervisors can filter by center - multi-select)
+    const [selectedCenterIds, setSelectedCenterIds] = useState([]);
 
     // Events State
     const [showEventModal, setShowEventModal] = useState(false);
@@ -94,17 +94,12 @@ function EventsCalendarPage() {
                 setThemesFormData({ values: '', goals: emptyGoals() });
             }
 
-            // Load Events - apply center filter
-            let centerId;
-            if (isSupervisor()) {
-                centerId = filterCenterId === 'all' ? null : filterCenterId;
-            } else {
-                centerId = userData?.managedCenterId;
-            }
+            // Load Events - supervisor fetches all, center manager fetches own center
+            const centerId = isSupervisor() ? null : userData?.managedCenterId;
             await fetchEvents(selectedYear, selectedMonth, centerId);
         };
         loadData();
-    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor, filterCenterId]);
+    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
 
     // Theme Handlers
     const handleSaveThemes = async (e) => {
@@ -255,7 +250,12 @@ function EventsCalendarPage() {
         for (let day = 1; day <= daysInMonth; day++) {
             const dateEvents = events.filter(e => {
                 const d = e.date?.seconds ? new Date(e.date.seconds * 1000) : e.date;
-                return d.getDate() === day;
+                if (d.getDate() !== day) return false;
+                // Apply center filter for supervisor
+                if (isSupervisor() && selectedCenterIds.length > 0) {
+                    return selectedCenterIds.includes(e.centerId);
+                }
+                return true;
             });
 
             const isToday =
@@ -350,20 +350,33 @@ function EventsCalendarPage() {
                             ))}
                         </div>
                     </div>
-                    {/* Center filter for supervisors */}
+                    {/* Center filter chips for supervisors (multi-select) */}
                     {isSupervisor() && centers.length > 0 && (
-                        <div className={styles.centerFilter}>
-                            <Filter size={16} />
-                            <select
-                                className={styles.centerSelect}
-                                value={filterCenterId}
-                                onChange={(e) => setFilterCenterId(e.target.value)}
+                        <div className={styles.centerChips}>
+                            <button
+                                className={`${styles.centerChip} ${selectedCenterIds.length === 0 ? styles.centerChipActive : ''}`}
+                                onClick={() => setSelectedCenterIds([])}
                             >
-                                <option value="all">כל המרכזים</option>
-                                {centers.map(c => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
+                                <Building2 size={14} />
+                                כל המרכזים
+                            </button>
+                            {centers.map(c => {
+                                const isActive = selectedCenterIds.includes(c.id);
+                                return (
+                                    <button
+                                        key={c.id}
+                                        className={`${styles.centerChip} ${isActive ? styles.centerChipActive : ''}`}
+                                        onClick={() => setSelectedCenterIds(prev =>
+                                            prev.includes(c.id)
+                                                ? prev.filter(id => id !== c.id)
+                                                : [...prev, c.id]
+                                        )}
+                                    >
+                                        <Building2 size={14} />
+                                        {c.name}
+                                    </button>
+                                );
+                            })}
                         </div>
                     )}
                     {renderCalendar()}

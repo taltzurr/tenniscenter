@@ -18,6 +18,7 @@ import useTrainingsStore from '../../stores/trainingsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import useEventsStore from '../../stores/eventsStore';
 import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
+import { DEFAULT_GROUP_TYPES } from '../../config/constants';
 import { normalizeDate, formatHebrewTime, isSameDay } from '../../utils/dateUtils';
 import { getGreeting } from '../../utils/greeting';
 import TrainingDetailsModal from './TrainingDetailsModal';
@@ -190,11 +191,24 @@ function CoachDashboard() {
     }, [currentTheme]);
 
     const monthlyGoals = useMemo(() => {
-        if (currentTheme?.goals && currentTheme.goals.length > 0) {
-            return currentTheme.goals.map((g, i) => ({ id: `g-${i}`, name: g }));
-        }
-        return [];
-    }, [currentTheme]);
+        if (!currentTheme?.goals || typeof currentTheme.goals !== 'object') return [];
+
+        // Get the coach's group type IDs
+        const coachGroupTypeIds = new Set(
+            groups.map(g => g.groupTypeId).filter(Boolean)
+        );
+
+        // Filter goals by coach's group types and build display array
+        const typeNameMap = Object.fromEntries(DEFAULT_GROUP_TYPES.map(t => [t.id, t.name]));
+
+        return Object.entries(currentTheme.goals)
+            .filter(([typeId, value]) => value && value.trim() && coachGroupTypeIds.has(typeId))
+            .map(([typeId, value]) => ({
+                id: typeId,
+                name: value,
+                typeName: typeNameMap[typeId] || typeId,
+            }));
+    }, [currentTheme, groups]);
 
     const handleTrainingClick = (training) => {
         const original = trainings.find(t => t.id === training.id);
@@ -343,9 +357,12 @@ function CoachDashboard() {
                     </div>
                     <div className={styles.cardContent}>
                         {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
-                            <span key={goal.id} className={`${styles.tag} ${styles.tagGoal}`}>
-                                {goal.name}
-                            </span>
+                            <div key={goal.id} className={styles.goalRow}>
+                                <span className={styles.goalTypeLabel}>{goal.typeName}</span>
+                                <span className={`${styles.tag} ${styles.tagGoal}`}>
+                                    {goal.name}
+                                </span>
+                            </div>
                         )) : (
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
                                 שאל את המנהל שלך על המטרות החודש

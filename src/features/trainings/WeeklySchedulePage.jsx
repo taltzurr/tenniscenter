@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
     format,
     startOfWeek,
     endOfWeek,
     eachDayOfInterval,
     isSameDay,
-    addDays,
     isToday
 } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -14,7 +13,7 @@ import {
     ChevronRight,
     AlertCircle,
     Plus,
-    Filter,
+    Building2,
 } from 'lucide-react';
 
 import useAuthStore from '../../stores/authStore';
@@ -52,13 +51,13 @@ export default function WeeklySchedulePage() {
     const isSupervisor = userData?.role === 'supervisor';
     const isViewOnly = isCenterManager || isSupervisor;
     const [selectedGroup, setSelectedGroup] = useState('all');
-    const [filterCenterId, setFilterCenterId] = useState('all');
+    const [selectedCenterIds, setSelectedCenterIds] = useState([]);
     const [selectedTraining, setSelectedTraining] = useState(null);
 
     // Calculate week range
     const today = useMemo(() => new Date(), []);
-    const weekStart = useMemo(() => startOfWeek(today, { weekStartsOn: 0 }), [today]); // Sunday
-    const weekEnd = useMemo(() => endOfWeek(today, { weekStartsOn: 0 }), [today]); // Saturday
+    const weekStart = useMemo(() => startOfWeek(today, { weekStartsOn: 0 }), [today]);
+    const weekEnd = useMemo(() => endOfWeek(today, { weekStartsOn: 0 }), [today]);
     const days = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd]);
 
     useEffect(() => {
@@ -75,6 +74,7 @@ export default function WeeklySchedulePage() {
             fetchGroups(userData.id, false);
         } else if (isCenterManager) {
             fetchUsers();
+            fetchCenters();
             fetchGroups(userData.id, false, userData.managedCenterId);
         } else {
             fetchGroups(userData.id);
@@ -101,15 +101,52 @@ export default function WeeklySchedulePage() {
         useTrainingsStore.getState().fetchCenterTrainings(coachIds, weekStart, weekEnd);
     }, [isSupervisor, users?.length]);
 
-    // Build a set of coach IDs belonging to the selected center (for supervisor filtering)
+    // Map coachId → user object for name lookup
+    const coachMap = useMemo(() => {
+        if (!users) return {};
+        return Object.fromEntries(users.filter(u => u.role === 'coach').map(u => [u.id, u]));
+    }, [users]);
+
+    // Map coachId → primary centerId
+    const coachCenterMap = useMemo(() => {
+        if (!users) return {};
+        const map = {};
+        users.filter(u => u.role === 'coach').forEach(u => {
+            if (u.centerIds?.length > 0) {
+                map[u.id] = u.centerIds[0];
+            }
+        });
+        return map;
+    }, [users]);
+
+    // Build filtered coach IDs based on selected centers
     const filteredCoachIds = useMemo(() => {
-        if (!isSupervisor || filterCenterId === 'all' || !users) return null;
-        return new Set(
-            users
-                .filter(u => u.role === 'coach' && u.centerIds?.includes(filterCenterId))
-                .map(u => u.id)
+        if (!isViewOnly || !users) return null;
+
+        if (isCenterManager) {
+            const centerId = userData?.managedCenterId;
+            return new Set(
+                users.filter(u => u.role === 'coach' && u.centerIds?.includes(centerId)).map(u => u.id)
+            );
+        }
+
+        if (isSupervisor && selectedCenterIds.length > 0) {
+            const centerSet = new Set(selectedCenterIds);
+            return new Set(
+                users.filter(u => u.role === 'coach' && u.centerIds?.some(c => centerSet.has(c))).map(u => u.id)
+            );
+        }
+
+        return null;
+    }, [isViewOnly, isCenterManager, isSupervisor, selectedCenterIds, users, userData?.managedCenterId]);
+
+    const toggleCenterFilter = (centerId) => {
+        setSelectedCenterIds(prev =>
+            prev.includes(centerId)
+                ? prev.filter(id => id !== centerId)
+                : [...prev, centerId]
         );
-    }, [isSupervisor, filterCenterId, users]);
+    };
 
     const getDayContent = (day) => {
         const dayEvents = events.filter(e => {
@@ -119,7 +156,7 @@ export default function WeeklySchedulePage() {
 
         const dayTrainings = trainings
             .filter(t => {
-                if (selectedGroup !== 'all' && t.groupId !== selectedGroup) return false;
+                if (!isViewOnly && selectedGroup !== 'all' && t.groupId !== selectedGroup) return false;
                 if (filteredCoachIds && !filteredCoachIds.has(t.coachId)) return false;
                 const d = normalizeDate(t.date);
                 return isSameDay(d, day);
@@ -127,6 +164,28 @@ export default function WeeklySchedulePage() {
             .sort((a, b) => (normalizeDate(a.date) || 0) - (normalizeDate(b.date) || 0));
 
         return { dayEvents, dayTrainings };
+    };
+
+    // Group trainings by center for manager views
+    const groupTrainingsByCenter = (dayTrainings) => {
+        const grouped = {};
+        dayTrainings.forEach(t => {
+            const centerId = coachCenterMap[t.coachId] || 'unknown';
+            if (!grouped[centerId]) grouped[centerId] = [];
+            grouped[centerId].push(t);
+        });
+        // Sort centers by name
+        const sorted = Object.entries(grouped).sort((a, b) => {
+            const nameA = getCenterName(a[0]);
+            const nameB = getCenterName(b[0]);
+            return nameA.localeCompare(nameB, 'he');
+        });
+        return sorted;
+    };
+
+    const getCenterName = (centerId) => {
+        const center = centers.find(c => c.id === centerId);
+        return center?.name || 'מרכז לא ידוע';
     };
 
     const handleBack = () => {
@@ -139,9 +198,48 @@ export default function WeeklySchedulePage() {
         await editTraining(trainingId, { status: newStatus });
     };
 
+    const handleTrainingClick = (training, day) => {
+        const group = groups.find(g => g.id === training.groupId);
+        const coach = coachMap[training.coachId];
+        setSelectedTraining({
+            ...training,
+            coachName: coach?.displayName || training.coachName || '',
+            group: group?.name || training.groupName || 'קבוצה',
+            day: format(day, 'EEEE', { locale: he }),
+            fullDate: format(day, 'd בMMMM', { locale: he }),
+            time: format(normalizeDate(training.date), 'HH:mm'),
+            duration: `${training.durationMinutes || 60} דק'`,
+            location: training.location || 'מגרש ראשי'
+        });
+    };
+
     if (isTrainingsLoading || isEventsLoading) {
         return <Spinner.FullPage />;
     }
+
+    const renderTrainingCard = (training, day) => {
+        const group = groups.find(g => g.id === training.groupId);
+        const coach = coachMap[training.coachId];
+        const enrichedTraining = isViewOnly ? {
+            ...training,
+            coachName: coach?.displayName || training.coachName || '',
+        } : training;
+
+        return (
+            <TrainingCard
+                key={training.id}
+                training={enrichedTraining}
+                group={group}
+                variant="compact"
+                clickable
+                toggleable
+                showCoach={isViewOnly}
+                hideLocation={isViewOnly}
+                onClick={(t) => handleTrainingClick(t, day)}
+                onStatusToggle={isViewOnly ? undefined : handleStatusToggle}
+            />
+        );
+    };
 
     return (
         <div className={styles.page}>
@@ -150,71 +248,77 @@ export default function WeeklySchedulePage() {
                     <ChevronRight size={24} />
                     <span className={styles.backButtonLabel}>חזרה</span>
                 </Button>
-                <div>
+                <div className={styles.headerContent}>
                     <h1 className={styles.title}>אימוני השבוע</h1>
                     <p className={styles.subtitle}>
                         {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
                     </p>
                 </div>
                 {!isViewOnly && (
-                <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
-                    <Plus size={20} />
-                </Button>
+                    <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
+                        <Plus size={20} />
+                    </Button>
                 )}
             </div>
 
-            {/* Group Filter */}
-            <div className={`${styles.groupChips} hide-scrollbar`}>
-                <button
-                    className={`${styles.filterChip} ${selectedGroup === 'all' ? styles.active : ''}`}
-                    onClick={() => setSelectedGroup('all')}
-                >
-                    <div
-                        className={styles.groupDot}
-                        style={{ backgroundColor: 'var(--text-secondary)' }}
-                    />
-                    כל הקבוצות
-                </button>
-                {groups.map(group => {
-                    const isActive = selectedGroup === group.id;
-                    const color = group.color || stringToColor(group.name);
-                    return (
-                        <button
-                            key={group.id}
-                            className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
-                            style={isActive ? {
-                                borderColor: color,
-                                backgroundColor: `${color}10`,
-                                color: color
-                            } : undefined}
-                            onClick={() => setSelectedGroup(group.id)}
-                        >
-                            <div
-                                className={styles.groupDot}
-                                style={{ backgroundColor: isActive ? 'currentColor' : color }}
-                            />
-                            {group.name}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {/* Center Filter (supervisor only) */}
-            {isSupervisor && (
-                <div className={styles.centerFilter}>
-                    <Filter size={18} color="var(--text-secondary)" />
-                    <select
-                        className={styles.centerSelect}
-                        value={filterCenterId}
-                        onChange={(e) => setFilterCenterId(e.target.value)}
+            {/* Coach: Group Filter Chips */}
+            {!isViewOnly && (
+                <div className={`${styles.groupChips} hide-scrollbar`}>
+                    <button
+                        className={`${styles.filterChip} ${selectedGroup === 'all' ? styles.active : ''}`}
+                        onClick={() => setSelectedGroup('all')}
                     >
-                        <option value="all">כל המרכזים</option>
-                        {centers.map(center => (
-                            <option key={center.id} value={center.id}>
+                        <div className={styles.groupDot} style={{ backgroundColor: 'var(--text-secondary)' }} />
+                        כל הקבוצות
+                    </button>
+                    {groups.map(group => {
+                        const isActive = selectedGroup === group.id;
+                        const color = group.color || stringToColor(group.name);
+                        return (
+                            <button
+                                key={group.id}
+                                className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
+                                style={isActive ? {
+                                    borderColor: color,
+                                    backgroundColor: `${color}10`,
+                                    color: color
+                                } : undefined}
+                                onClick={() => setSelectedGroup(group.id)}
+                            >
+                                <div
+                                    className={styles.groupDot}
+                                    style={{ backgroundColor: isActive ? 'currentColor' : color }}
+                                />
+                                {group.name}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Supervisor: Center Filter Chips (multi-select) */}
+            {isSupervisor && centers.length > 0 && (
+                <div className={`${styles.groupChips} hide-scrollbar`}>
+                    <button
+                        className={`${styles.filterChip} ${selectedCenterIds.length === 0 ? styles.active : ''}`}
+                        onClick={() => setSelectedCenterIds([])}
+                    >
+                        <Building2 size={14} />
+                        כל המרכזים
+                    </button>
+                    {centers.map(center => {
+                        const isActive = selectedCenterIds.includes(center.id);
+                        return (
+                            <button
+                                key={center.id}
+                                className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
+                                onClick={() => toggleCenterFilter(center.id)}
+                            >
+                                <Building2 size={14} />
                                 {center.name}
-                            </option>
-                        ))}
-                    </select>
+                            </button>
+                        );
+                    })}
                 </div>
             )}
 
@@ -244,43 +348,33 @@ export default function WeeklySchedulePage() {
                                 </div>
                             ))}
 
-                            {/* Trainings */}
-                            {dayTrainings.map(training => {
-                                const group = groups.find(g => g.id === training.groupId);
-                                return (
-                                    <TrainingCard
-                                        key={training.id}
-                                        training={training}
-                                        group={group}
-                                        variant="compact"
-                                        clickable
-                                        toggleable
-                                        onClick={(t) => setSelectedTraining({
-                                            ...t,
-                                            group: group?.name || t.groupName || 'קבוצה',
-                                            day: format(day, 'EEEE', { locale: he }),
-                                            fullDate: format(day, 'd בMMMM', { locale: he }),
-                                            time: format(normalizeDate(t.date), 'HH:mm'),
-                                            duration: `${t.durationMinutes || 60} דק'`,
-                                            location: t.location || 'מגרש ראשי'
-                                        })}
-                                        onStatusToggle={isViewOnly ? undefined : handleStatusToggle}
-                                    />
-                                );
-                            })}
+                            {/* Trainings - grouped by center for managers */}
+                            {isViewOnly && dayTrainings.length > 0 ? (
+                                groupTrainingsByCenter(dayTrainings).map(([centerId, centerTrainings]) => (
+                                    <div key={centerId} className={styles.centerGroup}>
+                                        <div className={styles.centerGroupHeader}>
+                                            <Building2 size={14} />
+                                            <span>{getCenterName(centerId)}</span>
+                                        </div>
+                                        {centerTrainings.map(training => renderTrainingCard(training, day))}
+                                    </div>
+                                ))
+                            ) : (
+                                dayTrainings.map(training => renderTrainingCard(training, day))
+                            )}
 
                             {!hasContent && (
                                 <div className={styles.emptyText}>אין פעילות</div>
                             )}
 
                             {!isViewOnly && (
-                            <Button
-                                variant="ghost"
-                                className={styles.addTrainingButton}
-                                onClick={() => navigate(`/trainings/new?date=${format(day, 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}
-                            >
-                                <Plus size={16} /> הוסף אימון
-                            </Button>
+                                <Button
+                                    variant="ghost"
+                                    className={styles.addTrainingButton}
+                                    onClick={() => navigate(`/trainings/new?date=${format(day, 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}
+                                >
+                                    <Plus size={16} /> הוסף אימון
+                                </Button>
                             )}
                         </div>
                     );

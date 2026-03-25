@@ -355,9 +355,13 @@
 .cardContent {
     display: flex;
     flex-wrap: wrap;
-    /* Allow wrapping */
     gap: var(--space-2);
     align-items: center;
+}
+
+.cardContent:has(.goalRow) {
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .tag {
@@ -382,6 +386,21 @@
     background-color: var(--primary-50);
     color: var(--primary-700);
     border-color: var(--primary-200);
+}
+
+.goalRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+}
+
+.goalTypeLabel {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: fit-content;
+    white-space: nowrap;
 }
 
 .valuesContent::-webkit-scrollbar {

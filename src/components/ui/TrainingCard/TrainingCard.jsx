@@ -12,6 +12,7 @@ import styles from './TrainingCard.module.css';
  * @param {boolean} clickable - Whether the card is clickable
  * @param {boolean} toggleable - Whether status can be toggled
  * @param {boolean} showCoach - Whether to show coach name
+ * @param {boolean} hideLocation - Whether to hide location/court info
  * @param {Function} onStatusToggle - (e, trainingId, currentStatus) => void
  * @param {Function} onClick - (training) => void
  */
@@ -22,6 +23,7 @@ const TrainingCard = memo(function TrainingCard({
     clickable = false,
     toggleable = false,
     showCoach = false,
+    hideLocation = false,
     onStatusToggle,
     onClick,
 }) {
@@ -112,11 +114,15 @@ const TrainingCard = memo(function TrainingCard({
                         <Users size={14} />
                         {groupName}
                     </span>
-                    <span className={styles.metaDot}>•</span>
-                    <span className={styles.metaItem}>
-                        <MapPin size={14} />
-                        {location}
-                    </span>
+                    {!hideLocation && (
+                        <>
+                            <span className={styles.metaDot}>•</span>
+                            <span className={styles.metaItem}>
+                                <MapPin size={14} />
+                                {location}
+                            </span>
+                        </>
+                    )}
                     {variant === 'full' && (
                         <>
                             <span className={styles.metaDot}>•</span>
