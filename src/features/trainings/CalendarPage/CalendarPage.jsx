@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -11,11 +11,14 @@ import '../../../styles/calendar.css';
 
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
+import useEventsStore from '../../../stores/eventsStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import { normalizeDate } from '../../../utils/dateUtils';
+import { isEventVisibleForCenter, EVENT_COLORS } from '../../../services/events';
 import Spinner from '../../../components/ui/Spinner';
 import Button from '../../../components/ui/Button';
 import TrainingDetailsModal from '../../dashboard/TrainingDetailsModal';
+import EventDetailsModal from '../../../components/ui/EventDetailsModal/EventDetailsModal';
 import { Plus } from 'lucide-react';
 
 const locales = {
@@ -34,23 +37,34 @@ export default function CalendarPage() {
     const navigate = useNavigate();
     const { userData } = useAuthStore();
     const { trainings, fetchTrainings, isLoading } = useTrainingsStore();
+    const { events: orgEvents, fetchEvents } = useEventsStore();
     const { groups } = useGroupsStore();
     const [view, setView] = useState('month');
     const [date, setDate] = useState(new Date());
     const [selectedTraining, setSelectedTraining] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+
+    const coachCenterId = userData?.centerIds?.[0] || null;
 
     useEffect(() => {
         if (userData?.id) {
-            // Need to figure out range based on view/date
-            // For now, simplify and fetch a broad range or all (if reasonable)
-            // Or fetch current month +- 1 month
             const start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
             const end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
             fetchTrainings(userData.id, start, end);
+            // Fetch org events for the visible months
+            fetchEvents(date.getFullYear(), date.getMonth());
+            if (date.getMonth() > 0) fetchEvents(date.getFullYear(), date.getMonth() - 1);
+            fetchEvents(date.getFullYear(), date.getMonth() + 1);
         }
-    }, [userData, date, view, fetchTrainings]);
+    }, [userData, date, view, fetchTrainings, fetchEvents]);
 
-    const events = trainings.map(t => {
+    // Filter org events for coach's center
+    const visibleOrgEvents = useMemo(() => {
+        return orgEvents.filter(e => isEventVisibleForCenter(e, coachCenterId));
+    }, [orgEvents, coachCenterId]);
+
+    // Combine trainings and org events into calendar events
+    const trainingCalEvents = trainings.map(t => {
         const d = normalizeDate(t.date);
         return {
             id: t.id,
@@ -58,12 +72,33 @@ export default function CalendarPage() {
             start: d,
             end: d ? new Date(d.getTime() + (t.durationMinutes || 60) * 60000) : d,
             resource: t,
+            isOrgEvent: false,
             className: t.status
         };
     });
 
-    const handleSelectEvent = (event) => {
-        const t = event.resource;
+    const orgCalEvents = visibleOrgEvents.map(e => {
+        const d = e.date instanceof Date ? e.date : (e.date?.seconds ? new Date(e.date.seconds * 1000) : new Date(e.date));
+        const endDate = e.endDate instanceof Date ? e.endDate : (e.endDate ? new Date(e.endDate) : null);
+        return {
+            id: `event-${e.id}`,
+            title: `${e.title}`,
+            start: d,
+            end: endDate || d,
+            allDay: !e.time,
+            resource: e,
+            isOrgEvent: true,
+        };
+    });
+
+    const events = [...trainingCalEvents, ...orgCalEvents];
+
+    const handleSelectEvent = (calEvent) => {
+        if (calEvent.isOrgEvent) {
+            setSelectedEvent(calEvent.resource);
+            return;
+        }
+        const t = calEvent.resource;
         const tDate = normalizeDate(t.date);
         const group = groups.find(g => g.id === t.groupId);
         setSelectedTraining({
@@ -110,6 +145,13 @@ export default function CalendarPage() {
                     culture='he'
                     rtl={true}
                     onSelectEvent={handleSelectEvent}
+                    eventPropGetter={(event) => {
+                        if (event.isOrgEvent) {
+                            const color = EVENT_COLORS[event.resource?.type] || '#6B7280';
+                            return { style: { backgroundColor: color, borderRadius: '4px', border: 'none' } };
+                        }
+                        return {};
+                    }}
                     messages={{
                         next: 'הבא',
                         previous: 'הקודם',
@@ -130,6 +172,14 @@ export default function CalendarPage() {
                 training={selectedTraining}
                 isOpen={!!selectedTraining}
                 onClose={() => setSelectedTraining(null)}
+            />
+
+            <EventDetailsModal
+                isOpen={!!selectedEvent}
+                event={selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+                canEdit={false}
+                centers={[]}
             />
         </div>
     );

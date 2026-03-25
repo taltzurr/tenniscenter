@@ -9,6 +9,7 @@ import useGroupsStore from '../../stores/groupsStore';
 import useMonthlyPlansStore from '../../stores/monthlyPlansStore';
 import useCentersStore from '../../stores/centersStore';
 import useEventsStore from '../../stores/eventsStore';
+import { isEventVisibleForCenter } from '../../services/events';
 import useTrainingsStore from '../../stores/trainingsStore';
 import {
   getCenterCoaches,
@@ -54,7 +55,7 @@ const CenterManagerDashboard = () => {
           fetchGroups(null, false, userData?.managedCenterId),
           fetchCenters(),
           fetchAllPlans(currentYear, currentMonth),
-          fetchEvents(currentYear, currentMonth, userData?.managedCenterId)
+          fetchEvents(currentYear, currentMonth)
         ]);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -251,7 +252,7 @@ const CenterManagerDashboard = () => {
             <CalendarDays size={18} />
           </div>
           <div className={styles.statInfo}>
-            <div className={styles.statValue}>{events?.length || 0}</div>
+            <div className={styles.statValue}>{events?.filter(e => isEventVisibleForCenter(e, userData?.managedCenterId)).length || 0}</div>
             <div className={styles.statLabel}>אירועים חודשיים</div>
           </div>
         </div>

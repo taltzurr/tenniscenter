@@ -447,6 +447,47 @@
     text-decoration: underline;
 }
 
+.eventCardFull {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.eventCardFull:hover {
+    border-color: var(--primary-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.eventDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.eventCardContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.eventCardTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.eventCardMeta {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
 /* Tablet breakpoint */
 @media (min-width: 768px) {
     .page {

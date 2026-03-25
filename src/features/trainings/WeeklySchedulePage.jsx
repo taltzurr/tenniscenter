@@ -27,6 +27,8 @@ import Spinner from '../../components/ui/Spinner';
 import TrainingCard from '../../components/ui/TrainingCard/TrainingCard';
 import TrainingDetailsModal from '../dashboard/TrainingDetailsModal';
 import { normalizeDate } from '../../utils/dateUtils';
+import { isEventVisibleForCenter, EVENT_COLORS, EVENT_LABELS } from '../../services/events';
+import EventDetailsModal from '../../components/ui/EventDetailsModal/EventDetailsModal';
 import styles from './WeeklySchedulePage.module.css';
 
 const stringToColor = (str) => {
@@ -53,6 +55,7 @@ export default function WeeklySchedulePage() {
     const [selectedGroup, setSelectedGroup] = useState('all');
     const [selectedCenterIds, setSelectedCenterIds] = useState([]);
     const [selectedTraining, setSelectedTraining] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
 
     // Calculate week range
     const today = useMemo(() => new Date(), []);
@@ -119,6 +122,12 @@ export default function WeeklySchedulePage() {
         return map;
     }, [users]);
 
+    const coachCenterId = userData?.centerIds?.[0] || userData?.managedCenterId || null;
+
+    const visibleEvents = useMemo(() => {
+        return events.filter(e => isEventVisibleForCenter(e, coachCenterId));
+    }, [events, coachCenterId]);
+
     // Build filtered coach IDs based on selected centers
     const filteredCoachIds = useMemo(() => {
         if (!isViewOnly || !users) return null;
@@ -149,9 +158,19 @@ export default function WeeklySchedulePage() {
     };
 
     const getDayContent = (day) => {
-        const dayEvents = events.filter(e => {
-            const d = normalizeDate(e.date);
-            return isSameDay(d, day);
+        const dayEvents = visibleEvents.filter(e => {
+            const d = e.date instanceof Date ? e.date : (e.date?.seconds ? new Date(e.date.seconds * 1000) : normalizeDate(e.date));
+            if (!d) return false;
+            const startMatch = isSameDay(d, day);
+            if (e.endDate) {
+                const end = e.endDate instanceof Date ? e.endDate : new Date(e.endDate);
+                const dayStart = new Date(day);
+                dayStart.setHours(0, 0, 0, 0);
+                const dayEnd = new Date(day);
+                dayEnd.setHours(23, 59, 59, 999);
+                return startMatch || (dayStart >= d && dayStart <= end);
+            }
+            return startMatch;
         });
 
         const dayTrainings = trainings
@@ -340,6 +359,8 @@ export default function WeeklySchedulePage() {
                                 <div
                                     key={event.id}
                                     className={`${styles.eventCard} ${event.type === 'holiday' ? styles.eventCardHoliday : ''}`}
+                                    onClick={() => setSelectedEvent(event)}
+                                    style={{ cursor: 'pointer' }}
                                 >
                                     <AlertCircle size={20} color={event.type === 'holiday' ? 'var(--error)' : 'var(--warning-text)'} />
                                     <div className={`${styles.eventTitle} ${event.type === 'holiday' ? styles.eventTitleHoliday : styles.eventTitleWarning}`}>
@@ -386,6 +407,14 @@ export default function WeeklySchedulePage() {
                 isOpen={!!selectedTraining}
                 training={selectedTraining}
                 onClose={() => setSelectedTraining(null)}
+            />
+
+            <EventDetailsModal
+                isOpen={!!selectedEvent}
+                event={selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+                canEdit={false}
+                centers={centers}
             />
         </div>
     );

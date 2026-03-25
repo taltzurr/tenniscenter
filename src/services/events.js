@@ -40,40 +40,46 @@ export const EVENT_COLORS = {
 };
 
 /**
- * Get events for a specific month (or range)
+ * Check if an event is visible for a specific center.
+ * Events with empty/no centerIds are global (visible to all).
+ * @param {Object} event - Event object
+ * @param {string} centerId - Center ID to check
+ * @returns {boolean}
+ */
+export const isEventVisibleForCenter = (event, centerId) => {
+    if (!centerId) return true;
+    // Global events (no centerIds or empty array) are visible to all
+    if (!event.centerIds || event.centerIds.length === 0) return true;
+    return event.centerIds.includes(centerId);
+};
+
+/**
+ * Get all events for a specific month.
+ * Always fetches ALL events - filtering by center is done client-side.
  * @param {number} year - Year
  * @param {number} month - Month (0-11)
- * @param {string} centerId - Optional center ID to filter events by center
  */
-export const getEvents = async (year, month, centerId = null) => {
+export const getEvents = async (year, month) => {
     try {
-        let q;
-
-        if (centerId) {
-            // Get events for specific center
-            q = query(
-                collection(db, COLLECTION),
-                where('year', '==', year),
-                where('month', '==', month),
-                where('centerId', '==', centerId)
-            );
-        } else {
-            // Get all events (for supervisors)
-            q = query(
-                collection(db, COLLECTION),
-                where('year', '==', year),
-                where('month', '==', month)
-            );
-        }
+        const q = query(
+            collection(db, COLLECTION),
+            where('year', '==', year),
+            where('month', '==', month)
+        );
 
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            startDate: doc.data().startDate?.toDate(),
-            endDate: doc.data().endDate?.toDate(),
-            createdAt: doc.data().createdAt?.toDate()
-        }));
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                // Normalize centerIds: support both old centerId and new centerIds
+                centerIds: data.centerIds || (data.centerId ? [data.centerId] : []),
+                date: data.date?.toDate ? data.date.toDate() : data.date,
+                endDate: data.endDate?.toDate ? data.endDate.toDate() : data.endDate,
+                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+            };
+        });
     } catch (error) {
         console.error('Error fetching events:', error);
         return [];

@@ -25,6 +25,8 @@ import TrainingDetailsModal from './TrainingDetailsModal';
 import MonthlyOutstandingCard from './MonthlyOutstandingCard';
 import UpcomingTrainingCard from './UpcomingTrainingCard';
 import QuickStats from './QuickStats';
+import EventDetailsModal from '../../components/ui/EventDetailsModal/EventDetailsModal';
+import { isEventVisibleForCenter, EVENT_COLORS, EVENT_LABELS } from '../../services/events';
 import styles from './CoachDashboard.module.css';
 
 function CoachDashboard() {
@@ -36,6 +38,7 @@ function CoachDashboard() {
     const navigate = useNavigate();
 
     const [selectedTraining, setSelectedTraining] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -58,11 +61,11 @@ function CoachDashboard() {
                 await Promise.all([
                     fetchGroups(userData.id),
                     fetchTrainings(userData.id, startOfWeek, endOfWeek),
-                    fetchEvents(today.getFullYear(), today.getMonth(), userData.centerIds?.[0] || null),
+                    fetchEvents(today.getFullYear(), today.getMonth()),
                 ]);
 
                 if (endOfWeek.getMonth() !== today.getMonth()) {
-                    await fetchEvents(endOfWeek.getFullYear(), endOfWeek.getMonth(), userData.centerIds?.[0] || null);
+                    await fetchEvents(endOfWeek.getFullYear(), endOfWeek.getMonth());
                 }
             } catch (err) {
                 console.error('Failed to load dashboard data:', err);
@@ -173,14 +176,44 @@ function CoachDashboard() {
         ];
     }, [groups, trainings]);
 
+    const coachCenterId = userData?.centerIds?.[0] || null;
+
+    const visibleEvents = useMemo(() => {
+        return events.filter(e => isEventVisibleForCenter(e, coachCenterId));
+    }, [events, coachCenterId]);
+
     // Today's events
     const todayEvents = useMemo(() => {
         const today = new Date();
-        return events.filter(e => {
-            const d = normalizeDate(e.date);
-            return isSameDay(d, today);
+        return visibleEvents.filter(e => {
+            const d = e.date instanceof Date ? e.date : (e.date?.seconds ? new Date(e.date.seconds * 1000) : new Date(e.date));
+            if (!d) return false;
+            const startMatch = isSameDay(d, today);
+            if (e.endDate) {
+                const end = e.endDate instanceof Date ? e.endDate : new Date(e.endDate);
+                return (today >= d && today <= end) || startMatch;
+            }
+            return startMatch;
         });
-    }, [events]);
+    }, [visibleEvents]);
+
+    // Upcoming events (next 7 days)
+    const upcomingEvents = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const weekFromNow = new Date(today);
+        weekFromNow.setDate(weekFromNow.getDate() + 7);
+
+        return visibleEvents.filter(e => {
+            const d = e.date instanceof Date ? e.date : (e.date?.seconds ? new Date(e.date.seconds * 1000) : new Date(e.date));
+            if (!d) return false;
+            return d >= today && d <= weekFromNow;
+        }).sort((a, b) => {
+            const da = a.date instanceof Date ? a.date : new Date(a.date);
+            const db = b.date instanceof Date ? b.date : new Date(b.date);
+            return da - db;
+        });
+    }, [visibleEvents]);
 
     // Monthly themes
     const monthlyValues = useMemo(() => {
@@ -307,6 +340,8 @@ function CoachDashboard() {
                             <div
                                 key={event.id}
                                 className={`${styles.eventCard} ${event.type === 'holiday' ? styles.eventHoliday : styles.eventDefault}`}
+                                onClick={() => setSelectedEvent(event)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <Target size={18} />
                                 {event.title}
@@ -345,9 +380,43 @@ function CoachDashboard() {
                 )}
             </div>
 
+            {/* Upcoming Events ("אירועים קרובים") */}
+            {upcomingEvents.length > 0 && (
+                <div className={`${styles.dashSection} ${styles.delay3}`}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>
+                            <Calendar size={20} style={{ display: 'inline', marginInlineStart: '8px' }} />
+                            אירועים קרובים
+                        </h2>
+                    </div>
+                    <div className={styles.eventsContainer}>
+                        {upcomingEvents.map(event => {
+                            const d = event.date instanceof Date ? event.date : new Date(event.date);
+                            const dateStr = d.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' });
+                            return (
+                                <div
+                                    key={event.id}
+                                    className={styles.eventCardFull}
+                                    onClick={() => setSelectedEvent(event)}
+                                >
+                                    <div className={styles.eventDot} style={{ backgroundColor: EVENT_COLORS[event.type] || '#6B7280' }} />
+                                    <div className={styles.eventCardContent}>
+                                        <div className={styles.eventCardTitle}>{event.title}</div>
+                                        <div className={styles.eventCardMeta}>
+                                            {dateStr}
+                                            {event.time && ` · ${event.time}`}
+                                            {event.location && ` · ${event.location}`}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* 4. Monthly Goals ("מטרות החודש") */}
-            {/* 4. Monthly Goals ("מטרות החודש") */}
-            <div className={`${styles.dashSection} ${styles.delay3}`}>
+            <div className={`${styles.dashSection} ${styles.delay4}`}>
                 <div className={styles.dashboardCard}>
                     <div className={styles.cardHeader}>
                         <div className={styles.cardTitle} style={{ color: 'var(--accent-700)' }}>
@@ -373,7 +442,7 @@ function CoachDashboard() {
             </div>
 
             {/* 5. Monthly Values ("ערכי החודש") */}
-            <div className={`${styles.dashSection} ${styles.delay4}`}>
+            <div className={`${styles.dashSection} ${styles.delay5}`}>
                 <div className={styles.dashboardCard}>
                     <div className={styles.cardHeader}>
                         <div className={styles.cardTitle} style={{ color: 'var(--primary-700)' }}>
@@ -405,6 +474,14 @@ function CoachDashboard() {
                 isOpen={!!selectedTraining}
                 training={selectedTraining}
                 onClose={() => setSelectedTraining(null)}
+            />
+
+            <EventDetailsModal
+                isOpen={!!selectedEvent}
+                event={selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+                canEdit={false}
+                centers={[]}
             />
         </div>
     );

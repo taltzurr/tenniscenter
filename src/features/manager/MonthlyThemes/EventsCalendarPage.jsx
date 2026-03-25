@@ -12,6 +12,7 @@ import { EVENT_TYPES, EVENT_LABELS, EVENT_COLORS } from '../../../services/event
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import Modal from '../../../components/ui/Modal/Modal';
+import EventDetailsModal from '../../../components/ui/EventDetailsModal/EventDetailsModal';
 import styles from './EventsCalendarPage.module.css';
 
 function EventsCalendarPage() {
@@ -61,6 +62,7 @@ function EventsCalendarPage() {
     const [showEventModal, setShowEventModal] = useState(false);
     const [currentEvent, setCurrentEvent] = useState(null); // If editing
     const [eventDate, setEventDate] = useState(null); // Selected date for new event
+    const [detailEvent, setDetailEvent] = useState(null);
 
     // Scroll to calendar section if hash is #calendar
     useEffect(() => {
@@ -94,9 +96,8 @@ function EventsCalendarPage() {
                 setThemesFormData({ values: '', goals: emptyGoals() });
             }
 
-            // Load Events - supervisor fetches all, center manager fetches own center
-            const centerId = isSupervisor() ? null : userData?.managedCenterId;
-            await fetchEvents(selectedYear, selectedMonth, centerId);
+            // Load Events
+            await fetchEvents(selectedYear, selectedMonth);
         };
         loadData();
     }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
@@ -134,8 +135,7 @@ function EventsCalendarPage() {
 
     const handleEventClick = (e, event) => {
         e.stopPropagation();
-        setCurrentEvent(event);
-        setShowEventModal(true);
+        setDetailEvent(event);
     };
 
     const handleDeleteEvent = async () => {
@@ -152,21 +152,39 @@ function EventsCalendarPage() {
         const [formData, setModalFormData] = useState({
             title: currentEvent?.title || '',
             type: currentEvent?.type || EVENT_TYPES.HOLIDAY,
-            description: currentEvent?.description || ''
+            description: currentEvent?.description || '',
+            centerIds: currentEvent?.centerIds || [],
+            time: currentEvent?.time || '',
+            location: currentEvent?.location || '',
+            isRange: currentEvent?.endDate ? true : false,
         });
+
+        const currentEventDate = currentEvent?.date
+            ? (currentEvent.date instanceof Date ? currentEvent.date.getDate() : new Date(currentEvent.date.seconds * 1000).getDate())
+            : eventDate;
+
+        const currentEventEndDate = currentEvent?.endDate
+            ? (currentEvent.endDate instanceof Date ? currentEvent.endDate.getDate() : new Date(currentEvent.endDate.seconds * 1000).getDate())
+            : eventDate;
+
+        const [startDay, setStartDay] = useState(currentEventDate);
+        const [endDay, setEndDay] = useState(currentEventEndDate);
 
         const handleSubmit = async (e) => {
             e.preventDefault();
-            const date = currentEvent ? new Date(currentEvent.date.seconds * 1000) : new Date(selectedYear, selectedMonth, eventDate);
+            const startDate = currentEvent?.date
+                ? (currentEvent.date instanceof Date ? currentEvent.date : new Date(currentEvent.date.seconds * 1000))
+                : new Date(selectedYear, selectedMonth, eventDate);
 
             const eventPayload = {
                 ...formData,
-                date: date,
+                date: startDate,
+                endDate: formData.isRange ? new Date(selectedYear, selectedMonth, endDay) : null,
                 year: selectedYear,
                 month: selectedMonth,
-                // Add centerId for center-specific events
-                centerId: userData?.managedCenterId || null
+                centerIds: formData.centerIds,  // empty array = all centers
             };
+            delete eventPayload.isRange;
 
             let res;
             if (currentEvent) {
@@ -179,6 +197,15 @@ function EventsCalendarPage() {
                 setShowEventModal(false);
                 addToast({ type: 'success', message: currentEvent ? 'האירוע עודכן' : 'האירוע נוצר' });
             }
+        };
+
+        const toggleCenter = (centerId) => {
+            setModalFormData(prev => ({
+                ...prev,
+                centerIds: prev.centerIds.includes(centerId)
+                    ? prev.centerIds.filter(id => id !== centerId)
+                    : [...prev.centerIds, centerId]
+            }));
         };
 
         return (
@@ -217,6 +244,88 @@ function EventsCalendarPage() {
                             rows={3}
                         />
                     </div>
+
+                    {/* Center selection */}
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>מרכזים</label>
+                        <div className={styles.centerChipsModal}>
+                            <button
+                                type="button"
+                                className={`${styles.centerChipSmall} ${formData.centerIds.length === 0 ? styles.centerChipSmallActive : ''}`}
+                                onClick={() => setModalFormData({ ...formData, centerIds: [] })}
+                            >
+                                כל המרכזים
+                            </button>
+                            {centers.map(c => (
+                                <button
+                                    type="button"
+                                    key={c.id}
+                                    className={`${styles.centerChipSmall} ${formData.centerIds.includes(c.id) ? styles.centerChipSmallActive : ''}`}
+                                    onClick={() => toggleCenter(c.id)}
+                                >
+                                    {c.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Date range */}
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>יום בחודש</label>
+                        <div className={styles.dateRangeRow}>
+                            <input
+                                type="number"
+                                className={styles.input}
+                                value={startDay}
+                                onChange={e => setStartDay(Number(e.target.value))}
+                                min={1}
+                                max={getDaysInMonth(selectedYear, selectedMonth)}
+                            />
+                            {formData.isRange && (
+                                <>
+                                    <span>עד</span>
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        value={endDay}
+                                        onChange={e => setEndDay(Number(e.target.value))}
+                                        min={startDay}
+                                        max={getDaysInMonth(selectedYear, selectedMonth)}
+                                    />
+                                </>
+                            )}
+                        </div>
+                        <label className={styles.checkboxRow} style={{ marginTop: '0.5rem' }}>
+                            <input
+                                type="checkbox"
+                                checked={formData.isRange}
+                                onChange={e => setModalFormData({ ...formData, isRange: e.target.checked })}
+                            />
+                            טווח תאריכים
+                        </label>
+                    </div>
+
+                    {/* Time */}
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>שעה (אופציונלי)</label>
+                        <input
+                            className={styles.input}
+                            value={formData.time}
+                            onChange={e => setModalFormData({ ...formData, time: e.target.value })}
+                            placeholder="לדוגמה: 10:00"
+                        />
+                    </div>
+
+                    {/* Location */}
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>מיקום (אופציונלי)</label>
+                        <input
+                            className={styles.input}
+                            value={formData.location}
+                            onChange={e => setModalFormData({ ...formData, location: e.target.value })}
+                            placeholder="לדוגמה: מגרש 3"
+                        />
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
                     {currentEvent && (
@@ -249,11 +358,21 @@ function EventsCalendarPage() {
         // Day cells
         for (let day = 1; day <= daysInMonth; day++) {
             const dateEvents = events.filter(e => {
-                const d = e.date?.seconds ? new Date(e.date.seconds * 1000) : e.date;
-                if (d.getDate() !== day) return false;
-                // Apply center filter for supervisor
+                const d = e.date instanceof Date ? e.date : (e.date?.seconds ? new Date(e.date.seconds * 1000) : new Date(e.date));
+                const end = e.endDate instanceof Date ? e.endDate : (e.endDate ? new Date(e.endDate) : null);
+
+                const currentDate = new Date(selectedYear, selectedMonth, day);
+                const startMatch = d.getFullYear() === selectedYear && d.getMonth() === selectedMonth && d.getDate() === day;
+                const inRange = end && currentDate >= d && currentDate <= end;
+
+                if (!startMatch && !inRange) return false;
+
+                // Apply center filter
                 if (isSupervisor() && selectedCenterIds.length > 0) {
-                    return selectedCenterIds.includes(e.centerId);
+                    if (e.centerIds && e.centerIds.length > 0) {
+                        return e.centerIds.some(cid => selectedCenterIds.includes(cid));
+                    }
+                    return true; // Global events always show
                 }
                 return true;
             });
@@ -455,6 +574,29 @@ function EventsCalendarPage() {
             >
                 <EventModalContent />
             </Modal>
+
+            {/* Event Details Modal */}
+            <EventDetailsModal
+                isOpen={!!detailEvent}
+                event={detailEvent}
+                onClose={() => setDetailEvent(null)}
+                canEdit={true}
+                onEdit={() => {
+                    setCurrentEvent(detailEvent);
+                    setDetailEvent(null);
+                    setShowEventModal(true);
+                }}
+                onDelete={async () => {
+                    if (confirm('למחוק את האירוע?')) {
+                        const res = await removeEvent(detailEvent.id);
+                        if (res.success) {
+                            setDetailEvent(null);
+                            addToast({ type: 'success', message: 'האירוע נמחק' });
+                        }
+                    }
+                }}
+                centers={centers}
+            />
         </div>
     );
 }

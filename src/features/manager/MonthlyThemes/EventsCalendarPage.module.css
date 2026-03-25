@@ -394,6 +394,64 @@
     width: 100%;
 }
 
+.centerChipsModal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.centerChipSmall {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--gray-200);
+    background: var(--bg-primary);
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.centerChipSmall:hover {
+    border-color: var(--primary-300);
+}
+
+.centerChipSmallActive {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    color: var(--primary-700);
+    font-weight: 600;
+}
+
+.dateRangeRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dateRangeRow input[type="number"] {
+    width: 70px;
+}
+
+.checkboxRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.checkboxRow input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-500);
+}
+
 /* Tablet / Desktop Enhancements */
 @media (min-width: 768px) {
     .page {

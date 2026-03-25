@@ -6,15 +6,13 @@ const useEventsStore = create((set, get) => ({
     isLoading: false,
     error: null,
 
-    // Fetch events
-    // Fetch events (merges with existing)
+    // Fetch events (merges with existing for multi-month views)
     // @param {number} year - Year
     // @param {number} month - Month (0-11)
-    // @param {string} centerId - Optional center ID to filter events by center
-    fetchEvents: async (year, month, centerId = null) => {
+    fetchEvents: async (year, month) => {
         set({ isLoading: true, error: null });
         try {
-            const newEvents = await getEvents(year, month, centerId);
+            const newEvents = await getEvents(year, month);
             set(state => {
                 // Merge new events with existing ones to avoid overwriting (handling multi-month views)
                 const eventMap = new Map(state.events.map(e => [e.id, e]));
