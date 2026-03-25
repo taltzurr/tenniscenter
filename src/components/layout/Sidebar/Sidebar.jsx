@@ -61,7 +61,7 @@ function Sidebar() {
                     items: [
                         { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
                         { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
-                        { to: '/events-calendar', icon: CalendarRange, label: 'אירועים' },
+                        { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]
                 }
@@ -84,6 +84,7 @@ function Sidebar() {
                     { to: '/groups', icon: Users, label: 'קבוצות' },
                     { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
                     { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
+                    { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
                     { to: '/settings', icon: Settings, label: 'הגדרות' },
                 ]
             }
@@ -98,6 +99,7 @@ function Sidebar() {
                     { to: '/users', icon: UserCog, label: 'משתמשים' },
                     { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
                     { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
+                    { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
                 ]
             });
         }

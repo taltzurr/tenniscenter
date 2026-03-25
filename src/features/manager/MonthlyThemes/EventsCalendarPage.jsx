@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useEventsStore from '../../../stores/eventsStore';
+import useCentersStore from '../../../stores/centersStore';
 import useUIStore from '../../../stores/uiStore';
 import { HEBREW_MONTHS } from '../../../services/monthlyThemes';
 import { DEFAULT_GROUP_TYPES } from '../../../config/constants';
@@ -18,6 +19,7 @@ function EventsCalendarPage() {
     const { userData, isSupervisor } = useAuthStore();
     const { fetchTheme, saveTheme, isLoading: themesLoading } = useMonthlyThemesStore();
     const { events, fetchEvents, addEvent, editEvent, removeEvent, isLoading: eventsLoading } = useEventsStore();
+    const { centers, fetchCenters } = useCentersStore();
     const { addToast } = useUIStore();
 
     const now = new Date();
@@ -50,10 +52,20 @@ function EventsCalendarPage() {
         goals: emptyGoals()
     });
 
+    // Center filter (supervisors can filter by center)
+    const [filterCenterId, setFilterCenterId] = useState('all');
+
     // Events State
     const [showEventModal, setShowEventModal] = useState(false);
     const [currentEvent, setCurrentEvent] = useState(null); // If editing
     const [eventDate, setEventDate] = useState(null); // Selected date for new event
+
+    // Fetch centers list for supervisor filter
+    useEffect(() => {
+        if (isSupervisor()) {
+            fetchCenters();
+        }
+    }, [isSupervisor, fetchCenters]);
 
     // Load Data
     useEffect(() => {
@@ -71,13 +83,17 @@ function EventsCalendarPage() {
                 setThemesFormData({ values: '', goals: emptyGoals() });
             }
 
-            // Load Events
-            // Center managers see only their center's events, supervisors see all
-            const centerId = isSupervisor() ? null : userData?.managedCenterId;
+            // Load Events - apply center filter
+            let centerId;
+            if (isSupervisor()) {
+                centerId = filterCenterId === 'all' ? null : filterCenterId;
+            } else {
+                centerId = userData?.managedCenterId;
+            }
             await fetchEvents(selectedYear, selectedMonth, centerId);
         };
         loadData();
-    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor]);
+    }, [selectedYear, selectedMonth, fetchTheme, fetchEvents, userData?.managedCenterId, isSupervisor, filterCenterId]);
 
     // Theme Handlers
     const handleSaveThemes = async (e) => {
@@ -283,8 +299,8 @@ function EventsCalendarPage() {
                 </button>
                 <div className={styles.headerRow}>
                     <div>
-                        <h1 className={styles.title}>מטרות וערכים</h1>
-                        <p className={styles.subtitle}>הגדרת מטרות חודשיות לפי סוג קבוצה, ערכים ואירועים</p>
+                        <h1 className={styles.title}>לוח אירועים, מטרות וערכים</h1>
+                        <p className={styles.subtitle}>ניהול אירועים, מטרות חודשיות לפי סוג קבוצה וערכים</p>
                     </div>
                     {/* Month/Year navigation with arrows */}
                     <div className={styles.monthNav}>
@@ -312,17 +328,33 @@ function EventsCalendarPage() {
             <div className={styles.container}>
                 {/* Left: Interactive Calendar */}
                 <div className={styles.calendarSection}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <div className={styles.calendarHeader}>
                         <h2 className={styles.cardTitle}>לוח שנה ארגוני</h2>
-                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem' }}>
+                        <div className={styles.calendarLegend}>
                             {Object.entries(EVENT_LABELS).map(([key, label]) => (
-                                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                    <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: EVENT_COLORS[key] }}></div>
+                                <div key={key} className={styles.legendItem}>
+                                    <div className={styles.legendDot} style={{ backgroundColor: EVENT_COLORS[key] }}></div>
                                     <span>{label}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
+                    {/* Center filter for supervisors */}
+                    {isSupervisor() && centers.length > 0 && (
+                        <div className={styles.centerFilter}>
+                            <Filter size={16} />
+                            <select
+                                className={styles.centerSelect}
+                                value={filterCenterId}
+                                onChange={(e) => setFilterCenterId(e.target.value)}
+                            >
+                                <option value="all">כל המרכזים</option>
+                                {centers.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     {renderCalendar()}
                 </div>
 
@@ -344,7 +376,7 @@ function EventsCalendarPage() {
                             {themesFormData.values && (
                                 <div className={styles.previewTags}>
                                     {themesFormData.values.split(',').filter(Boolean).map((t, i) => (
-                                        <span key={i} className={styles.tag}>{t}</span>
+                                        <span key={i} className={`${styles.tag} ${styles.tagValue}`}>{t.trim()}</span>
                                     ))}
                                 </div>
                             )}
@@ -357,20 +389,28 @@ function EventsCalendarPage() {
                                 <h2 className={styles.cardTitle}>מטרות החודש</h2>
                             </div>
                             <div className={styles.goalsGroupForm}>
-                                {DEFAULT_GROUP_TYPES.map((groupType) => (
-                                    <div key={groupType.id} className={styles.goalGroupRow}>
-                                        <label className={styles.goalGroupLabel}>{groupType.name}</label>
-                                        <input
-                                            className={styles.input}
-                                            placeholder={`מטרת חודש ל${groupType.name}...`}
-                                            value={themesFormData.goals[groupType.id] || ''}
-                                            onChange={(e) => setThemesFormData(prev => ({
-                                                ...prev,
-                                                goals: { ...prev.goals, [groupType.id]: e.target.value }
-                                            }))}
-                                        />
-                                    </div>
-                                ))}
+                                {DEFAULT_GROUP_TYPES.map((groupType) => {
+                                    const goalValue = themesFormData.goals[groupType.id] || '';
+                                    return (
+                                        <div key={groupType.id} className={styles.goalGroupRow}>
+                                            <label className={styles.goalGroupLabel}>{groupType.name}</label>
+                                            <input
+                                                className={styles.input}
+                                                placeholder={`מטרת חודש ל${groupType.name}...`}
+                                                value={goalValue}
+                                                onChange={(e) => setThemesFormData(prev => ({
+                                                    ...prev,
+                                                    goals: { ...prev.goals, [groupType.id]: e.target.value }
+                                                }))}
+                                            />
+                                            {goalValue.trim() && (
+                                                <div className={styles.previewTags}>
+                                                    <span className={`${styles.tag} ${styles.tagGoal}`}>{goalValue.trim()}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
