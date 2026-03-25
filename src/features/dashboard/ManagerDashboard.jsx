@@ -99,6 +99,30 @@ const ManagerDashboard = () => {
                 </h1>
             </header>
 
+            {/* ניהול שוטף - Daily Management (first) */}
+            <main>
+                <h2 className={styles.sectionTitle}>
+                    <ShieldCheck size={24} />
+                    ניהול שוטף
+                </h2>
+
+                <div className={styles.grid}>
+                    {dashboardItems.map((item, index) => (
+                        <div
+                            key={index}
+                            className={styles.card}
+                            onClick={() => navigate(item.path)}
+                        >
+                            <div className={`${styles.cardIcon} ${styles[item.color]}`}>
+                                <item.icon size={24} />
+                            </div>
+                            <h3 className={styles.cardTitle}>{item.title}</h3>
+                            <p className={styles.cardDescription}>{item.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </main>
+
             {/* Monthly Context (Goals by group type + Values for all) */}
             <div className={styles.contextGrid}>
                 {/* Goals by group type */}
@@ -110,7 +134,6 @@ const ManagerDashboard = () => {
                         </div>
                     </div>
                     <div className={styles.goalsByGroup}>
-                        {/* New format: goals as flat array from assignments */}
                         {monthlyGoalsArray.length > 0 ? (
                             <div className={styles.cardContent}>
                                 {monthlyGoalsArray.map((goal) => (
@@ -120,7 +143,6 @@ const ManagerDashboard = () => {
                                 ))}
                             </div>
                         ) : Object.keys(monthlyGoalsByGroup).length > 0 ? (
-                            /* Old format: goals keyed by group type */
                             DEFAULT_GROUP_TYPES.map((groupType) => {
                                 const goal = monthlyGoalsByGroup[groupType.id];
                                 if (!goal) return null;
@@ -163,29 +185,6 @@ const ManagerDashboard = () => {
 
             {/* Monthly Outstanding Widget */}
             <MonthlyOutstandingCard />
-
-            <main>
-                <h2 className={styles.sectionTitle}>
-                    <ShieldCheck size={24} />
-                    ניהול שוטף
-                </h2>
-
-                <div className={styles.grid}>
-                    {dashboardItems.map((item, index) => (
-                        <div
-                            key={index}
-                            className={styles.card}
-                            onClick={() => navigate(item.path)}
-                        >
-                            <div className={`${styles.cardIcon} ${styles[item.color]}`}>
-                                <item.icon size={24} />
-                            </div>
-                            <h3 className={styles.cardTitle}>{item.title}</h3>
-                            <p className={styles.cardDescription}>{item.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </main>
         </div>
     );
 };

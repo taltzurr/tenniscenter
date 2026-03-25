@@ -195,9 +195,6 @@ const CenterManagerDashboard = () => {
         </p>
       </div>
 
-      {/* Monthly Outstanding */}
-      <MonthlyOutstandingCard />
-
       {/* Stats Grid */}
       <div className={styles.statsGrid}>
         {/* Total Coaches */}
@@ -374,6 +371,9 @@ const CenterManagerDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Monthly Outstanding - after operational sections */}
+      <MonthlyOutstandingCard />
     </div>
   );
 };
