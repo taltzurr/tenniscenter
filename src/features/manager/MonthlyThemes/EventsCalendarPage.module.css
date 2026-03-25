@@ -230,14 +230,26 @@
 }
 
 .input,
-.textarea {
+.textarea,
+.select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--gray-200);
     border-radius: 0.5rem;
     font-size: 1rem;
-    /* Prevent zoom on iOS */
+    font-family: inherit;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-sizing: border-box;
     transition: border-color 0.2s;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px var(--primary-100);
 }
 
 .textarea {

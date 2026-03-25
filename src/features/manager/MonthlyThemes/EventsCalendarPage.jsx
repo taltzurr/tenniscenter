@@ -160,42 +160,43 @@ function EventsCalendarPage() {
         };
 
         return (
-            <form onSubmit={handleSubmit}>
-                <div className={styles.formGroup}>
-                    <label className={styles.label}>כותרת האירוע</label>
-                    <input
-                        className={styles.input}
-                        value={formData.title}
-                        onChange={e => setModalFormData({ ...formData, title: e.target.value })}
-                        required
-                        autoFocus
-                    />
-                </div>
+            <>
+                <Modal.Body>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>כותרת האירוע</label>
+                        <input
+                            className={styles.input}
+                            value={formData.title}
+                            onChange={e => setModalFormData({ ...formData, title: e.target.value })}
+                            required
+                            autoFocus
+                        />
+                    </div>
 
-                <div className={styles.formGroup}>
-                    <label className={styles.label}>סוג אירוע</label>
-                    <select
-                        className={styles.input}
-                        value={formData.type}
-                        onChange={e => setModalFormData({ ...formData, type: e.target.value })}
-                    >
-                        {Object.entries(EVENT_LABELS).map(([key, label]) => (
-                            <option key={key} value={key}>{label}</option>
-                        ))}
-                    </select>
-                </div>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>סוג אירוע</label>
+                        <select
+                            className={styles.input}
+                            value={formData.type}
+                            onChange={e => setModalFormData({ ...formData, type: e.target.value })}
+                        >
+                            {Object.entries(EVENT_LABELS).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
+                        </select>
+                    </div>
 
-                <div className={styles.formGroup}>
-                    <label className={styles.label}>תיאור (אופציונלי)</label>
-                    <textarea
-                        className={styles.textarea}
-                        value={formData.description}
-                        onChange={e => setModalFormData({ ...formData, description: e.target.value })}
-                        rows={3}
-                    />
-                </div>
-
-                <div className={styles.modalActions}>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>תיאור (אופציונלי)</label>
+                        <textarea
+                            className={styles.textarea}
+                            value={formData.description}
+                            onChange={e => setModalFormData({ ...formData, description: e.target.value })}
+                            rows={3}
+                        />
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
                     {currentEvent && (
                         <Button type="button" variant="danger" onClick={handleDeleteEvent}>
                             <Trash size={16} /> מחק
@@ -204,11 +205,11 @@ function EventsCalendarPage() {
                     <Button type="button" variant="secondary" onClick={() => setShowEventModal(false)}>
                         ביטול
                     </Button>
-                    <Button type="submit">
+                    <Button type="submit" onClick={handleSubmit}>
                         {currentEvent ? 'שמור שינויים' : 'צור אירוע'}
                     </Button>
-                </div>
-            </form>
+                </Modal.Footer>
+            </>
         );
     };
 
