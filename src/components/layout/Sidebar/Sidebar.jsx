@@ -111,8 +111,6 @@ function Sidebar() {
                 items: [
                     { to: '/groups', icon: Users, label: 'קבוצות' },
                     { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
-                    { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
-                    { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
                     { to: '/settings', icon: Settings, label: 'הגדרות' },
                 ]
             }

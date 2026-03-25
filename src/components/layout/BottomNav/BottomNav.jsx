@@ -34,7 +34,7 @@ function BottomNav() {
             { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
             { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
             { to: '/calendar', icon: Calendar, label: 'בניית תכנית' },
-            { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
+            { to: '/groups', icon: Users, label: 'קבוצות' },
         ];
     };
 

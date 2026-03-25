@@ -57,12 +57,13 @@ export const saveMonthlyTheme = async (data) => {
         const existing = await getMonthlyTheme(year, month);
 
         if (existing) {
-            // Update
+            // Update - use set WITHOUT merge so deleted fields are actually removed
             const docRef = doc(db, COLLECTION, existing.id);
             await setDoc(docRef, {
                 ...data,
+                createdAt: existing.createdAt || serverTimestamp(),
                 updatedAt: serverTimestamp()
-            }, { merge: true });
+            });
             return { id: existing.id, ...data };
         } else {
             // Create New
