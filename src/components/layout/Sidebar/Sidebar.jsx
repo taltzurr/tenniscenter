@@ -60,7 +60,7 @@ function Sidebar() {
                     section: 'ניהול',
                     items: [
                         { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
-                        { to: '/goals', icon: Target, label: 'מטרות וערכים' },
+                        { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                         { to: '/events-calendar', icon: CalendarRange, label: 'אירועים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]
@@ -83,7 +83,7 @@ function Sidebar() {
                 items: [
                     { to: '/groups', icon: Users, label: 'קבוצות' },
                     { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
-                    { to: '/goals', icon: Target, label: 'מטרות וערכים' },
+                    { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                     { to: '/settings', icon: Settings, label: 'הגדרות' },
                 ]
             }
@@ -97,7 +97,7 @@ function Sidebar() {
                     { to: '/centers', icon: Building2, label: 'מרכזים' },
                     { to: '/users', icon: UserCog, label: 'משתמשים' },
                     { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
-                    { to: '/goals', icon: Target, label: 'מטרות וערכים' },
+                    { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                 ]
             });
         }

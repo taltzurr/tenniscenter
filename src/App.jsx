@@ -130,11 +130,7 @@ function App() {
             } />
 
             {/* Manager routes */}
-            <Route path="/events-calendar" element={
-              <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
-                <EventsCalendarPage />
-              </RoleRoute>
-            } />
+            <Route path="/events-calendar" element={<EventsCalendarPage />} />
 
             <Route path="/trainings" element={<Navigate to="/weekly-schedule" replace />} />
             <Route path="/centers" element={
