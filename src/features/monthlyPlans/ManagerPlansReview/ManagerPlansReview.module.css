@@ -430,6 +430,222 @@
     word-break: break-word;
 }
 
+/* Trainings List in Preview */
+.trainingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.trainingRow {
+    display: grid;
+    grid-template-columns: 70px 50px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.trainingRow:last-child {
+    border-bottom: none;
+}
+
+.trainingRow:hover {
+    background: var(--gray-50);
+}
+
+.trainingCompleted {
+    border-inline-start: 3px solid var(--success-500);
+}
+
+.trainingCancelled {
+    border-inline-start: 3px solid var(--error-500);
+    opacity: 0.7;
+}
+
+.trainingPlanned {
+    border-inline-start: 3px solid var(--primary-400);
+}
+
+.trainingDate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+
+.trainingDay {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.trainingDayName {
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.trainingTime {
+    font-size: 13px;
+    color: var(--primary-700);
+    font-weight: 600;
+    background: var(--primary-50);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.trainingInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.trainingTopic {
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trainingLocation {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.trainingStatus {
+    flex-shrink: 0;
+}
+
+/* Training Summary Strip */
+.trainingSummary {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 10px 16px;
+    background: var(--gray-50);
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+}
+
+.trainingSummaryItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trainingSummaryValue {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.trainingSummaryLabel {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Loading row */
+.previewLoadingRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* Manager Notes */
+.notesTextarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: border-color 0.2s;
+}
+
+.notesTextarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px var(--primary-100);
+}
+
+.notesTextarea::placeholder {
+    color: var(--text-secondary);
+}
+
+.notesActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.notesSavedHint {
+    font-size: 12px;
+    color: var(--success-600);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Back button for plan preview page */
+.previewPageHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.backButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: background-color 0.15s, border-color 0.15s;
+    font-family: inherit;
+}
+
+.backButton:hover {
+    background-color: var(--gray-50);
+    border-color: var(--gray-300);
+}
+
+/* Approval actions at bottom of preview page */
+.previewActions {
+    display: flex;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid var(--gray-200);
+    margin-top: 16px;
+}
+
 /* ===== Desktop overrides ===== */
 @media (min-width: 768px) {
     .page {
@@ -488,12 +704,17 @@
         padding: 6px 12px;
     }
 
-    /* Two-column weeks grid on desktop */
-    .previewWeeksGrid {
-        grid-template-columns: 1fr 1fr;
-    }
-
     .previewMeta {
         gap: 24px;
+    }
+
+    .trainingRow {
+        grid-template-columns: 80px 60px 1fr auto;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .trainingTopic {
+        white-space: normal;
     }
 }
