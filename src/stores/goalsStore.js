@@ -12,7 +12,7 @@ import { saveMonthlyTheme } from '../services/monthlyThemes';
 const useGoalsStore = create((set, get) => ({
     goals: [],              // all goal definitions
     values: [],             // all value definitions
-    currentAssignment: null, // { goalIds: [], valueIds: [] } for selected month
+    currentAssignment: null, // { goalsByType: {}, goalIds: [], valueIds: [] } for selected month
     isLoading: false,
     error: null,
 
@@ -50,16 +50,29 @@ const useGoalsStore = create((set, get) => ({
     },
 
     // Save monthly assignment and sync to monthlyThemes for dashboard display
-    saveMonthlyAssignment: async (year, month, goalIds, valueIds) => {
+    saveMonthlyAssignment: async (year, month, goalsByType, valueIds) => {
         set({ isLoading: true, error: null });
         try {
-            const saved = await saveMonthlyAssignmentService(year, month, goalIds, valueIds);
+            const saved = await saveMonthlyAssignmentService(year, month, goalsByType, valueIds);
 
             // Sync to monthlyThemes so dashboards (Coach/Manager) display the data
             const { goals: allGoals, values: allValues } = get();
-            const resolvedGoalTitles = (goalIds || [])
-                .map(id => allGoals.find(g => g.id === id)?.title)
-                .filter(Boolean);
+
+            // Resolve goal titles per group type
+            const resolvedGoalsByType = {};
+            if (goalsByType && typeof goalsByType === 'object') {
+                for (const [typeId, ids] of Object.entries(goalsByType)) {
+                    resolvedGoalsByType[typeId] = (ids || [])
+                        .map(id => allGoals.find(g => g.id === id)?.title)
+                        .filter(Boolean);
+                }
+            }
+
+            // Flat goals array for backward compatibility (unique titles)
+            const allGoalTitles = [...new Set(
+                Object.values(resolvedGoalsByType).flat()
+            )];
+
             const resolvedValueTitles = (valueIds || [])
                 .map(id => allValues.find(v => v.id === id)?.title)
                 .filter(Boolean);
@@ -68,7 +81,8 @@ const useGoalsStore = create((set, get) => ({
                 await saveMonthlyTheme({
                     year,
                     month,
-                    goals: resolvedGoalTitles,
+                    goalsByType: resolvedGoalsByType,
+                    goals: allGoalTitles,
                     values: resolvedValueTitles
                 });
             } catch (syncError) {

@@ -134,14 +134,24 @@ export const getMonthlyAssignment = async (year, month) => {
 /**
  * Save monthly assignment (create or update)
  */
-export const saveMonthlyAssignment = async (year, month, goalIds, valueIds) => {
+export const saveMonthlyAssignment = async (year, month, goalsByType, valueIds) => {
     try {
         const docId = `${year}_${month}`;
         const docRef = doc(db, ASSIGNMENTS_COLLECTION, docId);
+
+        // Compute flat goalIds for backward compatibility (union of all goal IDs across types)
+        const allGoalIds = new Set();
+        if (goalsByType && typeof goalsByType === 'object') {
+            Object.values(goalsByType).forEach(ids => {
+                (ids || []).forEach(id => allGoalIds.add(id));
+            });
+        }
+
         const data = {
             year,
             month,
-            goalIds: goalIds || [],
+            goalsByType: goalsByType || {},
+            goalIds: [...allGoalIds],
             valueIds: valueIds || [],
             updatedAt: serverTimestamp()
         };

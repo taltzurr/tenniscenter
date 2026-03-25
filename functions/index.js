@@ -75,7 +75,7 @@ exports.generatePasswordResetLink = onCall(async (request) => {
 
     try {
         const actionCodeSettings = isWelcome
-            ? { url: 'https://tennis-training-app-gemini.web.app/welcome' }
+            ? { url: 'https://tennis-centers.web.app/welcome' }
             : undefined;
         const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         return { link };

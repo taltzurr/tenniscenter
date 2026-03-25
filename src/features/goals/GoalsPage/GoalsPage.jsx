@@ -12,9 +12,10 @@ import {
 } from 'lucide-react';
 import useGoalsStore from '../../../stores/goalsStore';
 import useAuthStore from '../../../stores/authStore';
+import useGroupsStore from '../../../stores/groupsStore';
 import useUIStore from '../../../stores/uiStore';
 import { GOAL_CATEGORIES, VALUE_CATEGORIES } from '../../../services/goals';
-import { HEBREW_MONTHS } from '../../../config/constants';
+import { HEBREW_MONTHS, DEFAULT_GROUP_TYPES, ROLES } from '../../../config/constants';
 import Modal from '../../../components/ui/Modal';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
@@ -28,6 +29,7 @@ function GoalsPage() {
         saveMonthlyAssignment, saveGoal, deleteGoal,
         saveValue, deleteValue, isLoading
     } = useGoalsStore();
+    const { groups, fetchGroups } = useGroupsStore();
     const { addToast } = useUIStore();
 
     const now = new Date();
@@ -40,16 +42,41 @@ function GoalsPage() {
     const [manageGoalsOpen, setManageGoalsOpen] = useState(false);
     const [manageValuesOpen, setManageValuesOpen] = useState(false);
 
-    // Assignment selection (temporary until saved)
-    const [selectedGoalIds, setSelectedGoalIds] = useState([]);
+    // Assignment selection
+    const [selectedGoalsByType, setSelectedGoalsByType] = useState({});
     const [selectedValueIds, setSelectedValueIds] = useState([]);
+    const [activeGroupType, setActiveGroupType] = useState(null);
 
     // Definition form
     const [editingItem, setEditingItem] = useState(null);
     const [formData, setFormData] = useState({ title: '', description: '', category: '' });
     const [showDefinitionForm, setShowDefinitionForm] = useState(false);
 
-    const canEdit = userData?.role === 'supervisor';
+    const canEdit = userData?.role === ROLES.SUPERVISOR || userData?.role === ROLES.CENTER_MANAGER;
+    const isCoach = userData?.role === ROLES.COACH;
+
+    // Fetch groups for coach filtering
+    useEffect(() => {
+        if (!userData) return;
+        if (isCoach) {
+            fetchGroups(userData.id);
+        } else if (userData.role === ROLES.CENTER_MANAGER) {
+            fetchGroups(null, false, userData.managedCenterId);
+        } else {
+            fetchGroups(null, true);
+        }
+    }, [userData, isCoach, fetchGroups]);
+
+    // Get group types relevant to the current user
+    const relevantGroupTypes = useMemo(() => {
+        if (isCoach) {
+            // Coach: only group types from their groups
+            const typeIds = [...new Set(groups.map(g => g.groupTypeId).filter(Boolean))];
+            return DEFAULT_GROUP_TYPES.filter(gt => typeIds.includes(gt.id));
+        }
+        // Supervisor/Manager: all group types
+        return DEFAULT_GROUP_TYPES;
+    }, [groups, isCoach]);
 
     // Fetch definitions on mount
     useEffect(() => {
@@ -72,37 +99,55 @@ function GoalsPage() {
         setSelectedYear(newYear);
     }, [selectedMonth, selectedYear]);
 
-    // Resolve assigned items to full objects
-    const assignedGoals = useMemo(() => {
-        const ids = currentAssignment?.goalIds || [];
-        return ids.map(id => goals.find(g => g.id === id)).filter(Boolean);
-    }, [currentAssignment, goals]);
+    // Get goalsByType from assignment (support old format too)
+    const assignmentGoalsByType = useMemo(() => {
+        if (!currentAssignment) return {};
+        if (currentAssignment.goalsByType) return currentAssignment.goalsByType;
+        // Backward compat: old format had flat goalIds — show under first group type
+        if (currentAssignment.goalIds?.length > 0 && relevantGroupTypes.length > 0) {
+            return { [relevantGroupTypes[0].id]: currentAssignment.goalIds };
+        }
+        return {};
+    }, [currentAssignment, relevantGroupTypes]);
 
+    // Resolve assigned values
     const assignedValues = useMemo(() => {
         const ids = currentAssignment?.valueIds || [];
         return ids.map(id => values.find(v => v.id === id)).filter(Boolean);
     }, [currentAssignment, values]);
 
     // ==========================================
-    // Assign Goals Modal
+    // Assign Goals Modal (per group type)
     // ==========================================
     const openAssignGoals = () => {
-        setSelectedGoalIds(currentAssignment?.goalIds || []);
+        setSelectedGoalsByType(assignmentGoalsByType || {});
+        setActiveGroupType(relevantGroupTypes[0]?.id || null);
         setAssignGoalsOpen(true);
     };
 
-    const toggleGoalSelection = (id) => {
-        setSelectedGoalIds(prev => {
-            if (prev.includes(id)) return prev.filter(x => x !== id);
-            if (prev.length >= 3) return prev;
-            return [...prev, id];
+    const toggleGoalForType = (goalId) => {
+        if (!activeGroupType) return;
+        setSelectedGoalsByType(prev => {
+            const current = prev[activeGroupType] || [];
+            if (current.includes(goalId)) {
+                const updated = current.filter(id => id !== goalId);
+                const newState = { ...prev };
+                if (updated.length === 0) {
+                    delete newState[activeGroupType];
+                } else {
+                    newState[activeGroupType] = updated;
+                }
+                return newState;
+            }
+            if (current.length >= 3) return prev;
+            return { ...prev, [activeGroupType]: [...current, goalId] };
         });
     };
 
     const handleSaveGoalAssignment = async () => {
         const result = await saveMonthlyAssignment(
             selectedYear, selectedMonth,
-            selectedGoalIds,
+            selectedGoalsByType,
             currentAssignment?.valueIds || []
         );
         if (result.success) {
@@ -132,7 +177,7 @@ function GoalsPage() {
     const handleSaveValueAssignment = async () => {
         const result = await saveMonthlyAssignment(
             selectedYear, selectedMonth,
-            currentAssignment?.goalIds || [],
+            currentAssignment?.goalsByType || assignmentGoalsByType,
             selectedValueIds
         );
         if (result.success) {
@@ -222,6 +267,11 @@ function GoalsPage() {
         }
     };
 
+    // Check if any goals are assigned for relevant group types
+    const hasAssignedGoals = relevantGroupTypes.some(
+        gt => (assignmentGoalsByType[gt.id] || []).length > 0
+    );
+
     if (isLoading && goals.length === 0 && values.length === 0) {
         return <Spinner.FullPage />;
     }
@@ -256,53 +306,12 @@ function GoalsPage() {
 
             {/* Two sections */}
             <div className={styles.sectionsGrid}>
-                {/* Goals Section */}
-                <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <Target size={20} />
-                            מטרות
-                        </h2>
-                        {canEdit && (
-                            <div className={styles.adminButtons}>
-                                <Button size="small" onClick={openAssignGoals}>
-                                    שבץ מטרות
-                                </Button>
-                                <Button size="small" variant="ghost" onClick={() => setManageGoalsOpen(true)}>
-                                    <Settings size={16} />
-                                    נהל מטרות
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                    {assignedGoals.length > 0 ? (
-                        <div className={styles.cardsGrid}>
-                            {assignedGoals.map(goal => (
-                                <div key={goal.id} className={styles.goalCard}>
-                                    <h3 className={styles.cardTitle}>{goal.title}</h3>
-                                    <p className={styles.cardDescription}>{goal.description}</p>
-                                    {goal.category && (
-                                        <span className={styles.cardCategory}>
-                                            {GOAL_CATEGORIES[goal.category.toUpperCase()]?.label || goal.category}
-                                        </span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className={styles.emptyState}>
-                            <Target className={styles.emptyIcon} />
-                            <div className={styles.emptyTitle}>לא שובצו מטרות לחודש זה</div>
-                        </div>
-                    )}
-                </div>
-
                 {/* Values Section */}
                 <div className={styles.section}>
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
                             <Heart size={20} />
-                            ערכים
+                            ערכי החודש
                         </h2>
                         {canEdit && (
                             <div className={styles.adminButtons}>
@@ -321,11 +330,8 @@ function GoalsPage() {
                             {assignedValues.map(value => (
                                 <div key={value.id} className={styles.valueCard}>
                                     <h3 className={styles.cardTitle}>{value.title}</h3>
-                                    <p className={styles.cardDescription}>{value.description}</p>
-                                    {value.category && (
-                                        <span className={styles.cardCategory}>
-                                            {VALUE_CATEGORIES[value.category.toUpperCase()]?.label || value.category}
-                                        </span>
+                                    {value.description && (
+                                        <p className={styles.cardDescription}>{value.description}</p>
                                     )}
                                 </div>
                             ))}
@@ -337,51 +343,136 @@ function GoalsPage() {
                         </div>
                     )}
                 </div>
-            </div>
 
-            {/* ==========================================
-                MODAL: Assign Goals
-            ========================================== */}
-            <Modal
-                isOpen={assignGoalsOpen}
-                onClose={() => setAssignGoalsOpen(false)}
-                title="שבץ מטרות"
-                size="medium"
-            >
-                <Modal.Body>
-                    <p className={styles.modalHint}>בחר עד 3 מטרות עבור {HEBREW_MONTHS[selectedMonth]} {selectedYear}</p>
-                    {goals.length > 0 ? (
-                        <div className={styles.selectionList}>
-                            {goals.map(goal => {
-                                const isSelected = selectedGoalIds.includes(goal.id);
+                {/* Goals Section - organized by group type */}
+                <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>
+                            <Target size={20} />
+                            מטרות החודש
+                        </h2>
+                        {canEdit && (
+                            <div className={styles.adminButtons}>
+                                <Button size="small" onClick={openAssignGoals}>
+                                    שבץ מטרות
+                                </Button>
+                                <Button size="small" variant="ghost" onClick={() => setManageGoalsOpen(true)}>
+                                    <Settings size={16} />
+                                    נהל מטרות
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                    {hasAssignedGoals ? (
+                        <div className={styles.goalsByType}>
+                            {relevantGroupTypes.map(groupType => {
+                                const typeGoalIds = assignmentGoalsByType[groupType.id] || [];
+                                if (typeGoalIds.length === 0) return null;
+                                const typeGoals = typeGoalIds
+                                    .map(id => goals.find(g => g.id === id))
+                                    .filter(Boolean);
+                                if (typeGoals.length === 0) return null;
+
                                 return (
-                                    <button
-                                        key={goal.id}
-                                        className={`${styles.selectionItem} ${isSelected ? styles.selected : ''}`}
-                                        onClick={() => toggleGoalSelection(goal.id)}
-                                        disabled={!isSelected && selectedGoalIds.length >= 3}
-                                    >
-                                        <div className={styles.selectionInfo}>
-                                            <div>
-                                                <div className={styles.selectionTitle}>{goal.title}</div>
-                                                {goal.description && (
-                                                    <div className={styles.selectionDesc}>{goal.description}</div>
-                                                )}
-                                            </div>
+                                    <div key={groupType.id} className={styles.groupTypeSection}>
+                                        <div className={styles.groupTypeHeader}>
+                                            {groupType.name}
                                         </div>
-                                        {isSelected && (
-                                            <div className={styles.checkMark}>
-                                                <Check size={16} />
-                                            </div>
-                                        )}
-                                    </button>
+                                        <div className={styles.cardsGrid}>
+                                            {typeGoals.map(goal => (
+                                                <div key={goal.id} className={styles.goalCard}>
+                                                    <h3 className={styles.cardTitle}>{goal.title}</h3>
+                                                    {goal.description && (
+                                                        <p className={styles.cardDescription}>{goal.description}</p>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 );
                             })}
                         </div>
                     ) : (
-                        <div className={styles.noItems}>
-                            אין מטרות מוגדרות. הוסף מטרות דרך &quot;נהל מטרות&quot;.
+                        <div className={styles.emptyState}>
+                            <Target className={styles.emptyIcon} />
+                            <div className={styles.emptyTitle}>לא שובצו מטרות לחודש זה</div>
                         </div>
+                    )}
+                </div>
+            </div>
+
+            {/* ==========================================
+                MODAL: Assign Goals (per group type)
+            ========================================== */}
+            <Modal
+                isOpen={assignGoalsOpen}
+                onClose={() => setAssignGoalsOpen(false)}
+                title="שבץ מטרות לפי סוג קבוצה"
+                size="large"
+            >
+                <Modal.Body>
+                    <p className={styles.modalHint}>
+                        בחר סוג קבוצה ושבץ עד 3 מטרות עבור {HEBREW_MONTHS[selectedMonth]} {selectedYear}
+                    </p>
+
+                    {/* Group type tabs */}
+                    <div className={styles.groupTypeTabs}>
+                        {DEFAULT_GROUP_TYPES.map(gt => {
+                            const count = (selectedGoalsByType[gt.id] || []).length;
+                            return (
+                                <button
+                                    key={gt.id}
+                                    className={`${styles.groupTypeTab} ${activeGroupType === gt.id ? styles.activeTab : ''}`}
+                                    onClick={() => setActiveGroupType(gt.id)}
+                                >
+                                    {gt.name}
+                                    {count > 0 && <span className={styles.tabBadge}>{count}</span>}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Goals selection for active group type */}
+                    {activeGroupType && (
+                        <>
+                            <div className={styles.activeTypeLabel}>
+                                מטרות עבור: <strong>{DEFAULT_GROUP_TYPES.find(gt => gt.id === activeGroupType)?.name}</strong>
+                            </div>
+                            {goals.length > 0 ? (
+                                <div className={styles.selectionList}>
+                                    {goals.map(goal => {
+                                        const isSelected = (selectedGoalsByType[activeGroupType] || []).includes(goal.id);
+                                        const currentCount = (selectedGoalsByType[activeGroupType] || []).length;
+                                        return (
+                                            <button
+                                                key={goal.id}
+                                                className={`${styles.selectionItem} ${isSelected ? styles.selected : ''}`}
+                                                onClick={() => toggleGoalForType(goal.id)}
+                                                disabled={!isSelected && currentCount >= 3}
+                                            >
+                                                <div className={styles.selectionInfo}>
+                                                    <div>
+                                                        <div className={styles.selectionTitle}>{goal.title}</div>
+                                                        {goal.description && (
+                                                            <div className={styles.selectionDesc}>{goal.description}</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {isSelected && (
+                                                    <div className={styles.checkMark}>
+                                                        <Check size={16} />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className={styles.noItems}>
+                                    אין מטרות מוגדרות. הוסף מטרות דרך &quot;נהל מטרות&quot;.
+                                </div>
+                            )}
+                        </>
                     )}
                 </Modal.Body>
                 <Modal.Footer>

@@ -15,7 +15,7 @@ function BottomNav() {
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                 { to: '/users', icon: UserCog, label: 'מאמנים' },
                 { to: '/groups', icon: Users, label: 'קבוצות' },
-                { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
+                { to: '/goals', icon: Target, label: 'מטרות וערכים' },
             ];
         }
 
@@ -24,7 +24,7 @@ function BottomNav() {
             return [
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                 { to: '/monthly-plans/review', icon: CalendarDays, label: 'אישור תכניות' },
-                { to: '/goals', icon: Target, label: 'מטרות' },
+                { to: '/goals', icon: Target, label: 'מטרות וערכים' },
                 { to: '/users', icon: UserCog, label: 'משתמשים' },
             ];
         }
@@ -34,7 +34,7 @@ function BottomNav() {
             { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
             { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
             { to: '/calendar', icon: Calendar, label: 'בניית תכנית' },
-            { to: '/groups', icon: Users, label: 'קבוצות' },
+            { to: '/goals', icon: Target, label: 'מטרות וערכים' },
         ];
     };
 

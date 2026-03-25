@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Mail } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
@@ -29,7 +29,7 @@ const getRoleClass = (role) => {
 
 function UsersPage() {
     const { userData, isCenterManager, isSupervisor } = useAuthStore();
-    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser } = useUsersStore();
+    const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser, resendInvitation } = useUsersStore();
     const { centers, fetchCenters, getCenterName } = useCentersStore();
     const { addToast } = useUIStore();
 
@@ -51,6 +51,25 @@ function UsersPage() {
     const handleEditUser = (user) => {
         setSelectedUser(user);
         setIsFormOpen(true);
+    };
+
+    const handleResendInvitation = async (user) => {
+        addToast({ type: 'info', message: `שולח הזמנה ל-${user.email}...` });
+        const result = await resendInvitation(user.email);
+        if (result.success) {
+            if (result.method === 'link') {
+                await navigator.clipboard.writeText(result.link).catch(() => {});
+                addToast({
+                    type: 'success',
+                    message: 'קישור הזמנה הועתק ללוח. שלח אותו למשתמש ידנית.',
+                    duration: 8000,
+                });
+            } else {
+                addToast({ type: 'success', message: `אימייל הזמנה נשלח בהצלחה ל-${user.email}` });
+            }
+        } else {
+            addToast({ type: 'error', message: result.error });
+        }
     };
 
     const handleDeleteUser = async (user) => {
@@ -86,14 +105,33 @@ function UsersPage() {
                 addToast({ type: 'success', message: 'המשתמש עודכן בהצלחה' });
             } else {
                 const method = formData.onboardingMethod || 'invitation';
-                const emailMsg = method === 'invitation'
-                    ? ` | אימייל הזמנה נשלח ל-${formData.email}`
-                    : '';
-                addToast({
-                    type: 'success',
-                    message: `המשתמש נוצר בהצלחה${emailMsg}`,
-                    duration: 6000,
-                });
+                if (method === 'invitation') {
+                    if (result.emailSent === true) {
+                        addToast({
+                            type: 'success',
+                            message: `המשתמש נוצר בהצלחה | אימייל הזמנה נשלח ל-${formData.email}`,
+                            duration: 6000,
+                        });
+                    } else if (result.emailSent === 'link') {
+                        addToast({
+                            type: 'warning',
+                            message: 'המשתמש נוצר בהצלחה, אך שליחת המייל נכשלה. השתמש בכפתור "שלח הזמנה" לשליחה חוזרת.',
+                            duration: 8000,
+                        });
+                    } else {
+                        addToast({
+                            type: 'warning',
+                            message: 'המשתמש נוצר בהצלחה, אך שליחת המייל נכשלה. השתמש בכפתור "שלח הזמנה" לשליחה חוזרת.',
+                            duration: 8000,
+                        });
+                    }
+                } else {
+                    addToast({
+                        type: 'success',
+                        message: 'המשתמש נוצר בהצלחה',
+                        duration: 6000,
+                    });
+                }
             }
             setIsFormOpen(false);
         } else {
@@ -182,6 +220,9 @@ function UsersPage() {
                                             <td>{user.phone || '-'}</td>
                                             <td>
                                                 <div className={styles.actions}>
+                                                    <Button variant="ghost" size="small" iconOnly onClick={() => handleResendInvitation(user)} title="שלח הזמנה">
+                                                        <Mail size={16} />
+                                                    </Button>
                                                     <Button variant="ghost" size="small" iconOnly onClick={() => handleEditUser(user)} title="ערוך">
                                                         <Edit2 size={16} />
                                                     </Button>
@@ -215,6 +256,9 @@ function UsersPage() {
                                         </span>
                                     </div>
                                     <div className={styles.cardActions}>
+                                        <button className={styles.cardActionBtn} onClick={() => handleResendInvitation(user)} title="שלח הזמנה">
+                                            <Mail size={18} />
+                                        </button>
                                         <button className={styles.cardActionBtn} onClick={() => handleEditUser(user)} title="ערוך">
                                             <Edit2 size={18} />
                                         </button>

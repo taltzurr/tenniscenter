@@ -49,7 +49,7 @@ export const getMonthlyTheme = async (year, month) => {
 
 /**
  * Save or update monthly theme
- * @param {object} data - { year, month, values: [], goals: [] }
+ * @param {object} data - { year, month, goalsByType: {}, goals: [], values: [] }
  */
 export const saveMonthlyTheme = async (data) => {
     try {

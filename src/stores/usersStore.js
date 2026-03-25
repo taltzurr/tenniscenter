@@ -116,16 +116,31 @@ const useUsersStore = create((set, get) => ({
             await setDoc(doc(db, 'users', uid), profileData);
             const newUser = { id: uid, ...profileData };
 
-            // Send welcome email for invitation flow
+            // Send welcome email for invitation flow (non-blocking — user is already created)
+            let emailSent = false;
             if (onboardingMethod === 'invitation') {
-                await sendWelcomeEmail(profileData.email);
+                try {
+                    await sendWelcomeEmail(profileData.email);
+                    emailSent = true;
+                } catch (emailErr) {
+                    console.warn('Welcome email failed (client-side):', emailErr.message);
+                    // Try server-side fallback via Cloud Function
+                    try {
+                        const genLinkFn = httpsCallable(getFunctions(), 'generatePasswordResetLink');
+                        const result = await genLinkFn({ email: profileData.email, isWelcome: true });
+                        emailSent = 'link';
+                        console.info('Generated welcome link via Cloud Function:', result.data.link);
+                    } catch (cfErr) {
+                        console.warn('Cloud Function link generation also failed:', cfErr.message);
+                    }
+                }
             }
 
             set(state => ({
                 users: [...state.users, newUser],
                 isLoading: false
             }));
-            return { success: true };
+            return { success: true, emailSent };
         } catch (error) {
             console.error('Error adding user:', error);
             const friendlyMsg = error.code === 'auth/email-already-in-use'
@@ -183,12 +198,21 @@ const useUsersStore = create((set, get) => ({
     },
 
     resendInvitation: async (email) => {
+        // Try client-side email first
         try {
             await sendWelcomeEmail(email);
-            return { success: true };
-        } catch (error) {
-            console.error('Error resending invitation:', error);
-            return { success: false, error: 'שגיאה בביצוע הפעולה' };
+            return { success: true, method: 'email' };
+        } catch (emailErr) {
+            console.warn('Client-side welcome email failed:', emailErr.message);
+        }
+        // Fallback: generate link via Cloud Function
+        try {
+            const genLinkFn = httpsCallable(getFunctions(), 'generatePasswordResetLink');
+            const result = await genLinkFn({ email, isWelcome: true });
+            return { success: true, method: 'link', link: result.data.link };
+        } catch (cfErr) {
+            console.error('Both email and link generation failed:', cfErr);
+            return { success: false, error: 'שגיאה בשליחת ההזמנה. נסה שוב מאוחר יותר.' };
         }
     },
 

@@ -45,7 +45,7 @@ export async function signOut() {
  */
 // Production URL – hardcoded so emails always link to the real site,
 // regardless of which domain the admin is currently on.
-const PRODUCTION_URL = 'https://tennis-training-app-gemini.web.app';
+const PRODUCTION_URL = 'https://tennis-centers.web.app';
 
 export async function resetPassword(email) {
     const actionCodeSettings = {
