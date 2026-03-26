@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, BookOpen, Settings, Tag } from 'lucide-react';
+import { ArrowRight, BookOpen, Settings, Tag, Puzzle } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
 import useUIStore from '../../../stores/uiStore';
-import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, AGE_GROUPS } from '../../../services/exercises';
+import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, EXERCISE_TOPICS, GAME_COMPONENTS } from '../../../services/exercises';
 import { createRequest } from '../../../services/exerciseRequests';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
@@ -27,10 +27,9 @@ function ExerciseForm() {
         description: '',
         category: 'two_behind',
         difficulty: 'all_levels',
-        duration: 15,
-        ageGroups: [],
+        topics: [],
+        gameComponents: [],
         equipment: '',
-        tags: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,12 +45,11 @@ function ExerciseForm() {
             setFormData({
                 title: currentExercise.title || '',
                 description: currentExercise.description || '',
-                category: currentExercise.category || 'forehand',
-                difficulty: currentExercise.difficulty || 2,
-                duration: currentExercise.duration || 15,
-                ageGroups: currentExercise.ageGroups || [],
+                category: currentExercise.category || 'two_behind',
+                difficulty: currentExercise.difficulty || 'all_levels',
+                topics: currentExercise.topics || [],
+                gameComponents: currentExercise.gameComponents || [],
                 equipment: currentExercise.equipment?.join(', ') || '',
-                tags: currentExercise.tags?.join(', ') || ''
             });
         }
     }, [currentExercise, isEditMode]);
@@ -63,12 +61,12 @@ function ExerciseForm() {
         }));
     };
 
-    const toggleAgeGroup = (ageGroup) => {
+    const toggleItem = (field, value) => {
         setFormData(prev => ({
             ...prev,
-            ageGroups: prev.ageGroups.includes(ageGroup)
-                ? prev.ageGroups.filter(a => a !== ageGroup)
-                : [...prev.ageGroups, ageGroup]
+            [field]: prev[field].includes(value)
+                ? prev[field].filter(v => v !== value)
+                : [...prev[field], value]
         }));
     };
 
@@ -85,10 +83,7 @@ function ExerciseForm() {
         try {
             const payload = {
                 ...formData,
-                difficulty: formData.difficulty,
-                duration: parseInt(formData.duration),
                 equipment: formData.equipment.split(',').map(s => s.trim()).filter(Boolean),
-                tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean),
                 createdBy: userData?.id,
                 createdByName: userData?.displayName || userData?.name || userData?.email || 'Unknown'
             };
@@ -97,17 +92,14 @@ function ExerciseForm() {
             const canCreateDirectly = userData?.role === 'supervisor' || userData?.role === 'admin';
 
             if (isEditMode) {
-                // Edit mode - update directly (only allowed users should reach this)
                 await editExercise(id, payload);
                 addToast({ type: 'success', message: 'התרגיל עודכן בהצלחה' });
                 navigate('/exercises');
             } else if (canCreateDirectly) {
-                // Supervisors/Admins can create directly
                 await addExercise(payload);
                 addToast({ type: 'success', message: 'התרגיל נוצר בהצלחה ונוסף למאגר' });
                 navigate('/exercises');
             } else {
-                // Coaches create a request for approval
                 await createRequest({
                     ...payload,
                     requestedBy: userData?.id,
@@ -163,10 +155,10 @@ function ExerciseForm() {
                         />
 
                         <div>
-                            <label className={styles.label}>תיאור</label>
+                            <label className={styles.label}>הסבר התרגיל</label>
                             <textarea
                                 className={styles.textarea}
-                                placeholder="תאר את התרגיל בפירוט..."
+                                placeholder="הסבר את התרגיל בפירוט..."
                                 value={formData.description}
                                 onChange={handleChange('description')}
                             />
@@ -211,60 +203,73 @@ function ExerciseForm() {
                                     ))}
                                 </select>
                             </div>
-
-                            <div>
-                                <label className={styles.label}>משך (דקות)</label>
-                                <Input
-                                    type="number"
-                                    min="1"
-                                    max="120"
-                                    value={formData.duration}
-                                    onChange={handleChange('duration')}
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className={styles.label}>קבוצות גיל מתאימות</label>
-                            <div className={styles.checkboxGroup}>
-                                {AGE_GROUPS.map(age => (
-                                    <label
-                                        key={age.value}
-                                        className={`${styles.checkbox} ${formData.ageGroups.includes(age.value) ? styles.selected : ''}`}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.ageGroups.includes(age.value)}
-                                            onChange={() => toggleAgeGroup(age.value)}
-                                            style={{ display: 'none' }}
-                                        />
-                                        {age.label}
-                                    </label>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Tags */}
+                {/* Exercise Topics */}
                 <div className={styles.card}>
                     <h2 className={styles.cardTitle}>
                         <Tag size={18} />
-                        תגיות וציוד
+                        נושא התרגיל
+                    </h2>
+                    <div className={styles.fieldGroup}>
+                        <div className={styles.checkboxGroup}>
+                            {EXERCISE_TOPICS.map(topic => (
+                                <label
+                                    key={topic.value}
+                                    className={`${styles.checkbox} ${formData.topics.includes(topic.value) ? styles.selected : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.topics.includes(topic.value)}
+                                        onChange={() => toggleItem('topics', topic.value)}
+                                        style={{ display: 'none' }}
+                                    />
+                                    {topic.label}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Game Components */}
+                <div className={styles.card}>
+                    <h2 className={styles.cardTitle}>
+                        <Puzzle size={18} />
+                        מרכיב משחק
+                    </h2>
+                    <div className={styles.fieldGroup}>
+                        <div className={styles.checkboxGroup}>
+                            {GAME_COMPONENTS.map(comp => (
+                                <label
+                                    key={comp.value}
+                                    className={`${styles.checkbox} ${formData.gameComponents.includes(comp.value) ? styles.selectedBlue : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.gameComponents.includes(comp.value)}
+                                        onChange={() => toggleItem('gameComponents', comp.value)}
+                                        style={{ display: 'none' }}
+                                    />
+                                    {comp.label}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Equipment */}
+                <div className={styles.card}>
+                    <h2 className={styles.cardTitle}>
+                        <Settings size={18} />
+                        ציוד נדרש
                     </h2>
                     <div className={styles.fieldGroup}>
                         <Input
-                            label="ציוד נדרש"
                             placeholder="כדורים, קונוסים, רשת (מופרד בפסיקים)"
                             value={formData.equipment}
                             onChange={handleChange('equipment')}
-                        />
-
-                        <Input
-                            label="תגיות לחיפוש"
-                            placeholder="טכניקה, התחלתי, אחיזה (מופרד בפסיקים)"
-                            value={formData.tags}
-                            onChange={handleChange('tags')}
                         />
                     </div>
                 </div>

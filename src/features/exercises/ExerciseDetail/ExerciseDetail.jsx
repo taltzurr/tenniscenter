@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, Clock, Users, Tag, Layers, Edit3, User } from 'lucide-react';
+import { ArrowRight, Users, Tag, Layers, Edit3, Puzzle } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
-import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, AGE_GROUPS } from '../../../services/exercises';
+import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, EXERCISE_TOPICS, GAME_COMPONENTS } from '../../../services/exercises';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import styles from './ExerciseDetail.module.css';
@@ -28,8 +28,13 @@ function ExerciseDetail() {
 
     const category = EXERCISE_CATEGORIES.find(c => c.value === currentExercise.category);
     const diffLevel = DIFFICULTY_LEVELS.find(d => d.value === currentExercise.difficulty);
-    const ageLabels = (currentExercise.ageGroups || [])
-        .map(ag => AGE_GROUPS.find(a => a.value === ag)?.label)
+
+    const topicLabels = (currentExercise.topics || [])
+        .map(t => EXERCISE_TOPICS.find(et => et.value === t)?.label)
+        .filter(Boolean);
+
+    const componentLabels = (currentExercise.gameComponents || [])
+        .map(c => GAME_COMPONENTS.find(gc => gc.value === c)?.label)
         .filter(Boolean);
 
     return (
@@ -67,18 +72,6 @@ function ExerciseDetail() {
                         <span>{diffLevel.emoji} {diffLevel.label}</span>
                     </div>
                 )}
-                {currentExercise.duration && (
-                    <div className={styles.statChip}>
-                        <Clock size={14} />
-                        <span>{currentExercise.duration} דקות</span>
-                    </div>
-                )}
-                {ageLabels.length > 0 && (
-                    <div className={styles.statChip}>
-                        <Users size={14} />
-                        <span>{ageLabels.join(', ')}</span>
-                    </div>
-                )}
             </div>
 
             {/* Description */}
@@ -86,22 +79,37 @@ function ExerciseDetail() {
                 <div className={styles.card}>
                     <h2 className={styles.sectionTitle}>
                         <Layers size={18} />
-                        תיאור התרגיל
+                        הסבר התרגיל
                     </h2>
                     <p className={styles.descriptionText}>{currentExercise.description}</p>
                 </div>
             )}
 
-            {/* Tags */}
-            {currentExercise.tags?.length > 0 && (
+            {/* Exercise Topics */}
+            {topicLabels.length > 0 && (
                 <div className={styles.card}>
                     <h2 className={styles.sectionTitle}>
                         <Tag size={18} />
-                        תגיות
+                        נושא התרגיל
                     </h2>
                     <div className={styles.tagsList}>
-                        {currentExercise.tags.map((tag, i) => (
-                            <span key={i} className={styles.tag}>{tag}</span>
+                        {topicLabels.map((label, i) => (
+                            <span key={i} className={styles.tag}>{label}</span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Game Components */}
+            {componentLabels.length > 0 && (
+                <div className={styles.card}>
+                    <h2 className={styles.sectionTitle}>
+                        <Puzzle size={18} />
+                        מרכיב משחק
+                    </h2>
+                    <div className={styles.tagsList}>
+                        {componentLabels.map((label, i) => (
+                            <span key={i} className={styles.componentTag}>{label}</span>
                         ))}
                     </div>
                 </div>
@@ -116,14 +124,6 @@ function ExerciseDetail() {
                             <span key={i} className={styles.equipTag}>{eq}</span>
                         ))}
                     </div>
-                </div>
-            )}
-
-            {/* Author info */}
-            {currentExercise.createdByName && (
-                <div className={styles.authorRow}>
-                    <User size={14} />
-                    <span>נוצר ע״י {currentExercise.createdByName}</span>
                 </div>
             )}
         </div>

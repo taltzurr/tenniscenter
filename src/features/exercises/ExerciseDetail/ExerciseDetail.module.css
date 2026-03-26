@@ -153,20 +153,18 @@
     border-radius: var(--radius-full);
 }
 
-.equipTag {
+.componentTag {
     font-size: var(--font-size-sm);
     color: var(--primary-700);
-    background: var(--primary-50);
+    background: var(--primary-100);
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-full);
 }
 
-/* Author */
-.authorRow {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
+.equipTag {
     font-size: var(--font-size-sm);
-    color: var(--text-tertiary);
-    padding-top: var(--space-2);
+    color: var(--gray-700);
+    background: var(--gray-100);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
 }

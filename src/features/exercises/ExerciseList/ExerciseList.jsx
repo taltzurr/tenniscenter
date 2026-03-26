@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, BookOpen, MessageSquarePlus } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
-import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, AGE_GROUPS } from '../../../services/exercises';
+import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS } from '../../../services/exercises';
 import ExerciseCard from '../ExerciseCard';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
@@ -46,11 +46,6 @@ function ExerciseList() {
     const handleDifficultyChange = (e) => {
         const value = e.target.value || null;
         setFilters({ difficulty: value });
-        fetchExercises();
-    };
-
-    const handleAgeGroupChange = (e) => {
-        setFilters({ ageGroup: e.target.value || null });
         fetchExercises();
     };
 
@@ -130,19 +125,6 @@ function ExerciseList() {
                     </select>
                 </div>
 
-                <div className={styles.filterGroup}>
-                    <label className={styles.filterLabel}>קבוצת גיל</label>
-                    <select
-                        value={filters.ageGroup || ''}
-                        onChange={handleAgeGroupChange}
-                        className={styles.selectInput}
-                    >
-                        <option value="">הכל</option>
-                        {AGE_GROUPS.map(age => (
-                            <option key={age.value} value={age.value}>{age.label}</option>
-                        ))}
-                    </select>
-                </div>
             </div>
 
             {exercises.length > 0 ? (

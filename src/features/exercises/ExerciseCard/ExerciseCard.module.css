@@ -78,6 +78,15 @@
     padding: 1px var(--space-1);
 }
 
+.componentTag {
+    font-size: 11px;
+    color: var(--primary-700);
+    background: var(--primary-100);
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
 .meta {
     display: flex;
     gap: var(--space-3);

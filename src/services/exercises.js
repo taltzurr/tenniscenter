@@ -148,6 +148,31 @@ export const AGE_GROUPS = [
     { value: '16+', label: '16+ שנים' },
 ];
 
+// Exercise topics (נושא התרגיל)
+export const EXERCISE_TOPICS = [
+    { value: 'center_options', label: 'מרכז אפשרויות' },
+    { value: 'practice_game', label: 'משחק אימון' },
+    { value: 'direction', label: 'כיוון' },
+    { value: 'stability', label: 'יציבות' },
+    { value: 'depth', label: 'עומק' },
+    { value: 'height', label: 'גובה' },
+    { value: 'physical_warmup', label: 'חימום פיזי' },
+    { value: 'agility', label: 'זריזות' },
+    { value: 'power', label: 'עוצמה' },
+    { value: 'spins', label: 'סיבוביות' },
+    { value: 'ball_feel', label: 'רגש בכדור' },
+    { value: 'game_skill', label: 'מיומנות משחק' },
+];
+
+// Game components (מרכיב משחק)
+export const GAME_COMPONENTS = [
+    { value: 'technical', label: 'טכני' },
+    { value: 'physical', label: 'פיזי' },
+    { value: 'tactical', label: 'טקטי' },
+    { value: 'mental', label: 'מנטלי' },
+    { value: 'cognitive', label: 'הכרתי' },
+];
+
 // Difficulty levels (play levels / רמות משחק)
 export const DIFFICULTY_LEVELS = [
     { value: 'beginners', label: 'מתחילים', emoji: '🟢', color: '#4caf50' },

@@ -119,6 +119,12 @@
 }
 
 .checkbox.selected {
+    background: var(--accent-100);
+    border-color: var(--accent-600);
+    color: var(--accent-700);
+}
+
+.checkbox.selectedBlue {
     background: var(--primary-50);
     border-color: var(--primary-500);
     color: var(--primary-700);

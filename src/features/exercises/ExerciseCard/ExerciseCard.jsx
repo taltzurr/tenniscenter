@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Clock, Users } from 'lucide-react';
-import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS } from '../../../services/exercises';
+import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, EXERCISE_TOPICS, GAME_COMPONENTS } from '../../../services/exercises';
 import styles from './ExerciseCard.module.css';
 
 function ExerciseCard({ exercise }) {
@@ -14,9 +13,17 @@ function ExerciseCard({ exercise }) {
             : exercise.description
         : '';
 
-    // Show up to 3 tags
-    const visibleTags = (exercise.tags || []).slice(0, 3);
-    const extraTagCount = (exercise.tags || []).length - 3;
+    // Show topic labels (up to 3)
+    const topicLabels = (exercise.topics || [])
+        .map(t => EXERCISE_TOPICS.find(et => et.value === t)?.label)
+        .filter(Boolean)
+        .slice(0, 3);
+    const extraTopicCount = (exercise.topics || []).length - 3;
+
+    // Show component labels
+    const componentLabels = (exercise.gameComponents || [])
+        .map(c => GAME_COMPONENTS.find(gc => gc.value === c)?.label)
+        .filter(Boolean);
 
     return (
         <Link to={`/exercises/${exercise.id}`} className={styles.card}>
@@ -37,31 +44,19 @@ function ExerciseCard({ exercise }) {
                 <p className={styles.description}>{descPreview}</p>
             )}
 
-            {visibleTags.length > 0 && (
+            {(topicLabels.length > 0 || componentLabels.length > 0) && (
                 <div className={styles.tags}>
-                    {visibleTags.map((tag, i) => (
-                        <span key={i} className={styles.tag}>{tag}</span>
+                    {topicLabels.map((label, i) => (
+                        <span key={`t-${i}`} className={styles.tag}>{label}</span>
                     ))}
-                    {extraTagCount > 0 && (
-                        <span className={styles.tagMore}>+{extraTagCount}</span>
+                    {extraTopicCount > 0 && (
+                        <span className={styles.tagMore}>+{extraTopicCount}</span>
                     )}
+                    {componentLabels.map((label, i) => (
+                        <span key={`c-${i}`} className={styles.componentTag}>{label}</span>
+                    ))}
                 </div>
             )}
-
-            <div className={styles.meta}>
-                {exercise.duration && (
-                    <span className={styles.metaItem}>
-                        <Clock size={13} />
-                        {exercise.duration} דק'
-                    </span>
-                )}
-                {exercise.ageGroups?.length > 0 && (
-                    <span className={styles.metaItem}>
-                        <Users size={13} />
-                        {exercise.ageGroups[0]}
-                    </span>
-                )}
-            </div>
         </Link>
     );
 }
