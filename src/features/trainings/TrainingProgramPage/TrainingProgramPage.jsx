@@ -88,6 +88,15 @@ export default function TrainingProgramPage() {
     const { currentPlan, fetchPlan, savePlan, submitPlan, isLoading: planLoading } = useMonthlyPlansStore();
     const { getCenterName } = useCentersStore();
 
+    const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const MAX_VISIBLE_MOBILE = 3;
+
     const [currentDate, setCurrentDate] = useState(() => {
         const dateParam = searchParams.get('date');
         if (!dateParam) return new Date();
@@ -431,6 +440,13 @@ export default function TrainingProgramPage() {
                             const dayTrainings = getTrainingsForDay(day);
                             const hasHoliday = dayEvents.some(e => e.type === 'holiday');
 
+                            // On mobile, combine events + trainings and limit visible count
+                            const totalItems = dayEvents.length + dayTrainings.length;
+                            const visibleEvents = isMobile ? dayEvents.slice(0, MAX_VISIBLE_MOBILE) : dayEvents;
+                            const remainingSlots = isMobile ? Math.max(0, MAX_VISIBLE_MOBILE - visibleEvents.length) : dayTrainings.length;
+                            const visibleTrainings = dayTrainings.slice(0, remainingSlots);
+                            const hiddenCount = isMobile ? totalItems - visibleEvents.length - visibleTrainings.length : 0;
+
                             return (
                                 <div
                                     key={day.toISOString()}
@@ -439,7 +455,7 @@ export default function TrainingProgramPage() {
                                 >
                                     <div className={styles.dayTop}>
                                         <span className={styles.dayNumber}>{format(day, 'd')}</span>
-                                        {dayEvents.map(event => (
+                                        {visibleEvents.map(event => (
                                             <div
                                                 key={event.id}
                                                 className={styles.eventPill}
@@ -452,7 +468,7 @@ export default function TrainingProgramPage() {
                                     </div>
 
                                     <div className={styles.dayContent}>
-                                        {dayTrainings.map(t => {
+                                        {visibleTrainings.map(t => {
                                             const group = groups?.find(g => g.id === t.groupId);
                                             const color = group?.color || stringToColor(group?.name);
                                             const d = normalizeDate(t.date);
@@ -464,9 +480,13 @@ export default function TrainingProgramPage() {
                                                     style={{ backgroundColor: color, color: 'white' }}
                                                 >
                                                     {d ? format(d, 'HH:mm') : '??:??'}
+                                                    {!isMobile && group?.name ? ` ${group.name}` : ''}
                                                 </div>
                                             );
                                         })}
+                                        {hiddenCount > 0 && (
+                                            <div className={styles.moreBadge}>+{hiddenCount}</div>
+                                        )}
                                     </div>
                                 </div>
                             );

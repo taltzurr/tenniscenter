@@ -14,7 +14,6 @@
     padding: var(--space-4);
     border-radius: var(--radius-xl);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    /* Softer shadow */
     margin-bottom: var(--space-4);
     display: flex;
     flex-direction: column;
@@ -46,7 +45,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* Spread out on mobile */
     width: 100%;
     gap: 8px;
 }
@@ -118,13 +116,14 @@
 .listTrainingCard {
     display: flex;
     gap: 12px;
-    padding: 10px;
+    padding: 12px;
     background: white;
     border: 1px solid var(--gray-100);
     border-radius: var(--radius-md);
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+    align-items: center;
 }
 
 .listTrainingCard:active {
@@ -140,6 +139,11 @@
     bottom: 0;
     width: 4px;
     background: var(--indicator-color, var(--gray-300));
+}
+
+.listTrainingCard.performed {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
 }
 
 .cardTimeBox {
@@ -196,78 +200,50 @@
     align-self: flex-start;
 }
 
-/* Remove old Toggle styles if present or keep minimal */
+/* Checkbox Area */
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline-end: 4px;
+    z-index: 2;
+}
+
+.customCheckbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.customCheckbox.checked {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: white;
+}
+
+.executedByLabel {
+    font-size: 10px;
+    color: #15803d;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* Remove old Toggle styles */
 .toggleContainer,
 .toggleButton {
     display: none;
-    /* Hidden as per request */
 }
 
-@media (min-width: 768px) {
-    .page {
-        padding: var(--space-6);
-        max-width: 1200px;
-        margin: 0 auto;
-        padding-bottom: var(--space-6);
-    }
-
-    .header {
-        padding: var(--space-5);
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .headerTop {
-        width: auto;
-    }
-
-    .headerControls {
-        width: auto;
-        gap: var(--space-4);
-    }
-
-    .title {
-        font-size: var(--font-size-2xl);
-    }
-
-    .weeklyListSection {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: var(--space-4);
-    }
-
-    .dayListCard {
-        border-radius: var(--radius-xl);
-    }
-}
-
-@media (min-width: 1024px) {
-    .page {
-        padding: var(--space-8);
-        max-width: 1400px;
-    }
-
-    .title {
-        font-size: var(--font-size-3xl);
-    }
-
-    .weeklyListSection {
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-6);
-    }
-
-    .calendarContainer {
-        padding: var(--space-4);
-    }
-
-    .dayCell {
-        min-height: 100px;
-        padding: var(--space-2);
-    }
-}
-
-/* ... Previous Mobile First CSS ... */
-
+/* Group Pills */
 .groupDot {
     width: 8px;
     height: 8px;
@@ -275,7 +251,6 @@
     flex-shrink: 0;
 }
 
-/* [Replacing Filter styles with Group Pills] */
 .groupPillsContainer {
     display: flex;
     flex-wrap: nowrap;
@@ -284,13 +259,11 @@
     padding: 2px 4px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    /* Firefox */
     max-width: 100%;
 }
 
 .groupPillsContainer::-webkit-scrollbar {
     display: none;
-    /* Chrome/Safari */
 }
 
 .groupPill {
@@ -315,119 +288,17 @@
     color: white;
     border-color: var(--primary-600);
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-    /* Blue shadow */
 }
 
-/* Legend */
-.legendContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 8px 4px;
-    margin-top: 8px;
-    border-top: 1px solid var(--gray-50);
-}
-
-.legendItem {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--text-secondary);
-}
-
-.legendDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-/* Weekly List Styles... (keeping existing) */
-
-/* Updated Training Card with Checkbox */
-.listTrainingCard {
-    display: flex;
-    gap: 12px;
-    padding: 12px;
-    background: white;
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius-md);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s;
-    align-items: center;
-    /* Align checkbox */
-}
-
-.listTrainingCard.performed {
-    background: #f0fdf4;
-    /* green-50 */
-    border-color: #bbf7d0;
-    /* green-200 */
-}
-
-/* Checkbox Area */
-.checkboxContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-inline-end: 4px;
-    z-index: 2;
-    /* Clickable */
-}
-
-.customCheckbox {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    /* Circle checkbox like standard todo apps */
-    border: 2px solid var(--gray-300);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: white;
-}
-
-.customCheckbox.checked {
-    background: #16a34a;
-    /* green-600 */
-    border-color: #16a34a;
-    color: white;
-}
-
-.executedByLabel {
-    font-size: 10px;
-    color: #15803d;
-    /* green-700 */
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-/* ... Media Queries ... */
-@media (min-width: 768px) {
-
-    /* ... existing ... */
-    .groupPill:hover {
-        background: var(--gray-50);
-    }
-
-    .groupPill.active:hover {
-        background: var(--primary-700);
-    }
-}
-
-/* Month Navigator */
+/* ============================
+   MONTH NAVIGATOR
+   ============================ */
 .monthNav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--gray-50);
-    margin-top: var(--space-2);
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
 }
 
 .currentMonth {
@@ -442,13 +313,14 @@
     border: 1px solid var(--gray-100);
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 8px;
-    /* Touch target */
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .navButton:active {
@@ -456,60 +328,76 @@
     transform: scale(0.95);
 }
 
-/* Calendar Grid Container */
+/* ============================
+   CALENDAR CONTAINER
+   ============================ */
 .calendarContainer {
     background: white;
     border-radius: var(--radius-xl);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    padding: var(--space-2);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-3);
     overflow: hidden;
-    /* Prevent full page scroll locking */
 }
 
-/* MONTH VIEW MOBILE */
+/* ============================
+   WEEK HEADERS
+   ============================ */
 .weekHeaders {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--gray-100);
-    padding-bottom: 8px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .weekHeader {
     text-align: center;
     font-size: 10px;
-    font-weight: 700;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--gray-50);
+    padding: var(--space-2);
 }
 
+/* ============================
+   DAYS GRID
+   ============================ */
 .daysGrid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 1px;
     background: var(--gray-100);
-    border: 1px solid var(--gray-100);
     border-radius: var(--radius-lg);
     overflow: hidden;
+    border: 1px solid var(--gray-100);
 }
 
+/* ============================
+   DAY CELLS
+   ============================ */
 .dayCell {
     background: white;
-    min-height: 80px;
-    /* Compact for mobile */
-    padding: 2px;
+    min-height: 90px;
+    padding: 4px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    position: relative;
     cursor: pointer;
     transition: background-color 0.2s;
+    position: relative;
 }
 
 .dayCell:active {
     background: var(--gray-50);
 }
 
+.emptyDay {
+    background: var(--gray-50);
+    min-height: 90px;
+}
+
+/* ============================
+   TODAY CELL
+   ============================ */
 .dayCell.today {
     background: var(--primary-50);
 }
@@ -517,7 +405,6 @@
 .dayHeader {
     display: flex;
     justify-content: center;
-    /* Center number on mobile */
     margin-bottom: 2px;
 }
 
@@ -525,20 +412,23 @@
     font-size: 11px;
     color: var(--text-secondary);
     font-weight: 500;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 50%;
 }
 
 .today .dayNumber {
     background: var(--primary-500);
     color: white;
-    border-radius: 50%;
     font-weight: 700;
 }
 
+/* ============================
+   DAY CONTENT (overflow handling)
+   ============================ */
 .dayContent {
     flex: 1;
     display: flex;
@@ -547,44 +437,96 @@
     overflow: hidden;
 }
 
-/* Mobile: Dots instead of text if very small */
+/* ============================
+   EVENT PILLS
+   ============================ */
 .eventPill {
     font-size: 9px;
-    padding: 1px 4px;
-    border-radius: 3px;
+    padding: 2px 5px;
+    border-radius: 4px;
     color: white;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    height: 14px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    min-height: 14px;
+    line-height: 1.2;
 }
 
+/* ============================
+   TRAINING DOTS / BARS
+   ============================ */
 .trainingDot {
     width: 100%;
-    /* height: 4px; Remove fixed height */
-    border-radius: 3px;
-    /* background: var(--gray-200); Remove default gray */
+    border-radius: 4px;
     display: flex;
     align-items: center;
-    padding: 1px 3px;
-    margin-bottom: 2px;
+    padding: 2px 5px;
     overflow: hidden;
     min-height: 14px;
-    /* Ensure space for text */
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-/* Show text on mobile now? NO - reverting to dots for mobile as List is Primary */
+/* Mobile: show as colored bars */
 .trainingDot .timeText,
 .trainingDot .groupText {
     display: none;
-    /* Hide on mobile to save space */
 }
 
-/* Adjust Desktop overrides checks */
-/* ... */
+/* ============================
+   OVERFLOW INDICATOR (+N badge)
+   ============================ */
+.overflowBadge {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 1px 0;
+    background: var(--gray-100);
+    border-radius: 4px;
+    margin-top: 1px;
+}
 
-/* WEEK VIEW MOBILE (Scrollable) */
+/* ============================
+   LEGEND
+   ============================ */
+.legendContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: var(--space-2) var(--space-1);
+    margin-top: var(--space-2);
+    border-top: 1px solid var(--gray-100);
+    align-items: center;
+}
+
+.legendTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-inline-start: var(--space-2);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.legendDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ============================
+   WEEK VIEW (legacy, keep)
+   ============================ */
 .weekContainer {
     background: white;
     border-radius: var(--radius-xl);
@@ -593,25 +535,15 @@
     display: flex;
     flex-direction: column;
     height: 70vh;
-    /* Fixed height for scroll */
 }
 
 .weekGridHeader {
     display: flex;
-    /* Scrollable header */
     overflow-x: hidden;
-    /* Syncs with body via JS usually, or assume sticky */
     border-bottom: 1px solid var(--gray-200);
     background: var(--gray-50);
     flex-shrink: 0;
 }
-
-/* We need a grid that scrolls both ways or just X? 
-   Let's make the week view a horizontal scroll of days on mobile 
-   OR a vertical scroll of hours with fixed days?
-   Mobile standard: Vertical scroll time, Horizontal scroll days if > 3-4?
-   Let's try a CSS Grid that overflows X.
-*/
 
 .weekGridWrapper {
     overflow-x: auto;
@@ -624,20 +556,15 @@
     overflow-y: auto;
     flex: 1;
     position: relative;
-    /* Enable momentum scrolling */
     -webkit-overflow-scrolling: touch;
 }
 
-/* Mobile: Grid is wider than screen */
 .weekGridRow,
 .weekGridHeader {
     display: grid;
     grid-template-columns: 40px repeat(7, minmax(60px, 1fr));
-    /* Min width per day */
     width: 100%;
-    /* Or min-content to force scroll? */
     min-width: 500px;
-    /* Force scroll on small screens */
 }
 
 .timeColumnHeader {
@@ -715,93 +642,9 @@
     display: none;
 }
 
-/* Show less on compact */
-
-
-/* DESKTOP ENHANCEMENTS (min-width typically 768px for tablet/desktop) */
-@media (min-width: 768px) {
-    .page {
-        padding: var(--space-6);
-        max-width: 1400px;
-        /* Wide screen support */
-        margin: 0 auto;
-    }
-
-    /* Header Row */
-    .header {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .headerTop {
-        width: auto;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .headerControls {
-        width: auto;
-        gap: 16px;
-    }
-
-    .title {
-        font-size: 24px;
-    }
-
-    /* Month View Desktop */
-    .dayCell {
-        min-height: 120px;
-        padding: 6px;
-    }
-
-    .dayHeader {
-        justify-content: flex-end;
-        /* Right align numbers */
-    }
-
-    .trainingDot {
-        height: auto;
-        background: transparent;
-        border-radius: 2px;
-        border-inline-end: 3px solid transparent;
-        background: var(--gray-50);
-        padding: 2px 6px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 2px;
-    }
-
-    .trainingDot .timeText {
-        display: inline;
-        font-weight: 700;
-        font-size: 10px;
-    }
-
-    .trainingDot .groupText {
-        display: inline;
-        font-size: 10px;
-        opacity: 0.9;
-    }
-
-    /* Week View Desktop */
-    .weekGridRow,
-    .weekGridHeader {
-        min-width: auto;
-        /* Fit to screen usually sufficient */
-        display: grid;
-        grid-template-columns: 60px repeat(7, 1fr);
-    }
-
-    .blockGroup {
-        display: block;
-        /* Show group name on desktop */
-        opacity: 0.8;
-    }
-}
-
-/* Modal Styles */
+/* ============================
+   MODAL STYLES
+   ============================ */
 .modalContent {
     display: flex;
     flex-direction: column;
@@ -845,4 +688,153 @@
     background-color: var(--gray-50);
     border-radius: 8px;
     border: 1px dashed var(--gray-300);
+}
+
+/* ============================
+   DESKTOP (768px+)
+   ============================ */
+@media (min-width: 768px) {
+    .page {
+        padding: var(--space-6);
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-bottom: var(--space-6);
+    }
+
+    .header {
+        padding: var(--space-5);
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .headerTop {
+        width: auto;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .headerControls {
+        width: auto;
+        gap: var(--space-4);
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .weeklyListSection {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--space-4);
+    }
+
+    .dayListCard {
+        border-radius: var(--radius-xl);
+    }
+
+    .groupPill:hover {
+        background: var(--gray-50);
+    }
+
+    .groupPill.active:hover {
+        background: var(--primary-700);
+    }
+
+    .navButton:hover {
+        background: var(--gray-100);
+    }
+
+    /* Calendar desktop */
+    .calendarContainer {
+        padding: var(--space-4);
+    }
+
+    .weekHeader {
+        font-size: var(--font-size-xs);
+        padding: var(--space-2) var(--space-3);
+    }
+
+    /* Day cells desktop */
+    .dayCell {
+        min-height: 120px;
+        padding: 8px;
+    }
+
+    .emptyDay {
+        min-height: 120px;
+    }
+
+    .dayHeader {
+        justify-content: flex-end;
+    }
+
+    .dayNumber {
+        font-size: 12px;
+    }
+
+    .today .dayNumber {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Event pills desktop */
+    .eventPill {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+
+    /* Training dots desktop: show time + group name */
+    .trainingDot {
+        padding: 2px 6px;
+        gap: 6px;
+    }
+
+    .trainingDot .timeText {
+        display: inline;
+        font-weight: 700;
+        font-size: 10px;
+    }
+
+    .trainingDot .groupText {
+        display: inline;
+        font-size: 10px;
+        opacity: 0.9;
+    }
+
+    .overflowBadge {
+        font-size: 10px;
+    }
+
+    /* Week view desktop */
+    .weekGridRow,
+    .weekGridHeader {
+        min-width: auto;
+        display: grid;
+        grid-template-columns: 60px repeat(7, 1fr);
+    }
+
+    .blockGroup {
+        display: block;
+        opacity: 0.8;
+    }
+}
+
+/* ============================
+   LARGE DESKTOP (1024px+)
+   ============================ */
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
+        max-width: 1400px;
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .weeklyListSection {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
 }

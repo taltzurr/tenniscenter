@@ -350,6 +350,8 @@ function EventsCalendarPage() {
         );
     };
 
+    const MAX_VISIBLE_EVENTS = 3;
+
     // Render Calendar
     const renderCalendar = () => {
         const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
@@ -358,7 +360,7 @@ function EventsCalendarPage() {
 
         // Empty cells for days before start of month
         for (let i = 0; i < firstDay; i++) {
-            days.push(<div key={`empty-${i}`} className={styles.dayCell} style={{ background: 'var(--gray-50)' }}></div>);
+            days.push(<div key={`empty-${i}`} className={styles.emptyCell}></div>);
         }
 
         // Day cells
@@ -388,6 +390,9 @@ function EventsCalendarPage() {
                 new Date().getMonth() === selectedMonth &&
                 new Date().getFullYear() === selectedYear;
 
+            const visibleEvents = dateEvents.slice(0, MAX_VISIBLE_EVENTS);
+            const hiddenCount = dateEvents.length - MAX_VISIBLE_EVENTS;
+
             days.push(
                 <div
                     key={day}
@@ -396,7 +401,7 @@ function EventsCalendarPage() {
                 >
                     <span className={styles.dayNumber}>{day}</span>
                     <div className={styles.dayContent}>
-                        {dateEvents.map(event => (
+                        {visibleEvents.map(event => (
                             <div
                                 key={event.id}
                                 className={styles.eventPill}
@@ -406,21 +411,28 @@ function EventsCalendarPage() {
                                 {event.title}
                             </div>
                         ))}
+                        {hiddenCount > 0 && (
+                            <div className={styles.moreIndicator}>
+                                +{hiddenCount} עוד
+                            </div>
+                        )}
                     </div>
                 </div>
             );
         }
 
         return (
-            <div className={styles.calendarGrid}>
-                <div className={styles.weekHeader}>ראשון</div>
-                <div className={styles.weekHeader}>שני</div>
-                <div className={styles.weekHeader}>שלישי</div>
-                <div className={styles.weekHeader}>רביעי</div>
-                <div className={styles.weekHeader}>חמישי</div>
-                <div className={styles.weekHeader}>שישי</div>
-                <div className={styles.weekHeader}>שבת</div>
-                {days}
+            <div className={styles.calendarContainer}>
+                <div className={styles.calendarGrid}>
+                    <div className={styles.weekHeader}>ראשון</div>
+                    <div className={styles.weekHeader}>שני</div>
+                    <div className={styles.weekHeader}>שלישי</div>
+                    <div className={styles.weekHeader}>רביעי</div>
+                    <div className={styles.weekHeader}>חמישי</div>
+                    <div className={styles.weekHeader}>שישי</div>
+                    <div className={styles.weekHeader}>שבת</div>
+                    {days}
+                </div>
             </div>
         );
     };

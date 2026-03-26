@@ -240,8 +240,8 @@
     align-items: center;
     justify-content: space-between;
     background: var(--bg-primary);
-    padding: var(--space-2);
-    border: 1px solid var(--gray-200);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-100);
     border-radius: var(--radius-lg);
 }
 
@@ -249,26 +249,31 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    /* Larger touch target */
-    height: 36px;
-    border: none;
-    background: transparent;
-    color: var(--gray-500);
-    border-radius: var(--radius-md);
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--gray-200);
+    background: var(--bg-primary);
+    color: var(--gray-600);
+    border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .navButton:hover {
-    background: var(--gray-100);
-    color: var(--text-primary);
+    background: var(--primary-50);
+    border-color: var(--primary-300);
+    color: var(--primary-700);
+}
+
+.navButton:active {
+    background: var(--primary-100);
+    transform: scale(0.95);
 }
 
 .currentMonth {
-    font-size: var(--font-size-base);
-    /* Readable size */
-    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
 }
 
 /* Legend - Mobile: Wrap items */
@@ -300,39 +305,39 @@
 .calendarContainer {
     background: var(--bg-primary);
     border-radius: var(--radius-xl);
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--gray-100);
+    border-top: 3px solid var(--primary-500);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .calendarGrid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-100);
 }
 
 .dayHeader {
-    background: var(--gray-50);
+    background: linear-gradient(180deg, var(--gray-50) 0%, var(--gray-100) 100%);
     color: var(--text-secondary);
-    padding: var(--space-2);
+    padding: var(--space-2) var(--space-1);
     text-align: center;
-    font-weight: var(--font-weight-semibold);
-    font-size: 10px;
-    /* Smaller on mobile */
+    font-weight: var(--font-weight-bold);
+    font-size: 11px;
     border-bottom: 1px solid var(--gray-200);
-    border-inline-start: 1px solid var(--gray-200);
+    border-inline-start: 1px solid var(--gray-100);
+    letter-spacing: 0.3px;
 }
 
-.dayHeader:last-child {
+.dayHeader:first-child {
     border-inline-start: none;
 }
 
 .dayCell {
-    min-height: 80px;
-    /* Smaller height on mobile */
-    padding: var(--space-1);
-    border-bottom: 1px solid var(--gray-200);
-    border-inline-start: 1px solid var(--gray-200);
+    min-height: 90px;
+    padding: 4px;
+    border-bottom: 1px solid var(--gray-100);
+    border-inline-start: 1px solid var(--gray-100);
     display: flex;
     flex-direction: column;
     transition: all 0.2s ease;
@@ -377,49 +382,69 @@
 
 .dayCell.today {
     background: var(--primary-50);
+    border-inline-start: 3px solid var(--primary-500);
 }
 
 .dayCell.today .dayNumber {
-    background: var(--primary-500);
+    background: var(--primary-600);
     color: white;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: var(--font-weight-bold);
+    font-size: 11px;
+    box-shadow: 0 1px 3px rgba(61, 125, 181, 0.3);
 }
 
 .eventPill {
-    font-size: 8px;
-    font-weight: 600;
+    font-size: 9px;
+    font-weight: 700;
     color: white;
-    padding: 1px 3px;
-    border-radius: 3px;
+    padding: 2px 5px;
+    border-radius: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.3;
+    line-height: 1.4;
     max-width: 100%;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.2px;
 }
 
 .dayContent {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    max-height: 54px;
+    overflow: hidden;
+    flex: 1;
 }
 
 .trainingDot {
-    font-size: 9px;
+    font-size: 10px;
+    font-weight: 600;
     background: var(--primary-100);
     color: var(--primary-700);
-    padding: 1px 3px;
-    border-radius: 3px;
+    padding: 2px 5px;
+    border-radius: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* On very small screens, maybe just show a dot? */
+    line-height: 1.3;
+}
+
+.moreBadge {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary-700);
+    background: var(--primary-100);
+    padding: 1px 4px;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 1.4;
 }
 
 /* List View Section */
@@ -605,13 +630,18 @@
     }
 
     .dayHeader {
-        font-size: var(--font-size-xs);
+        font-size: var(--font-size-sm);
         padding: var(--space-3);
     }
 
     .dayCell {
-        min-height: 120px;
+        min-height: 130px;
         padding: var(--space-2);
+    }
+
+    .dayContent {
+        max-height: none;
+        overflow-y: auto;
     }
 
     .dayNumber {
@@ -619,18 +649,23 @@
     }
 
     .dayCell.today .dayNumber {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
+        font-size: var(--font-size-xs);
     }
 
     .eventPill {
-        font-size: 9px;
-        padding: 1px 4px;
+        font-size: 10px;
+        padding: 2px 6px;
     }
 
     .trainingDot {
-        font-size: 10px;
-        padding: 2px 4px;
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+
+    .moreBadge {
+        display: none;
     }
 
     .listViewSection {
@@ -702,7 +737,7 @@
 
     .trainingDot {
         font-size: var(--font-size-xs);
-        padding: 2px 6px;
+        padding: 3px 8px;
     }
 
     .listRow {

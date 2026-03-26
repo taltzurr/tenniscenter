@@ -110,6 +110,7 @@ function PlansList() {
     const [selectedGroupId, setSelectedGroupId] = useState('all');
     const [selectedDateModal, setSelectedDateModal] = useState(null); // Modal State
     const [selectedTraining, setSelectedTraining] = useState(null);
+    const MAX_VISIBLE_ITEMS = 3; // Max items shown per day cell before overflow badge
 
     // Stats for Header
     const stats = useMemo(() => {
@@ -404,16 +405,16 @@ function PlansList() {
 
             {/* MONTHLY CALENDAR GRID (Now Bottom) */}
             <div className={styles.calendarContainer} {...swipeHandlers}>
-                {/* Navigator Moved Here */}
-                <div className={styles.monthNav} style={{ marginBottom: '16px', justifyContent: 'center' }}>
+                {/* Month Navigator */}
+                <div className={styles.monthNav}>
                     <button onClick={handlePrevious} className={styles.navButton}>
-                        <ChevronRight size={24} />
+                        <ChevronRight size={20} />
                     </button>
-                    <h2 className={styles.currentMonth} style={{ margin: '0 16px' }}>
+                    <h2 className={styles.currentMonth}>
                         {format(currentDate, 'MMMM yyyy', { locale: he })}
                     </h2>
                     <button onClick={handleNext} className={styles.navButton}>
-                        <ChevronLeft size={24} />
+                        <ChevronLeft size={20} />
                     </button>
                 </div>
 
@@ -427,47 +428,50 @@ function PlansList() {
                         if (cell.type === 'empty') return <div key={cell.key} className={styles.emptyDay} />;
                         const isToday = isSameDay(cell.date, new Date());
 
+                        // Combine events + trainings, limit visible items on mobile
+                        const allItems = [...cell.events.map(e => ({ ...e, _type: 'event' })), ...cell.trainings.map(t => ({ ...t, _type: 'training' }))];
+                        const visibleItems = allItems.slice(0, MAX_VISIBLE_ITEMS);
+                        const overflowCount = allItems.length - MAX_VISIBLE_ITEMS;
+
                         return (
                             <div
                                 key={cell.key}
                                 className={`${styles.dayCell} ${isToday ? styles.today : ''}`}
                                 onClick={() => handleDayClick(cell.date)}
-                                style={{ cursor: 'pointer' }}
                             >
                                 <div className={styles.dayHeader}>
                                     <span className={styles.dayNumber}>{cell.day}</span>
                                 </div>
                                 <div className={styles.dayContent}>
-                                    {/* Events (Prioritized) */}
-                                    {cell.events.map(event => (
-                                        <div
-                                            key={event.id}
-                                            className={styles.eventPill}
-                                            style={{ backgroundColor: EVENT_COLORS[event.type] || EVENT_COLORS.OTHER }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                // Optional: Add event detail view or edit later
-                                            }}
-                                        >
-                                            {event.title || 'אירוע'}
-                                        </div>
-                                    ))}
+                                    {visibleItems.map(item => {
+                                        if (item._type === 'event') {
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    className={styles.eventPill}
+                                                    style={{ backgroundColor: EVENT_COLORS[item.type] || EVENT_COLORS.OTHER }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                    }}
+                                                >
+                                                    {item.title || 'אירוע'}
+                                                </div>
+                                            );
+                                        }
 
-                                    {/* Trainings (Group Color + Time) */}
-                                    {cell.trainings.map(training => {
-                                        const group = groups.find(g => g.id === training.groupId);
+                                        // Training item
+                                        const group = groups.find(g => g.id === item.groupId);
                                         const color = group?.color || stringToColor(group?.name);
-                                        // Safe date parsing
-                                        const tDate = parseDateSafe(training.date);
+                                        const tDate = parseDateSafe(item.date);
 
                                         return (
                                             <div
-                                                key={training.id}
+                                                key={item.id}
                                                 className={styles.trainingDot}
-                                                style={{ backgroundColor: color, cursor: 'pointer' }}
+                                                style={{ backgroundColor: color }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    openTrainingModal(training);
+                                                    openTrainingModal(item);
                                                 }}
                                             >
                                                 <span className={styles.timeText}>
@@ -479,30 +483,36 @@ function PlansList() {
                                             </div>
                                         );
                                     })}
+
+                                    {overflowCount > 0 && (
+                                        <div className={styles.overflowBadge}>
+                                            +{overflowCount}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Dynamic Legend based on Active Groups + Events */}
+                {/* Dynamic Legend */}
                 <div className={styles.legendContainer}>
-                    <span style={{ fontSize: '11px', fontWeight: 'bold', marginInlineStart: '8px' }}>מקרא:</span>
+                    <span className={styles.legendTitle}>מקרא:</span>
 
-                    {/* Events Fixed */}
                     <div className={styles.legendItem}>
                         <div className={styles.legendDot} style={{ backgroundColor: EVENT_COLORS.TOURNAMENT }} />
                         <span>טורניר/תחרות</span>
                     </div>
 
-                    {/* Active Groups */}
                     {activeGroupsInMonth.slice(0, 5).map(g => (
                         <div key={g.id} className={styles.legendItem}>
                             <div className={styles.legendDot} style={{ backgroundColor: g.color || stringToColor(g.name) }} />
                             <span>{g.name}</span>
                         </div>
                     ))}
-                    {activeGroupsInMonth.length > 5 && <span style={{ fontSize: '10px' }}>+{activeGroupsInMonth.length - 5} נוספים...</span>}
+                    {activeGroupsInMonth.length > 5 && (
+                        <span className={styles.legendItem}>+{activeGroupsInMonth.length - 5} נוספים...</span>
+                    )}
                 </div>
             </div>
 

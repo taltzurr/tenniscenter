@@ -2,7 +2,8 @@ import { useRef, useCallback } from 'react';
 
 /**
  * Hook for swipe navigation on calendars.
- * RTL-aware: swipe left = next month, swipe right = previous month.
+ * RTL-aware: swipe right = next month, swipe left = previous month.
+ * In RTL, "next" is to the right (time flows right-to-left).
  * @param {function} onNext - Navigate to next month
  * @param {function} onPrev - Navigate to previous month
  * @param {number} threshold - Minimum swipe distance in pixels (default: 50)
@@ -24,12 +25,12 @@ export default function useSwipeNavigation(onNext, onPrev, threshold = 50) {
 
         // Only trigger if horizontal swipe is dominant
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
-            // RTL: swipe right (positive deltaX) = previous month
-            //      swipe left (negative deltaX) = next month
+            // RTL: swipe right (positive deltaX) = next month (forward in RTL)
+            //      swipe left (negative deltaX) = previous month (backward in RTL)
             if (deltaX > 0) {
-                onPrev();
-            } else {
                 onNext();
+            } else {
+                onPrev();
             }
         }
 

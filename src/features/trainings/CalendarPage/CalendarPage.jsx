@@ -9,6 +9,7 @@ import getDay from 'date-fns/getDay';
 import he from 'date-fns/locale/he';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../../../styles/calendar.css';
+import styles from './CalendarPage.module.css';
 
 import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
@@ -147,22 +148,22 @@ export default function CalendarPage() {
     }
 
     return (
-        <div style={{ height: 'calc(100vh - 100px)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>לוח אימונים</h1>
+        <div className={styles.pageContainer}>
+            <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>לוח אימונים</h1>
                 <Button onClick={handleNewTraining}>
                     <Plus size={18} />
                     אימון חדש
                 </Button>
             </div>
 
-            <div style={{ flex: 1, backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }} {...swipeHandlers}>
+            <div className={styles.calendarCard} {...swipeHandlers}>
                 <Calendar
                     localizer={localizer}
                     events={events}
                     startAccessor="start"
                     endAccessor="end"
-                    style={{ height: '100%' }}
+                    className={styles.calendarInner}
                     view={view}
                     onView={setView}
                     date={date}
