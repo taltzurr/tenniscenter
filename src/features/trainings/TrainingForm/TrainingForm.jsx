@@ -16,6 +16,7 @@ import useUIStore from '../../../stores/uiStore';
 import { NOTIFICATION_TYPES, notifyGroup } from '../../../services/notifications';
 
 import { createRecurringTrainings } from '../../../services/trainings';
+import SeriesManagementModal from '../SeriesManagementModal/SeriesManagementModal';
 import styles from './TrainingForm.module.css';
 
 // Placeholder options - these should ideally come from a constants file or service
@@ -38,6 +39,7 @@ function TrainingForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [isEndTimeUserModified, setIsEndTimeUserModified] = useState(false);
+    const [showSeriesModal, setShowSeriesModal] = useState(false);
 
     const [formData, setFormData] = useState({
         groupId: searchParams.get('groupId') || '',
@@ -216,8 +218,11 @@ function TrainingForm() {
             } else {
                 if (formData.recurrence && formData.recurrence.frequency !== 'NONE') {
                     try {
-                        await createRecurringTrainings(basePayload, formData.recurrence);
+                        const recurResult = await createRecurringTrainings(basePayload, formData.recurrence);
                         result = { success: true };
+                        if (recurResult?.wasTruncated) {
+                            addToast({ type: 'warning', message: `נוצרו ${recurResult.actualCount} אימונים (מקסימום מערכת). חלק מהתאריכים לא נכללו.` });
+                        }
                     } catch (error) {
                         result = { success: false, error: error.message };
                     }
@@ -264,6 +269,7 @@ function TrainingForm() {
     }
 
     return (
+        <>
         <div className={styles.formContainer}>
             <header className={styles.header}>
                 <Link to="/calendar" className={styles.backButton}>
@@ -421,16 +427,28 @@ function TrainingForm() {
                                     </div>
                                     <span className={styles.labelText}>חזרתיות</span>
                                 </div>
-                                <div style={{
-                                    padding: '10px 14px',
-                                    backgroundColor: 'var(--gray-50)',
-                                    borderRadius: 'var(--radius-md)',
-                                    fontSize: 'var(--font-size-sm)',
-                                    color: 'var(--text-secondary)',
-                                    border: '1px solid var(--gray-200)'
-                                }}>
-                                    אימון זה הוא חלק מסדרת אימונים חוזרת
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSeriesModal(true)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        backgroundColor: 'var(--primary-50)',
+                                        border: '1px solid var(--primary-200)',
+                                        borderRadius: 'var(--radius-md)',
+                                        fontSize: 'var(--font-size-sm)',
+                                        color: 'var(--primary-700)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 'var(--space-2)',
+                                        fontWeight: 600,
+                                        fontFamily: 'inherit'
+                                    }}
+                                >
+                                    <Calendar size={16} />
+                                    ניהול סדרה חוזרת
+                                </button>
                             </div>
                         )}
                     </div>
@@ -561,6 +579,19 @@ function TrainingForm() {
 
 
         </div>
+
+        {showSeriesModal && formData.recurrenceGroupId && (
+            <SeriesManagementModal
+                recurrenceGroupId={formData.recurrenceGroupId}
+                currentTrainingId={id}
+                onClose={() => setShowSeriesModal(false)}
+                onSeriesDeleted={() => {
+                    setShowSeriesModal(false);
+                    navigate('/trainings');
+                }}
+            />
+        )}
+        </>
     );
 }
 
