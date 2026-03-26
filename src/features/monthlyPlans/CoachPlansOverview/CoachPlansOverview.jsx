@@ -3,8 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import {
     FileText,
     CheckCircle,
+    Circle,
     Clock,
     XCircle,
+    X,
     AlertTriangle,
     Edit3,
     ChevronLeft,
@@ -13,8 +15,10 @@ import {
     MessageSquare,
     Send,
     Users,
+    MapPin,
+    Eye,
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { he } from 'date-fns/locale';
 
 import useAuthStore from '../../../stores/authStore';
@@ -22,7 +26,9 @@ import useGroupsStore from '../../../stores/groupsStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useCommentsStore from '../../../stores/commentsStore';
-import { PLAN_STATUS, HEBREW_MONTHS } from '../../../config/constants';
+import { PLAN_STATUS, HEBREW_MONTHS, HEBREW_DAYS } from '../../../config/constants';
+import { normalizeDate } from '../../../utils/dateUtils';
+import { notifyRole, notifyCenterManagers } from '../../../services/notifications';
 import Spinner from '../../../components/ui/Spinner';
 import styles from './CoachPlansOverview.module.css';
 
@@ -72,11 +78,14 @@ function CoachPlansOverview() {
     const [commentTexts, setCommentTexts] = useState({});
     const [expandedComments, setExpandedComments] = useState({});
     const [planComments, setPlanComments] = useState({});
+    const [previewModal, setPreviewModal] = useState(null); // { groupId, groupName }
     const cardRefs = useRef({});
 
     const selectedMonth = selectedDate.getMonth();
     const selectedYear = selectedDate.getFullYear();
     const monthName = HEBREW_MONTHS[selectedMonth];
+    const now = new Date();
+    const isCurrentMonth = selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
 
     // Navigate months
     const goToPreviousMonth = useCallback(() => {
@@ -125,6 +134,7 @@ function CoachPlansOverview() {
             return {
                 groupId: group.id,
                 groupName: group.name,
+                centerId: plan?.centerId || group.centerId || null,
                 status: plan?.status || null,
                 feedback: plan?.managerFeedback || null,
                 managerNotes: plan?.managerNotes || null,
@@ -199,7 +209,7 @@ function CoachPlansOverview() {
         setCommentTexts(prev => ({ ...prev, [planId]: text }));
     };
 
-    const handleSubmitComment = async (planId) => {
+    const handleSubmitComment = async (planId, groupName, centerId) => {
         const text = commentTexts[planId]?.trim();
         if (!text || !userData) return;
 
@@ -220,6 +230,25 @@ function CoachPlansOverview() {
                 setPlanComments(prev => ({ ...prev, [planId]: updated }));
             } catch {
                 // silent
+            }
+
+            // Notify managers about the new comment
+            const coachName = userData.name || userData.displayName || 'מאמן';
+            const notification = {
+                title: 'תגובה חדשה על תכנית חודשית',
+                message: `${coachName} הגיב/ה על תכנית חודשית של ${groupName || 'קבוצה'}`,
+                type: 'info',
+                relatedEntityType: 'monthlyPlan',
+                relatedEntityId: planId,
+                link: '/monthly-plans/review',
+            };
+            try {
+                await notifyRole('supervisor', notification);
+                if (centerId) {
+                    await notifyCenterManagers(centerId, notification);
+                }
+            } catch {
+                // silent - don't block the UI for notification failures
             }
         }
     };
@@ -273,7 +302,7 @@ function CoachPlansOverview() {
                 >
                     <ChevronRight size={20} />
                 </button>
-                <span className={styles.monthLabel}>
+                <span className={`${styles.monthLabel} ${isCurrentMonth ? styles.currentMonthLabel : ''}`}>
                     {monthName} {selectedYear}
                 </span>
                 <button
@@ -310,7 +339,7 @@ function CoachPlansOverview() {
             {/* Group Plans List */}
             <div className={styles.plansList}>
                 {groupStatuses.map(({
-                    groupId, groupName, status, feedback, managerNotes,
+                    groupId, groupName, centerId, status, feedback, managerNotes,
                     managerName, planId, submittedAt, trainingCount,
                 }) => {
                     const config = status ? STATUS_CONFIG[status] : null;
@@ -379,14 +408,14 @@ function CoachPlansOverview() {
 
                             {/* Actions row */}
                             <div className={styles.planActions}>
-                                <Link
-                                    to={`/calendar?group=${groupId}`}
+                                <button
                                     className={styles.actionLink}
+                                    onClick={() => setPreviewModal({ groupId, groupName })}
                                 >
-                                    <CalendarDays size={16} />
+                                    <Eye size={16} />
                                     צפה בתכנית
                                     <ChevronLeft size={14} />
-                                </Link>
+                                </button>
 
                                 {planId && (
                                     <button
@@ -441,13 +470,13 @@ function CoachPlansOverview() {
                                             onKeyDown={e => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
                                                     e.preventDefault();
-                                                    handleSubmitComment(planId);
+                                                    handleSubmitComment(planId, groupName, centerId);
                                                 }
                                             }}
                                         />
                                         <button
                                             className={styles.sendBtn}
-                                            onClick={() => handleSubmitComment(planId)}
+                                            onClick={() => handleSubmitComment(planId, groupName, centerId)}
                                             disabled={!commentTexts[planId]?.trim()}
                                             aria-label="שלח תגובה"
                                         >
@@ -465,6 +494,137 @@ function CoachPlansOverview() {
                         <FileText size={48} className={styles.emptyIcon} />
                         <p>אין קבוצות משויכות</p>
                         <p className={styles.emptyHint}>פנה למנהל המרכז לשיוך קבוצות</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Plan Preview Modal */}
+            {previewModal && (
+                <PlanPreviewModal
+                    groupId={previewModal.groupId}
+                    groupName={previewModal.groupName}
+                    trainings={trainings}
+                    selectedDate={selectedDate}
+                    monthName={monthName}
+                    selectedYear={selectedYear}
+                    onClose={() => setPreviewModal(null)}
+                />
+            )}
+        </div>
+    );
+}
+
+/* Plan Preview Bottom-Sheet Modal */
+function PlanPreviewModal({ groupId, groupName, trainings, selectedDate, monthName, selectedYear, onClose }) {
+    const groupTrainings = useMemo(() => {
+        return trainings
+            .filter(t => {
+                if (t.groupId !== groupId) return false;
+                const d = normalizeDate(t.date);
+                return d && isSameMonth(d, selectedDate);
+            })
+            .sort((a, b) => {
+                const da = normalizeDate(a.date);
+                const db = normalizeDate(b.date);
+                return (da || 0) - (db || 0);
+            });
+    }, [trainings, groupId, selectedDate]);
+
+    const completed = groupTrainings.filter(t => t.status === 'completed').length;
+    const cancelled = groupTrainings.filter(t => t.status === 'cancelled').length;
+    const planned = groupTrainings.filter(t => t.status !== 'completed' && t.status !== 'cancelled').length;
+
+    const formatTrainingDate = (date) => {
+        const d = normalizeDate(date);
+        if (!d) return '';
+        const dayName = HEBREW_DAYS[d.getDay()];
+        return `יום ${dayName}, ${d.getDate()}/${d.getMonth() + 1}`;
+    };
+
+    const formatTrainingTime = (date) => {
+        const d = normalizeDate(date);
+        if (!d) return '';
+        return format(d, 'HH:mm');
+    };
+
+    return (
+        <div className={styles.modalOverlay} onClick={onClose}>
+            <div className={styles.modalSheet} onClick={e => e.stopPropagation()}>
+                <div className={styles.modalHeader}>
+                    <h3 className={styles.modalTitle}>{groupName} — {monthName} {selectedYear}</h3>
+                    <button className={styles.modalCloseBtn} onClick={onClose} aria-label="סגור">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                {/* Summary meta */}
+                <div className={styles.modalMeta}>
+                    <span className={styles.modalMetaItem}>
+                        <CalendarDays size={16} />
+                        {groupTrainings.length} אימונים
+                    </span>
+                    {completed > 0 && (
+                        <span className={styles.modalMetaItem}>
+                            <CheckCircle size={16} />
+                            {completed} בוצעו
+                        </span>
+                    )}
+                    {planned > 0 && (
+                        <span className={styles.modalMetaItem}>
+                            <Clock size={16} />
+                            {planned} מתוכננים
+                        </span>
+                    )}
+                    {cancelled > 0 && (
+                        <span className={styles.modalMetaItem}>
+                            <XCircle size={16} />
+                            {cancelled} בוטלו
+                        </span>
+                    )}
+                </div>
+
+                {/* Trainings list */}
+                {groupTrainings.length > 0 ? (
+                    <div className={styles.modalTrainingsList}>
+                        <p className={styles.modalSectionTitle}>אימונים בחודש</p>
+                        {groupTrainings.map(t => {
+                            const isCompleted = t.status === 'completed';
+                            const isCancelled = t.status === 'cancelled';
+
+                            return (
+                                <div
+                                    key={t.id}
+                                    className={`${styles.modalTrainingItem} ${isCompleted ? styles.modalTrainingCompleted : ''} ${isCancelled ? styles.modalTrainingCancelled : ''}`}
+                                >
+                                    <div className={styles.modalTrainingIcon}>
+                                        {isCompleted ? (
+                                            <CheckCircle size={18} className={styles.modalIconCompleted} />
+                                        ) : isCancelled ? (
+                                            <X size={18} className={styles.modalIconCancelled} />
+                                        ) : (
+                                            <Circle size={18} className={styles.modalIconPending} />
+                                        )}
+                                    </div>
+                                    <div className={styles.modalTrainingInfo}>
+                                        <span className={styles.modalTrainingTopic}>
+                                            {t.topic || 'אימון'}
+                                        </span>
+                                        <span className={styles.modalTrainingMeta}>
+                                            {formatTrainingDate(t.date)} · {formatTrainingTime(t.date)}
+                                            {t.location && ` · ${t.location}`}
+                                        </span>
+                                    </div>
+                                    <span className={`${styles.modalStatusLabel} ${isCompleted ? styles.modalLabelCompleted : isCancelled ? styles.modalLabelCancelled : styles.modalLabelPending}`}>
+                                        {isCompleted ? 'בוצע' : isCancelled ? 'בוטל' : 'מתוכנן'}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className={styles.modalEmpty}>
+                        <CalendarDays size={32} />
+                        <p>אין אימונים מתוכננים בחודש זה</p>
                     </div>
                 )}
             </div>
