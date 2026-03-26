@@ -10,11 +10,13 @@ import {
     FileText,
     CheckCircle,
     ChevronRight,
-    Edit2
+    Edit2,
+    Repeat
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 
+import { fetchSeriesTrainings } from '../../services/trainings';
 import useTrainingsStore from '../../stores/trainingsStore';
 import useGroupsStore from '../../stores/groupsStore';
 import Button from '../../components/ui/Button';
@@ -150,6 +152,7 @@ export default function TrainingDetailsPage() {
     const { groups } = useGroupsStore();
     const [training, setTraining] = useState(null);
     const [coachName, setCoachName] = useState('---');
+    const [seriesCount, setSeriesCount] = useState(null);
 
     // Safe derivation of group for use in effects
     const group = training ? groups.find(g => g.id === training.groupId) : null;
@@ -181,6 +184,14 @@ export default function TrainingDetailsPage() {
 
         loadCoachName();
     }, [training, group]);
+
+    useEffect(() => {
+        if (training?.recurrenceGroupId) {
+            fetchSeriesTrainings(training.recurrenceGroupId)
+                .then(series => setSeriesCount(series.length))
+                .catch(() => setSeriesCount(null));
+        }
+    }, [training?.recurrenceGroupId]);
 
     useEffect(() => {
         // Try finding in current store state first
@@ -318,6 +329,25 @@ export default function TrainingDetailsPage() {
                                 <span>תיאור האימון</span>
                             </div>
                             <p style={styles.description}>{training.description}</p>
+                        </div>
+                    )}
+
+                    {training.recurrenceGroupId && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)',
+                            padding: 'var(--space-3) var(--space-4)',
+                            backgroundColor: 'var(--primary-50)',
+                            borderRadius: 'var(--radius-md)',
+                            marginTop: 'var(--space-4)',
+                            border: '1px solid var(--primary-100)',
+                            fontSize: 'var(--font-size-sm)',
+                            color: 'var(--primary-700)',
+                            fontWeight: 500
+                        }}>
+                            <Repeat size={16} />
+                            <span>חלק מסדרה חוזרת{seriesCount ? ` (${seriesCount} אימונים)` : ''}</span>
                         </div>
                     )}
 
