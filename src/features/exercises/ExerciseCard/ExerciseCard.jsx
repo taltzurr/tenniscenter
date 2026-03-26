@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Clock, Users, Zap } from 'lucide-react';
+import { Clock, Users } from 'lucide-react';
 import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS } from '../../../services/exercises';
 import styles from './ExerciseCard.module.css';
 
 function ExerciseCard({ exercise }) {
     const category = EXERCISE_CATEGORIES.find(c => c.value === exercise.category);
-    const diffLabel = DIFFICULTY_LEVELS.find(d => d.value === exercise.difficulty);
+    const diffLevel = DIFFICULTY_LEVELS.find(d => d.value === exercise.difficulty);
 
     // Truncate description for preview
     const descPreview = exercise.description
@@ -24,15 +24,10 @@ function ExerciseCard({ exercise }) {
                 <span className={styles.category}>
                     {category ? `${category.emoji} ${category.label}` : exercise.category}
                 </span>
-                {exercise.difficulty && (
-                    <div className={styles.difficulty}>
-                        {[1, 2, 3, 4, 5].map(level => (
-                            <span
-                                key={level}
-                                className={`${styles.difficultyDot} ${level <= exercise.difficulty ? styles.active : ''}`}
-                            />
-                        ))}
-                    </div>
+                {diffLevel && (
+                    <span className={styles.levelBadge} style={{ color: diffLevel.color }}>
+                        {diffLevel.emoji} {diffLevel.label}
+                    </span>
                 )}
             </div>
 
@@ -58,12 +53,6 @@ function ExerciseCard({ exercise }) {
                     <span className={styles.metaItem}>
                         <Clock size={13} />
                         {exercise.duration} דק'
-                    </span>
-                )}
-                {diffLabel && (
-                    <span className={styles.metaItem}>
-                        <Zap size={13} />
-                        {diffLabel.label}
                     </span>
                 )}
                 {exercise.ageGroups?.length > 0 && (

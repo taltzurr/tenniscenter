@@ -26,7 +26,7 @@ function ExerciseForm() {
         title: '',
         description: '',
         category: 'two_behind',
-        difficulty: 2,
+        difficulty: 'all_levels',
         duration: 15,
         ageGroups: [],
         equipment: '',
@@ -85,7 +85,7 @@ function ExerciseForm() {
         try {
             const payload = {
                 ...formData,
-                difficulty: parseInt(formData.difficulty),
+                difficulty: formData.difficulty,
                 duration: parseInt(formData.duration),
                 equipment: formData.equipment.split(',').map(s => s.trim()).filter(Boolean),
                 tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean),
@@ -198,7 +198,7 @@ function ExerciseForm() {
                             </div>
 
                             <div>
-                                <label className={styles.label}>רמת קושי</label>
+                                <label className={styles.label}>רמת משחק</label>
                                 <select
                                     className={styles.select}
                                     value={formData.difficulty}
@@ -206,7 +206,7 @@ function ExerciseForm() {
                                 >
                                     {DIFFICULTY_LEVELS.map(level => (
                                         <option key={level.value} value={level.value}>
-                                            {level.label}
+                                            {level.emoji} {level.label}
                                         </option>
                                     ))}
                                 </select>

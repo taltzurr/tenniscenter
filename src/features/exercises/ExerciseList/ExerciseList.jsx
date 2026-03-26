@@ -44,7 +44,7 @@ function ExerciseList() {
     };
 
     const handleDifficultyChange = (e) => {
-        const value = e.target.value ? parseInt(e.target.value) : null;
+        const value = e.target.value || null;
         setFilters({ difficulty: value });
         fetchExercises();
     };
@@ -117,7 +117,7 @@ function ExerciseList() {
                 </div>
 
                 <div className={styles.filterGroup}>
-                    <label className={styles.filterLabel}>רמת קושי</label>
+                    <label className={styles.filterLabel}>רמת משחק</label>
                     <select
                         value={filters.difficulty || ''}
                         onChange={handleDifficultyChange}
@@ -125,7 +125,7 @@ function ExerciseList() {
                     >
                         <option value="">הכל</option>
                         {DIFFICULTY_LEVELS.map(level => (
-                            <option key={level.value} value={level.value}>{level.label}</option>
+                            <option key={level.value} value={level.value}>{level.emoji} {level.label}</option>
                         ))}
                     </select>
                 </div>

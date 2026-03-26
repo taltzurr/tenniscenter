@@ -148,11 +148,10 @@ export const AGE_GROUPS = [
     { value: '16+', label: '16+ שנים' },
 ];
 
-// Difficulty levels
+// Difficulty levels (play levels / רמות משחק)
 export const DIFFICULTY_LEVELS = [
-    { value: 1, label: 'התחלתי' },
-    { value: 2, label: 'בסיסי' },
-    { value: 3, label: 'בינוני' },
-    { value: 4, label: 'מתקדם' },
-    { value: 5, label: 'מקצועי' },
+    { value: 'beginners', label: 'מתחילים', emoji: '🟢', color: '#4caf50' },
+    { value: 'advanced', label: 'מתקדמים', emoji: '🟡', color: '#ff9800' },
+    { value: 'very_advanced', label: 'מתקדמים מאוד', emoji: '🔴', color: '#f44336' },
+    { value: 'all_levels', label: 'כל הרמות', emoji: '🌐', color: '#2196f3' },
 ];

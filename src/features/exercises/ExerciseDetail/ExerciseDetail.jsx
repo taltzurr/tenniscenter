@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, Clock, Zap, Users, Tag, Layers, Edit3, User } from 'lucide-react';
+import { ArrowRight, Clock, Users, Tag, Layers, Edit3, User } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
 import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, AGE_GROUPS } from '../../../services/exercises';
@@ -63,17 +63,8 @@ function ExerciseDetail() {
             {/* Quick stats row */}
             <div className={styles.statsRow}>
                 {diffLevel && (
-                    <div className={styles.statChip}>
-                        <Zap size={14} />
-                        <span>{diffLevel.label}</span>
-                        <div className={styles.difficulty}>
-                            {[1, 2, 3, 4, 5].map(level => (
-                                <span
-                                    key={level}
-                                    className={`${styles.diffDot} ${level <= currentExercise.difficulty ? styles.active : ''}`}
-                                />
-                            ))}
-                        </div>
+                    <div className={styles.statChip} style={{ color: diffLevel.color }}>
+                        <span>{diffLevel.emoji} {diffLevel.label}</span>
                     </div>
                 )}
                 {currentExercise.duration && (

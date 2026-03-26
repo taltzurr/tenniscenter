@@ -95,18 +95,8 @@
     gap: 3px;
 }
 
-.difficulty {
-    display: flex;
-    gap: 2px;
-}
-
-.difficultyDot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--gray-200);
-}
-
-.difficultyDot.active {
-    background: var(--accent-500);
+.levelBadge {
+    font-size: 11px;
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
 }
