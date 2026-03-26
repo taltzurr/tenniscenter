@@ -1,0 +1,424 @@
+/* Overlay */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+/* Modal */
+.modal {
+    background: var(--bg-primary);
+    max-width: 560px;
+    width: 90%;
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.title {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.countBadge {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-500);
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.closeBtn:hover {
+    background: var(--gray-100);
+    color: var(--gray-900);
+}
+
+/* Training list */
+.trainingList {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+}
+
+.trainingItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--gray-100);
+    gap: var(--space-3);
+}
+
+.trainingItem:last-child {
+    border-bottom: none;
+}
+
+.currentItem {
+    background: var(--primary-50);
+    border-right: 3px solid var(--primary-500);
+}
+
+.trainingInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.trainingDate {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+}
+
+.currentLabel {
+    font-weight: 400;
+    color: var(--primary-600);
+    font-size: var(--font-size-xs);
+}
+
+.trainingTime {
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+.statusBadge {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.futureNote {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    margin-top: calc(var(--space-4) * -1);
+}
+
+/* Main action buttons */
+.actions {
+    display: flex;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--gray-200);
+}
+
+.actionBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: opacity 0.15s;
+}
+
+.actionBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.primaryBtn {
+    background: var(--primary-600);
+    color: white;
+}
+
+.primaryBtn:hover:not(:disabled) {
+    background: var(--primary-700);
+}
+
+.dangerBtn {
+    background: var(--error-500);
+    color: white;
+}
+
+.dangerBtn:hover:not(:disabled) {
+    background: var(--error-700);
+}
+
+.secondaryBtn {
+    background: var(--gray-100);
+    color: var(--text-primary);
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    padding: var(--space-3) var(--space-4);
+    transition: background 0.15s;
+}
+
+.secondaryBtn:hover:not(:disabled) {
+    background: var(--gray-200);
+}
+
+.secondaryBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Action panel */
+.actionPanel {
+    padding: var(--space-4);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--gray-200);
+}
+
+.panelTitle {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.panelActions {
+    display: flex;
+    gap: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--gray-200);
+    margin-top: var(--space-2);
+}
+
+.panelActions .primaryBtn,
+.panelActions .dangerBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: opacity 0.15s;
+}
+
+.panelActions .primaryBtn:disabled,
+.panelActions .dangerBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Scope selector */
+.scopeSelector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.radioLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+}
+
+/* Update fields grid */
+.fieldGroup {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.fieldLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+    font-weight: 500;
+}
+
+.fieldInput {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+.fieldInput:focus {
+    outline: none;
+    border-color: var(--primary-500);
+}
+
+/* Warning text */
+.warningText {
+    color: var(--error-700);
+    font-size: var(--font-size-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    font-weight: 500;
+}
+
+/* Confirm overlay & dialog */
+.confirmOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.confirmDialog {
+    background: var(--bg-primary);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+}
+
+.confirmTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.confirmMessage {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.confirmActions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    margin-top: var(--space-4);
+}
+
+.confirmActions .actionBtn {
+    flex: 0 1 auto;
+    min-width: 100px;
+}
+
+/* Spinner */
+.spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    gap: var(--space-3);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.spinnerIcon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    gap: var(--space-4);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    text-align: center;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+    .modal {
+        padding: var(--space-4);
+        width: 95%;
+    }
+
+    .fieldGroup {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .panelActions {
+        flex-direction: column;
+    }
+
+    .confirmActions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .confirmActions .actionBtn {
+        min-width: unset;
+    }
+}
