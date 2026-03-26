@@ -455,6 +455,9 @@ export default function TrainingProgramPage() {
                                 >
                                     <div className={styles.dayTop}>
                                         <span className={styles.dayNumber}>{format(day, 'd')}</span>
+                                    </div>
+
+                                    <div className={styles.dayContent}>
                                         {visibleEvents.map(event => (
                                             <div
                                                 key={event.id}
@@ -465,9 +468,6 @@ export default function TrainingProgramPage() {
                                                 {event.title}
                                             </div>
                                         ))}
-                                    </div>
-
-                                    <div className={styles.dayContent}>
                                         {visibleTrainings.map(t => {
                                             const group = groups?.find(g => g.id === t.groupId);
                                             const color = group?.color || stringToColor(group?.name);

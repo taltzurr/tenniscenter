@@ -332,8 +332,9 @@
    CALENDAR CONTAINER
    ============================ */
 .calendarContainer {
-    background: white;
+    background: var(--bg-primary);
     border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-200);
     box-shadow: var(--shadow-sm);
     padding: var(--space-3);
     overflow: hidden;
@@ -356,7 +357,7 @@
     font-weight: 600;
     color: var(--text-secondary);
     background: var(--gray-50);
-    padding: var(--space-2);
+    padding: 10px 4px;
 }
 
 /* ============================
@@ -434,6 +435,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    max-height: 56px;
     overflow: hidden;
 }
 
@@ -441,15 +443,16 @@
    EVENT PILLS
    ============================ */
 .eventPill {
+    width: 100%;
     font-size: 9px;
-    padding: 2px 5px;
+    font-weight: 600;
+    padding: 2px 6px;
     border-radius: 4px;
     color: white;
-    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
     min-height: 14px;
     line-height: 1.2;
 }
@@ -462,11 +465,13 @@
     border-radius: 4px;
     display: flex;
     align-items: center;
-    padding: 2px 5px;
+    padding: 2px 6px;
     overflow: hidden;
     min-height: 14px;
+    font-size: 10px;
+    font-weight: 600;
     color: white;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
 /* Mobile: show as colored bars */
@@ -776,6 +781,10 @@
     .today .dayNumber {
         width: 22px;
         height: 22px;
+    }
+
+    .dayContent {
+        max-height: none;
     }
 
     /* Event pills desktop */
