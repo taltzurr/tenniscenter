@@ -1,0 +1,267 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.sheet {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: var(--space-5);
+    animation: slideUp 0.3s ease;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-5);
+}
+
+.title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.closeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--gray-100);
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+    background: var(--gray-200);
+    color: var(--text-primary);
+}
+
+/* Summary section */
+.summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-5);
+}
+
+.summaryStats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+}
+
+.summaryRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dotCompleted {
+    background: var(--success-500);
+}
+
+.dotPending {
+    background: var(--primary-400);
+}
+
+.dotCancelled {
+    background: var(--error-400);
+}
+
+.summaryLabel {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.summaryValue {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+/* Day groups */
+.daysList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.dayGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.dayHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.dayToday {
+    border-bottom-color: var(--primary-200);
+}
+
+.dayName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.todayBadge {
+    font-size: var(--font-size-xs);
+    background: var(--primary-100);
+    color: var(--primary-700);
+    padding: 1px 8px;
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-semibold);
+}
+
+.dayDate {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Training rows */
+.trainingsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.trainingRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--bg-primary);
+    border: 1px solid var(--gray-100);
+}
+
+.rowCompleted {
+    background: var(--success-100);
+    border-color: var(--success-200);
+}
+
+.rowCancelled {
+    background: var(--gray-50);
+    border-color: var(--gray-200);
+    opacity: 0.7;
+}
+
+.trainingIcon {
+    flex-shrink: 0;
+    display: flex;
+}
+
+.iconCompleted {
+    color: var(--success-600);
+}
+
+.iconPending {
+    color: var(--gray-300);
+}
+
+.iconCancelled {
+    color: var(--error-400);
+}
+
+.trainingInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.trainingGroup {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.trainingMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.statusLabel {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.labelCompleted {
+    background: var(--success-100);
+    color: var(--success-700);
+}
+
+.labelPending {
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.labelCancelled {
+    background: var(--gray-100);
+    color: var(--gray-500);
+    text-decoration: line-through;
+}
+
+@media (min-width: 768px) {
+    .overlay {
+        align-items: center;
+    }
+
+    .sheet {
+        border-radius: var(--radius-xl);
+        max-height: 70vh;
+    }
+}

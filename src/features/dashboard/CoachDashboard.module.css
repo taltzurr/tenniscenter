@@ -7,22 +7,15 @@
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-/* Staggered slide-up animation for sections */
 @keyframes slideUp {
     from {
         opacity: 0;
         transform: translateY(12px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -48,25 +41,53 @@
     margin-bottom: var(--space-5);
 }
 
-/* Monthly Info Section Header */
-.monthlyInfoHeader {
+/* ── Unified Section Title ── */
+/* All section titles use this pattern: icon + text in a flex row */
+.sectionTitleRow {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    margin-bottom: var(--space-4);
-    padding-inline-start: var(--space-1);
 }
 
-.monthlyInfoTitle {
+.sectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.sectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.sectionSubheading {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     color: var(--text-secondary);
     letter-spacing: 0.02em;
 }
 
-.monthlyInfoIcon {
-    color: var(--primary-400);
-    flex-shrink: 0;
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.sectionAction {
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+}
+
+.sectionAction:hover {
+    text-decoration: underline;
 }
 
 /* Monthly Cards Grid */
@@ -74,35 +95,16 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    margin-top: var(--space-4);
 }
 
-.delay0 {
-    animation-delay: 0ms;
-}
-
-.delay1 {
-    animation-delay: 80ms;
-}
-
-.delay2 {
-    animation-delay: 160ms;
-}
-
-.delay3 {
-    animation-delay: 240ms;
-}
-
-.delay4 {
-    animation-delay: 320ms;
-}
-
-.delay5 {
-    animation-delay: 380ms;
-}
-
-.delay6 {
-    animation-delay: 440ms;
-}
+/* Animation delays */
+.delay0 { animation-delay: 0ms; }
+.delay1 { animation-delay: 80ms; }
+.delay2 { animation-delay: 160ms; }
+.delay3 { animation-delay: 240ms; }
+.delay4 { animation-delay: 320ms; }
+.delay5 { animation-delay: 380ms; }
 
 /* Stats row: 3 cards + completion ring */
 .statsRow {
@@ -128,7 +130,18 @@
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-200);
     min-width: 72px;
-    cursor: default;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.ringCard:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+    transform: translateY(-2px);
+}
+
+.ringCard:active {
+    transform: scale(0.95);
 }
 
 .ringLabel {
@@ -140,7 +153,7 @@
     white-space: nowrap;
 }
 
-/* Greeting */
+/* ── Greeting ── */
 .greeting {
     margin-bottom: var(--space-1);
 }
@@ -152,37 +165,20 @@
     margin-bottom: var(--space-1);
 }
 
+.greetingEmoji {
+    display: inline-block;
+    margin-inline-start: var(--space-2);
+}
+
 .greetingSubtitle {
     font-size: var(--font-size-base);
     color: var(--text-secondary);
+    margin: 0;
 }
 
-/* Sections */
+/* ── Sections ── */
 .section {
     margin-bottom: var(--space-6);
-}
-
-.sectionHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-}
-
-.sectionTitle {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-}
-
-.sectionAction {
-    font-size: var(--font-size-sm);
-    color: var(--primary-600);
-    font-weight: var(--font-weight-medium);
-}
-
-.sectionAction:hover {
-    text-decoration: underline;
 }
 
 /* Training list */
@@ -197,12 +193,10 @@
     align-items: center;
     gap: var(--space-4);
     background-color: var(--bg-primary);
-    /* White card */
     border-radius: var(--radius-xl);
     padding: var(--space-5);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-200);
-    /* Definition */
     transition: all var(--transition-fast);
     cursor: pointer;
 }
@@ -231,9 +225,7 @@
     color: var(--text-tertiary);
 }
 
-.trainingDetails {
-    flex: 1;
-}
+.trainingDetails { flex: 1; }
 
 .trainingGroup {
     font-size: var(--font-size-base);
@@ -268,9 +260,7 @@
     background-color: var(--gray-200);
 }
 
-.trainingStatus:active {
-    transform: scale(0.95);
-}
+.trainingStatus:active { transform: scale(0.95); }
 
 .trainingStatus.completed {
     background-color: var(--success-100);
@@ -362,9 +352,7 @@
     background-color: var(--gray-200);
 }
 
-.statusToggle:active {
-    transform: scale(0.95);
-}
+.statusToggle:active { transform: scale(0.95); }
 
 .statusToggle[data-completed="true"],
 .trainingItem .statusToggle:has(~ [data-status="completed"]) {
@@ -393,13 +381,11 @@
     margin-bottom: var(--space-4);
 }
 
-/* Goals & Values Unified Card */
+/* Goals & Values Card */
 .dashboardCard {
     background: var(--bg-primary);
     border-radius: var(--radius-xl);
-    /* More rounded */
     padding: var(--space-5);
-    /* More internal padding */
     box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
@@ -424,7 +410,6 @@
 
 .cardTitle {
     font-size: var(--font-size-base);
-    /* Slightly larger */
     font-weight: 700;
     color: var(--text-primary);
     display: flex;
@@ -456,7 +441,6 @@
     transition: all 0.2s ease;
 }
 
-/* Specific Tag Colors */
 .tagGoal {
     background-color: var(--accent-50);
     color: var(--accent-700);
@@ -482,50 +466,6 @@
     color: var(--text-secondary);
     min-width: fit-content;
     white-space: nowrap;
-}
-
-.valuesContent::-webkit-scrollbar {
-    display: none;
-}
-
-.valueTag {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    background-color: var(--primary-50);
-    color: var(--primary-700);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    border: 1px solid var(--primary-200);
-    flex-shrink: 0;
-    white-space: nowrap;
-    min-height: 28px;
-}
-
-.goalTag {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    background-color: var(--accent-100);
-    color: var(--accent-700);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    border: 1px solid var(--accent-300);
-    flex-shrink: 0;
-    white-space: nowrap;
-    min-height: 28px;
-}
-
-.ctaLink {
-    font-size: var(--font-size-sm);
-    color: var(--primary-600);
-    font-weight: var(--font-weight-medium);
-}
-
-.ctaLink:hover {
-    text-decoration: underline;
 }
 
 .eventCardFull {
@@ -569,91 +509,41 @@
     color: var(--text-secondary);
 }
 
-/* Tablet breakpoint */
+/* ── Responsive ── */
 @media (min-width: 768px) {
     .page {
         padding: var(--space-6);
         padding-bottom: var(--space-6);
     }
 
-    .greetingTitle {
-        font-size: var(--font-size-2xl);
-    }
+    .greetingTitle { font-size: var(--font-size-2xl); }
+    .greetingSubtitle { font-size: var(--font-size-base); }
 
-    .greetingSubtitle {
-        font-size: var(--font-size-base);
-    }
+    .sectionTitle { font-size: var(--font-size-lg); }
+    .sectionSubheading { font-size: var(--font-size-lg); }
 
-    .sectionTitle {
-        font-size: var(--font-size-xl);
-    }
-
-    .todayList {
-        gap: var(--space-4);
-    }
-
-    .trainingItem {
-        padding: var(--space-5);
-    }
-
-    .dashSection {
-        margin-bottom: var(--space-8);
-    }
-
-    .sectionDivider {
-        margin-bottom: var(--space-8);
-    }
-
-    .greeting {
-        margin-bottom: var(--space-2);
-    }
+    .todayList { gap: var(--space-4); }
+    .trainingItem { padding: var(--space-5); }
+    .dashSection { margin-bottom: var(--space-8); }
+    .sectionDivider { margin-bottom: var(--space-8); }
+    .greeting { margin-bottom: var(--space-2); }
 
     .monthlyCardsGrid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--space-5);
     }
-
-    .monthlyInfoTitle {
-        font-size: var(--font-size-lg);
-    }
 }
 
-/* Desktop breakpoint */
 @media (min-width: 1024px) {
-    .page {
-        padding: var(--space-8);
-    }
-
-    .greetingTitle {
-        font-size: var(--font-size-3xl);
-    }
-
-    .greetingSubtitle {
-        font-size: var(--font-size-lg);
-    }
-
-    .sectionTitle {
-        font-size: var(--font-size-2xl);
-    }
-
-    .dashSection {
-        margin-bottom: var(--space-12);
-    }
-
-    .sectionDivider {
-        margin-bottom: var(--space-12);
-    }
-
-    .section {
-        margin-bottom: var(--space-8);
-    }
-
-    .trainingItem {
-        padding: var(--space-6);
-    }
-
-    .dashboardCard {
-        padding: var(--space-6);
-    }
+    .page { padding: var(--space-8); }
+    .greetingTitle { font-size: var(--font-size-3xl); }
+    .greetingSubtitle { font-size: var(--font-size-lg); }
+    .sectionTitle { font-size: var(--font-size-xl); }
+    .sectionSubheading { font-size: var(--font-size-xl); }
+    .dashSection { margin-bottom: var(--space-12); }
+    .sectionDivider { margin-bottom: var(--space-12); }
+    .section { margin-bottom: var(--space-8); }
+    .trainingItem { padding: var(--space-6); }
+    .dashboardCard { padding: var(--space-6); }
 }

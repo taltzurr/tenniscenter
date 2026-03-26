@@ -4,13 +4,11 @@ import {
     Users,
     Calendar,
     CheckCircle,
-    Clock,
     ChevronLeft,
     Heart,
     CalendarDays,
     Target,
     BookOpen,
-    TrendingUp,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
@@ -31,13 +29,14 @@ import QuickStats from './QuickStats';
 import MonthlyPlansStatus from './MonthlyPlansStatus';
 import WeekSchedule from './WeekSchedule';
 import CompletionRing from './CompletionRing';
+import CompletionDetail from './CompletionDetail';
 import EventDetailsModal from '../../components/ui/EventDetailsModal/EventDetailsModal';
-import { isEventVisibleForCenter, EVENT_COLORS, EVENT_LABELS } from '../../services/events';
+import { isEventVisibleForCenter, EVENT_COLORS } from '../../services/events';
 import styles from './CoachDashboard.module.css';
 
 function CoachDashboard() {
     const { userData } = useAuthStore();
-    const { trainings, fetchTrainings, getTrainingsByDate, editTraining } = useTrainingsStore();
+    const { trainings, fetchTrainings, editTraining } = useTrainingsStore();
     const { groups, fetchGroups } = useGroupsStore();
     const { events, fetchEvents } = useEventsStore();
     const { fetchTheme, currentTheme } = useMonthlyThemesStore();
@@ -46,6 +45,7 @@ function CoachDashboard() {
 
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [showCompletionDetail, setShowCompletionDetail] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -134,7 +134,7 @@ function CoachDashboard() {
         return upcoming[0] || null;
     }, [todayTrainings]);
 
-    // Remaining today's trainings (show all, not just those not in hero)
+    // Remaining today's trainings
     const remainingTodayTrainings = useMemo(() => {
         return todayTrainings;
     }, [todayTrainings]);
@@ -194,7 +194,7 @@ function CoachDashboard() {
         });
 
         if (hasRejected) {
-            return '⚠️ יש תכנית חודשית שנדחתה — שים לב';
+            return 'יש תכנית חודשית שנדחתה — שים לב';
         }
 
         const pct = completionData.total > 0
@@ -202,7 +202,7 @@ function CoachDashboard() {
             : 0;
 
         if (pct === 100 && completionData.total > 0) {
-            return '🎉 שבוע מושלם — כל האימונים בוצעו!';
+            return 'שבוע מושלם — כל האימונים בוצעו!';
         }
 
         if (todayCount === 0) {
@@ -266,12 +266,10 @@ function CoachDashboard() {
     const monthlyGoals = useMemo(() => {
         if (!currentTheme?.goals || typeof currentTheme.goals !== 'object') return [];
 
-        // Get the coach's group type IDs
         const coachGroupTypeIds = new Set(
             groups.map(g => g.groupTypeId).filter(Boolean)
         );
 
-        // Filter goals by coach's group types and build display array
         const typeNameMap = Object.fromEntries(DEFAULT_GROUP_TYPES.map(t => [t.id, t.name]));
 
         return Object.entries(currentTheme.goals)
@@ -299,7 +297,6 @@ function CoachDashboard() {
             e.preventDefault();
             e.stopPropagation();
         }
-
         const newStatus = currentStatus === 'completed' ? 'planned' : 'completed';
         try {
             await editTraining(trainingId, { status: newStatus });
@@ -340,7 +337,8 @@ function CoachDashboard() {
             <div className={`${styles.dashSection} ${styles.delay0}`}>
                 <div className={styles.greeting}>
                     <h1 className={styles.greetingTitle}>
-                        {getGreeting()}, {(userData?.displayName || userData?.name || 'מאמן').split(' ')[0]}! 👋
+                        {getGreeting()}, {(userData?.displayName || userData?.name || 'מאמן').split(' ')[0]}!{' '}
+                        <span className={styles.greetingEmoji}>👋</span>
                     </h1>
                     <p className={styles.greetingSubtitle}>{greetingSubtitle}</p>
                 </div>
@@ -350,7 +348,13 @@ function CoachDashboard() {
             <div className={`${styles.dashSection} ${styles.delay1}`}>
                 <div className={styles.statsRow}>
                     <QuickStats stats={stats} />
-                    <div className={styles.ringCard}>
+                    <div
+                        className={styles.ringCard}
+                        onClick={() => setShowCompletionDetail(true)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && setShowCompletionDetail(true)}
+                    >
                         <CompletionRing
                             completed={completionData.completed}
                             total={completionData.total}
@@ -361,25 +365,16 @@ function CoachDashboard() {
                 </div>
             </div>
 
-            {/* 3. Monthly Plans Status (NEW - only if coach has groups) */}
-            {groups.length > 0 && (
-                <div className={`${styles.dashSection} ${styles.delay2}`}>
-                    <MonthlyPlansStatus plans={plans} groups={groups} />
-                </div>
-            )}
-
-            <div className={styles.sectionDivider} />
-
-            {/* 4. Today's Trainings ("אימוני היום") - Includes Hero & List */}
-            <div className={`${styles.dashSection} ${styles.delay3}`}>
+            {/* 3. Today's Trainings */}
+            <div className={`${styles.dashSection} ${styles.delay2}`}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>
-                        <CalendarDays size={20} style={{ display: 'inline', marginInlineStart: '8px' }} />
-                        אימוני היום
-                    </h2>
+                    <div className={styles.sectionTitleRow}>
+                        <CalendarDays size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>אימוני היום</h2>
+                    </div>
                     <Link to="/calendar" className={styles.sectionAction}>
                         תכנית אימון מלאה
-                        <ChevronLeft size={16} style={{ display: 'inline' }} />
+                        <ChevronLeft size={14} />
                     </Link>
                 </div>
 
@@ -440,8 +435,8 @@ function CoachDashboard() {
                 )}
             </div>
 
-            {/* 5. Rest of Week (NEW) */}
-            <div className={`${styles.dashSection} ${styles.delay4}`}>
+            {/* 4. Rest of Week */}
+            <div className={`${styles.dashSection} ${styles.delay3}`}>
                 <WeekSchedule
                     trainings={trainings}
                     groups={groups}
@@ -449,14 +444,14 @@ function CoachDashboard() {
                 />
             </div>
 
-            {/* 6. Upcoming Events ("אירועים קרובים") */}
+            {/* 5. Upcoming Events */}
             {upcomingEvents.length > 0 && (
-                <div className={`${styles.dashSection} ${styles.delay4}`}>
+                <div className={`${styles.dashSection} ${styles.delay3}`}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <Calendar size={20} style={{ display: 'inline', marginInlineStart: '8px' }} />
-                            אירועים קרובים
-                        </h2>
+                        <div className={styles.sectionTitleRow}>
+                            <Calendar size={18} className={styles.sectionIcon} />
+                            <h2 className={styles.sectionTitle}>אירועים קרובים</h2>
+                        </div>
                     </div>
                     <div className={styles.eventsContainer}>
                         {upcomingEvents.map(event => {
@@ -486,16 +481,23 @@ function CoachDashboard() {
 
             <div className={styles.sectionDivider} />
 
-            {/* 7. Monthly Info Section Header */}
-            <div className={`${styles.dashSection} ${styles.delay5}`}>
-                <div className={styles.monthlyInfoHeader}>
-                    <BookOpen size={18} className={styles.monthlyInfoIcon} />
-                    <span className={styles.monthlyInfoTitle}>מידע חודשי</span>
+            {/* 6. Monthly Plans Status — MOVED here, after events, before monthly info */}
+            {groups.length > 0 && (
+                <div className={`${styles.dashSection} ${styles.delay4}`}>
+                    <MonthlyPlansStatus plans={plans} groups={groups} />
+                </div>
+            )}
+
+            {/* 7. Monthly Info */}
+            <div className={`${styles.dashSection} ${styles.delay4}`}>
+                <div className={styles.sectionTitleRow}>
+                    <BookOpen size={18} className={styles.sectionIcon} />
+                    <span className={styles.sectionSubheading}>מידע חודשי</span>
                 </div>
 
                 {/* Goals & Values Grid */}
                 <div className={styles.monthlyCardsGrid}>
-                    {/* Monthly Goals ("מטרות החודש") */}
+                    {/* Monthly Goals */}
                     <div className={styles.dashboardCard}>
                         <div className={styles.cardHeader}>
                             <div className={styles.cardTitle} style={{ color: 'var(--accent-700)' }}>
@@ -519,7 +521,7 @@ function CoachDashboard() {
                         </div>
                     </div>
 
-                    {/* Monthly Values ("ערכי החודש") */}
+                    {/* Monthly Values */}
                     <div className={styles.dashboardCard}>
                         <div className={styles.cardHeader}>
                             <div className={styles.cardTitle} style={{ color: 'var(--primary-700)' }}>
@@ -542,12 +544,12 @@ function CoachDashboard() {
                 </div>
             </div>
 
-            {/* 8. Monthly Outstanding ("מצטיינים") */}
+            {/* 8. Monthly Outstanding */}
             <div className={`${styles.dashSection} ${styles.delay5}`}>
                 <MonthlyOutstandingCard />
             </div>
 
-            {/* Details Modal */}
+            {/* Modals */}
             <TrainingDetailsModal
                 isOpen={!!selectedTraining}
                 training={selectedTraining}
@@ -560,6 +562,13 @@ function CoachDashboard() {
                 onClose={() => setSelectedEvent(null)}
                 canEdit={false}
                 centers={[]}
+            />
+
+            <CompletionDetail
+                isOpen={showCompletionDetail}
+                onClose={() => setShowCompletionDetail(false)}
+                trainings={trainings}
+                groups={groups}
             />
         </div>
     );
