@@ -39,6 +39,9 @@ const UsersPage = lazy(() => import('./features/users/UsersPage'));
 const CentersPage = lazy(() => import('./features/centers/CentersPage'));
 const MonthlyOutstandingPage = lazy(() => import('./features/monthlyOutstanding/MonthlyOutstandingPage'));
 
+// Lazy load the center view wrapper
+const CenterManagerViewWrapper = lazy(() => import('./features/centers/CenterManagerViewWrapper'));
+
 // Dashboard Wrapper Component
 function DashboardWrapper() {
   const { isCenterManager, isSupervisor } = useAuthStore();
@@ -133,6 +136,11 @@ function App() {
             <Route path="/events-calendar" element={<EventsCalendarPage />} />
 
             <Route path="/trainings" element={<Navigate to="/weekly-schedule" replace />} />
+            <Route path="/center-manager-view/:centerId" element={
+              <RoleRoute allowedRoles={['supervisor']}>
+                <CenterManagerViewWrapper />
+              </RoleRoute>
+            } />
             <Route path="/centers" element={
               <RoleRoute allowedRoles={['supervisor']}>
                 <CentersPage />

@@ -13,6 +13,7 @@ import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useEventsStore from '../../../stores/eventsStore';
 import useGroupsStore from '../../../stores/groupsStore';
+import useCentersStore from '../../../stores/centersStore';
 import { normalizeDate } from '../../../utils/dateUtils';
 import { isEventVisibleForCenter, EVENT_COLORS } from '../../../services/events';
 import Spinner from '../../../components/ui/Spinner';
@@ -39,6 +40,7 @@ export default function CalendarPage() {
     const { trainings, fetchTrainings, isLoading } = useTrainingsStore();
     const { events: orgEvents, fetchEvents } = useEventsStore();
     const { groups } = useGroupsStore();
+    const { centers, fetchCenters } = useCentersStore();
     const [view, setView] = useState('month');
     const [date, setDate] = useState(new Date());
     const [selectedTraining, setSelectedTraining] = useState(null);
@@ -47,14 +49,24 @@ export default function CalendarPage() {
     const coachCenterId = userData?.centerIds?.[0] || null;
 
     useEffect(() => {
+        fetchCenters();
+    }, [fetchCenters]);
+
+    useEffect(() => {
         if (userData?.id) {
             const start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
             const end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
             fetchTrainings(userData.id, start, end);
-            // Fetch org events for the visible months
-            fetchEvents(date.getFullYear(), date.getMonth());
-            if (date.getMonth() > 0) fetchEvents(date.getFullYear(), date.getMonth() - 1);
-            fetchEvents(date.getFullYear(), date.getMonth() + 1);
+            // Fetch org events for the visible months (handle year boundaries)
+            const curMonth = date.getMonth();
+            const curYear = date.getFullYear();
+            fetchEvents(curYear, curMonth);
+            const prevMonth = curMonth === 0 ? 11 : curMonth - 1;
+            const prevYear = curMonth === 0 ? curYear - 1 : curYear;
+            fetchEvents(prevYear, prevMonth);
+            const nextMonth = curMonth === 11 ? 0 : curMonth + 1;
+            const nextYear = curMonth === 11 ? curYear + 1 : curYear;
+            fetchEvents(nextYear, nextMonth);
         }
     }, [userData, date, view, fetchTrainings, fetchEvents]);
 
@@ -179,7 +191,7 @@ export default function CalendarPage() {
                 event={selectedEvent}
                 onClose={() => setSelectedEvent(null)}
                 canEdit={false}
-                centers={[]}
+                centers={centers}
             />
         </div>
     );

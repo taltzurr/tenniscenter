@@ -1,21 +1,25 @@
+/* ===== Container ===== */
 .container {
     position: relative;
     display: flex;
     align-items: center;
 }
 
+/* ===== Bell Button ===== */
 .bellButton {
     position: relative;
     background: none;
     border: none;
-    padding: 8px;
-    border-radius: 50%;
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
     cursor: pointer;
     color: var(--text-secondary);
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .bellButton:hover,
@@ -24,99 +28,168 @@
     color: var(--primary-600);
 }
 
+/* ===== Badge ===== */
 .badge {
     position: absolute;
     top: 2px;
     right: 2px;
     background: var(--error-500);
     color: white;
-    font-size: 10px;
-    font-weight: bold;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 99px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    min-width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
+    padding: 0 var(--space-1);
     border: 2px solid var(--bg-primary);
+    line-height: 1;
 }
 
-.dropdown {
+/* ===== Backdrop (mobile) ===== */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-modal);
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.backdropClosing {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* ===== Panel base ===== */
+.panel {
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ===== Mobile Panel (default - mobile first) ===== */
+.mobilePanel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: calc(var(--z-modal) + 1);
+    max-height: 85vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+.mobilePanel.panelClosing {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+/* ===== Drag Handle (mobile) ===== */
+.dragHandle {
+    width: 36px;
+    height: 4px;
+    background: var(--gray-300);
+    border-radius: var(--radius-full);
+    margin: var(--space-2) auto var(--space-1);
+    flex-shrink: 0;
+}
+
+/* ===== Desktop Dropdown ===== */
+.desktopDropdown {
     position: absolute;
     top: 100%;
     left: 0;
     width: 360px;
-    background: var(--bg-primary);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
     border: 1px solid var(--gray-200);
     z-index: 1000;
-    margin-top: 8px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    margin-top: var(--space-2);
     max-height: 80vh;
-    animation: fadeIn 0.2s ease-out;
+    animation: fadeInDown 0.2s ease-out;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* ===== Header ===== */
 .header {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--gray-100);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--gray-50);
+    flex-shrink: 0;
 }
 
 .title {
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: var(--font-size-base);
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 }
 
 .markAllButton {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--space-1);
     background: none;
     border: none;
     color: var(--primary-600);
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: background 0.2s;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-xs);
+    transition: background var(--transition-fast);
+    min-height: 44px;
 }
 
 .markAllButton:hover {
     background: var(--primary-50);
 }
 
-.list {
-    overflow-y: auto;
-    max-height: 400px;
+.closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    min-width: 44px;
+    min-height: 44px;
 }
 
+.closeButton:hover {
+    background: var(--gray-100);
+    color: var(--text-primary);
+}
+
+/* ===== Notification List ===== */
+.list {
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    max-height: calc(85vh - 120px);
+}
+
+/* ===== Empty State ===== */
 .emptyState {
-    padding: 48px 24px;
+    padding: var(--space-12) var(--space-6);
     display: flex;
     flex-direction: column;
     align-items: center;
     color: var(--text-tertiary);
-    gap: 12px;
+    gap: var(--space-3);
 }
 
 .emptyIcon {
@@ -124,35 +197,56 @@
 }
 
 .emptyText {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
 }
 
+/* ===== Notification Item ===== */
 .item {
     display: flex;
-    gap: 12px;
-    padding: 16px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--gray-100);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background var(--transition-fast);
     position: relative;
     align-items: flex-start;
+    min-height: 56px;
+    will-change: transform, opacity;
 }
 
 .item:hover {
     background: var(--gray-50);
 }
 
+.item:active {
+    background: var(--gray-100);
+}
+
+/* Unread indicator */
 .item.unread {
     background: var(--primary-50);
+    border-inline-start: 3px solid var(--primary-500);
 }
 
 .item.unread:hover {
     background: var(--primary-100);
 }
 
+/* ===== Item Icon ===== */
 .itemIcon {
     flex-shrink: 0;
     margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--gray-100);
+}
+
+.item.unread .itemIcon {
+    background: var(--primary-100);
 }
 
 .iconInfo {
@@ -171,23 +265,33 @@
     color: var(--error-500);
 }
 
+/* ===== Item Content ===== */
 .itemContent {
     flex: 1;
     min-width: 0;
 }
 
 .itemTitle {
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     margin-bottom: 2px;
+    line-height: var(--line-height-tight);
+}
+
+.item.unread .itemTitle {
+    font-weight: var(--font-weight-semibold);
 }
 
 .itemMessage {
     color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 1.4;
-    margin-bottom: 4px;
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
+    margin-bottom: var(--space-1);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .itemTime {
@@ -195,39 +299,141 @@
     font-size: 11px;
 }
 
+/* ===== Item Actions ===== */
+.itemActions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+    align-self: center;
+}
+
 .deleteButton {
     background: none;
     border: none;
     color: var(--text-tertiary);
-    padding: 4px;
+    padding: var(--space-2);
     cursor: pointer;
-    border-radius: 4px;
-    opacity: 0;
-    transition: all 0.2s;
-}
-
-.item:hover .deleteButton {
-    opacity: 1;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .deleteButton:hover {
     color: var(--error-500);
-    background: var(--error-50);
+    background: var(--error-100);
 }
 
-/* Desktop enhancements */
+.deleteButton:active {
+    background: var(--error-200);
+}
+
+.itemChevron {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+/* ===== Swipe Hint (mobile) ===== */
+.swipeHint {
+    text-align: center;
+    padding: var(--space-2) var(--space-4);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--gray-100);
+    background: var(--gray-50);
+    flex-shrink: 0;
+}
+
+/* ===== Animations ===== */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(100%);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Desktop enhancements (tablet+) ===== */
 @media (min-width: 768px) {
-    .dropdown {
+    .title {
+        font-size: var(--font-size-sm);
+    }
+
+    .desktopDropdown {
         width: 400px;
     }
 
     .list {
         max-height: 480px;
     }
+
+    /* On desktop, delete button is hidden until hover */
+    .deleteButton {
+        opacity: 0;
+        min-width: auto;
+        min-height: auto;
+        padding: var(--space-1);
+    }
+
+    .item:hover .deleteButton {
+        opacity: 1;
+    }
+
+    .item {
+        min-height: auto;
+        padding: var(--space-4);
+    }
+
+    .swipeHint {
+        display: none;
+    }
 }
 
 @media (min-width: 1024px) {
-    .dropdown {
+    .desktopDropdown {
         width: 440px;
     }
 }

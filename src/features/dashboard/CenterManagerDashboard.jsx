@@ -25,7 +25,7 @@ import { getGreeting } from '../../utils/greeting';
 import MonthlyOutstandingCard from '../dashboard/MonthlyOutstandingCard';
 import styles from './CenterManagerDashboard.module.css';
 
-const CenterManagerDashboard = () => {
+const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
   const navigate = useNavigate();
   const { userData } = useAuthStore();
   const { users, fetchUsers } = useUsersStore();
@@ -37,6 +37,9 @@ const CenterManagerDashboard = () => {
   const { trainings, fetchCenterTrainings } = useTrainingsStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Allow supervisor to view any center's dashboard via overrideCenterId prop
+  const effectiveCenterId = overrideCenterId || userData?.managedCenterId;
 
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -52,7 +55,7 @@ const CenterManagerDashboard = () => {
         // Fetch all required data
         await Promise.all([
           fetchUsers(),
-          fetchGroups(null, false, userData?.managedCenterId),
+          fetchGroups(null, false, effectiveCenterId),
           fetchCenters(),
           fetchAllPlans(currentYear, currentMonth),
           fetchEvents(currentYear, currentMonth)
@@ -66,19 +69,19 @@ const CenterManagerDashboard = () => {
     };
 
     fetchData();
-  }, [fetchUsers, fetchGroups, fetchCenters, fetchAllPlans, currentYear, currentMonth]);
+  }, [fetchUsers, fetchGroups, fetchCenters, fetchAllPlans, currentYear, currentMonth, effectiveCenterId]);
 
   // Get center data
   const managedCenter = useMemo(() => {
-    if (!userData?.managedCenterId || !centers || centers.length === 0) return null;
-    return centers.find(c => c.id === userData.managedCenterId);
-  }, [centers, userData?.managedCenterId]);
+    if (!effectiveCenterId || !centers || centers.length === 0) return null;
+    return centers.find(c => c.id === effectiveCenterId);
+  }, [centers, effectiveCenterId]);
 
   // Filter coaches belonging to this center
   const centerCoaches = useMemo(() => {
-    if (!userData?.managedCenterId || !users || users.length === 0) return [];
-    return getCenterCoaches(users, userData.managedCenterId);
-  }, [users, userData?.managedCenterId]);
+    if (!effectiveCenterId || !users || users.length === 0) return [];
+    return getCenterCoaches(users, effectiveCenterId);
+  }, [users, effectiveCenterId]);
 
   // Get coach IDs for filtering
   const centerCoachIds = useMemo(() => {
@@ -87,9 +90,9 @@ const CenterManagerDashboard = () => {
 
   // Filter groups belonging to this center
   const centerGroups = useMemo(() => {
-    if (!userData?.managedCenterId || !groups || groups.length === 0) return [];
-    return groups.filter(g => g.centerId === userData.managedCenterId && g.isActive !== false);
-  }, [groups, userData?.managedCenterId]);
+    if (!effectiveCenterId || !groups || groups.length === 0) return [];
+    return groups.filter(g => g.centerId === effectiveCenterId && g.isActive !== false);
+  }, [groups, effectiveCenterId]);
 
   // Fetch trainings only after we know center coach IDs (avoids fetching all org trainings)
   useEffect(() => {
@@ -163,7 +166,7 @@ const CenterManagerDashboard = () => {
     );
   }
 
-  if (!userData?.managedCenterId) {
+  if (!effectiveCenterId) {
     return (
       <div className={styles.page}>
         <div className={styles.emptyState}>
@@ -185,13 +188,29 @@ const CenterManagerDashboard = () => {
 
   return (
     <div className={styles.page}>
+      {/* Back button for supervisor override view */}
+      {overrideCenterId && (
+        <button
+          className={styles.backButton}
+          onClick={() => navigate('/centers')}
+        >
+          חזרה לניהול מרכזים
+        </button>
+      )}
+
       {/* Greeting Section */}
       <div className={styles.greeting}>
         <h1 className={styles.greetingTitle}>
-          {getGreeting()}, {userData?.displayName || 'מנהל'}!
+          {overrideCenterId
+            ? `לוח בקרה - ${managedCenter?.name || 'מרכז'}`
+            : `${getGreeting()}, ${(userData?.displayName || 'מנהל').split(' ')[0]}!`
+          }
         </h1>
         <p className={styles.greetingSubtitle}>
-          לוח בקרה מרכז {managedCenter?.name || 'טניס'}
+          {overrideCenterId
+            ? 'תצוגת מנהל מרכז'
+            : `לוח בקרה מרכז ${managedCenter?.name || 'טניס'}`
+          }
         </p>
       </div>
 
@@ -244,12 +263,12 @@ const CenterManagerDashboard = () => {
         </div>
 
         {/* Events Management */}
-        <div className={styles.statCard} onClick={() => navigate('/events-calendar')}>
+        <div className={styles.statCard} onClick={() => navigate('/events-calendar#calendar')}>
           <div className={`${styles.statIcon} ${styles.yellow}`}>
             <CalendarDays size={18} />
           </div>
           <div className={styles.statInfo}>
-            <div className={styles.statValue}>{events?.filter(e => isEventVisibleForCenter(e, userData?.managedCenterId)).length || 0}</div>
+            <div className={styles.statValue}>{events?.filter(e => isEventVisibleForCenter(e, effectiveCenterId)).length || 0}</div>
             <div className={styles.statLabel}>אירועים חודשיים</div>
           </div>
         </div>

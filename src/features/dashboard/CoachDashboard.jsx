@@ -9,6 +9,7 @@ import {
     Heart,
     CalendarDays,
     Target,
+    BookOpen,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
@@ -310,6 +311,8 @@ function CoachDashboard() {
                 <QuickStats stats={stats} />
             </div>
 
+            <div className={styles.sectionDivider} />
+
             {/* 3. Today's Trainings ("אימוני היום") - Includes Hero & List */}
             <div className={`${styles.dashSection} ${styles.delay2}`}>
                 <div className={styles.sectionHeader}>
@@ -415,51 +418,60 @@ function CoachDashboard() {
                 </div>
             )}
 
-            {/* 4. Monthly Goals ("מטרות החודש") */}
-            <div className={`${styles.dashSection} ${styles.delay4}`}>
-                <div className={styles.dashboardCard}>
-                    <div className={styles.cardHeader}>
-                        <div className={styles.cardTitle} style={{ color: 'var(--accent-700)' }}>
-                            <Target size={18} />
-                            מטרות החודש
-                        </div>
-                    </div>
-                    <div className={styles.cardContent}>
-                        {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
-                            <div key={goal.id} className={styles.goalRow}>
-                                <span className={styles.goalTypeLabel}>{goal.typeName}</span>
-                                <span className={`${styles.tag} ${styles.tagGoal}`}>
-                                    {goal.name}
-                                </span>
-                            </div>
-                        )) : (
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                                שאל את המנהל שלך על המטרות החודש
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <div className={styles.sectionDivider} />
 
-            {/* 5. Monthly Values ("ערכי החודש") */}
-            <div className={`${styles.dashSection} ${styles.delay5}`}>
-                <div className={styles.dashboardCard}>
-                    <div className={styles.cardHeader}>
-                        <div className={styles.cardTitle} style={{ color: 'var(--primary-700)' }}>
-                            <Heart size={18} />
-                            ערכי החודש
+            {/* Monthly Info Section Header */}
+            <div className={`${styles.dashSection} ${styles.delay4}`}>
+                <div className={styles.monthlyInfoHeader}>
+                    <BookOpen size={18} className={styles.monthlyInfoIcon} />
+                    <span className={styles.monthlyInfoTitle}>מידע חודשי</span>
+                </div>
+
+                {/* Goals & Values Grid */}
+                <div className={styles.monthlyCardsGrid}>
+                    {/* 4. Monthly Goals ("מטרות החודש") */}
+                    <div className={styles.dashboardCard}>
+                        <div className={styles.cardHeader}>
+                            <div className={styles.cardTitle} style={{ color: 'var(--accent-700)' }}>
+                                <Target size={18} />
+                                מטרות החודש
+                            </div>
+                        </div>
+                        <div className={styles.cardContent}>
+                            {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
+                                <div key={goal.id} className={styles.goalRow}>
+                                    <span className={styles.goalTypeLabel}>{goal.typeName}</span>
+                                    <span className={`${styles.tag} ${styles.tagGoal}`}>
+                                        {goal.name}
+                                    </span>
+                                </div>
+                            )) : (
+                                <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                    שאל את המנהל שלך על המטרות החודש
+                                </span>
+                            )}
                         </div>
                     </div>
-                    <div className={styles.cardContent}>
-                        {monthlyValues.length > 0 ? monthlyValues.map((value) => (
-                            <span key={value.id} className={`${styles.tag} ${styles.tagValue}`}>
-                                {value.name}
-                            </span>
-                        )) : (
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                                שאל את המנהל שלך על הערכים החודש
-                            </span>
-                        )}
+
+                    {/* 5. Monthly Values ("ערכי החודש") */}
+                    <div className={styles.dashboardCard}>
+                        <div className={styles.cardHeader}>
+                            <div className={styles.cardTitle} style={{ color: 'var(--primary-700)' }}>
+                                <Heart size={18} />
+                                ערכי החודש
+                            </div>
+                        </div>
+                        <div className={styles.cardContent}>
+                            {monthlyValues.length > 0 ? monthlyValues.map((value) => (
+                                <span key={value.id} className={`${styles.tag} ${styles.tagValue}`}>
+                                    {value.name}
+                                </span>
+                            )) : (
+                                <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
+                                    שאל את המנהל שלך על הערכים החודש
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

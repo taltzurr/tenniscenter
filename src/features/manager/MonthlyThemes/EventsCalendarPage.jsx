@@ -172,9 +172,8 @@ function EventsCalendarPage() {
 
         const handleSubmit = async (e) => {
             e.preventDefault();
-            const startDate = currentEvent?.date
-                ? (currentEvent.date instanceof Date ? currentEvent.date : new Date(currentEvent.date.seconds * 1000))
-                : new Date(selectedYear, selectedMonth, eventDate);
+            // Always use the startDay from the form input (user may have changed it)
+            const startDate = new Date(selectedYear, selectedMonth, startDay);
 
             const eventPayload = {
                 ...formData,
@@ -196,6 +195,8 @@ function EventsCalendarPage() {
             if (res.success) {
                 setShowEventModal(false);
                 addToast({ type: 'success', message: currentEvent ? 'האירוע עודכן' : 'האירוע נוצר' });
+                // Re-fetch to ensure proper Firestore timestamp normalization
+                fetchEvents(selectedYear, selectedMonth);
             }
         };
 
@@ -269,52 +270,52 @@ function EventsCalendarPage() {
                         </div>
                     </div>
 
-                    {/* Date range */}
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>יום בחודש</label>
-                        <div className={styles.dateRangeRow}>
-                            <input
-                                type="number"
-                                className={styles.input}
-                                value={startDay}
-                                onChange={e => setStartDay(Number(e.target.value))}
-                                min={1}
-                                max={getDaysInMonth(selectedYear, selectedMonth)}
-                            />
-                            {formData.isRange && (
-                                <>
-                                    <span>עד</span>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={endDay}
-                                        onChange={e => setEndDay(Number(e.target.value))}
-                                        min={startDay}
-                                        max={getDaysInMonth(selectedYear, selectedMonth)}
-                                    />
-                                </>
-                            )}
+                    {/* Date + Time row */}
+                    <div className={styles.dateTimeGroup}>
+                        <div className={styles.dateTimeField}>
+                            <label className={styles.label}>יום בחודש</label>
+                            <div className={styles.dateRangeRow}>
+                                <input
+                                    type="number"
+                                    className={`${styles.input} ${styles.dayInput}`}
+                                    value={startDay}
+                                    onChange={e => setStartDay(Number(e.target.value))}
+                                    min={1}
+                                    max={getDaysInMonth(selectedYear, selectedMonth)}
+                                />
+                                {formData.isRange && (
+                                    <>
+                                        <span className={styles.dateRangeSeparator}>עד</span>
+                                        <input
+                                            type="number"
+                                            className={`${styles.input} ${styles.dayInput}`}
+                                            value={endDay}
+                                            onChange={e => setEndDay(Number(e.target.value))}
+                                            min={startDay}
+                                            max={getDaysInMonth(selectedYear, selectedMonth)}
+                                        />
+                                    </>
+                                )}
+                            </div>
                         </div>
-                        <label className={styles.checkboxRow} style={{ marginTop: '0.5rem' }}>
+                        <div className={styles.dateTimeField}>
+                            <label className={styles.label}>שעה</label>
                             <input
-                                type="checkbox"
-                                checked={formData.isRange}
-                                onChange={e => setModalFormData({ ...formData, isRange: e.target.checked })}
+                                type="time"
+                                className={styles.input}
+                                value={formData.time}
+                                onChange={e => setModalFormData({ ...formData, time: e.target.value })}
                             />
-                            טווח תאריכים
-                        </label>
+                        </div>
                     </div>
-
-                    {/* Time */}
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>שעה (אופציונלי)</label>
+                    <label className={styles.checkboxRow}>
                         <input
-                            className={styles.input}
-                            value={formData.time}
-                            onChange={e => setModalFormData({ ...formData, time: e.target.value })}
-                            placeholder="לדוגמה: 10:00"
+                            type="checkbox"
+                            checked={formData.isRange}
+                            onChange={e => setModalFormData({ ...formData, isRange: e.target.checked })}
                         />
-                    </div>
+                        טווח תאריכים
+                    </label>
 
                     {/* Location */}
                     <div className={styles.formGroup}>
