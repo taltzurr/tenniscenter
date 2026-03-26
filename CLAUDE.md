@@ -174,6 +174,17 @@ firestore.rules                           # Firestore security rules
 - Use `var(--radius-*)` for border-radius, `var(--shadow-*)` for box-shadows.
 - Font family: `'Rubik', 'Segoe UI', system-ui, -apple-system, sans-serif`
 
+### Icon + Text Spacing (CRITICAL)
+
+When placing a lucide-react icon next to text (in badges, meta items, buttons, links, etc.), **always** use a minimum gap of `var(--space-2)` (8px). Never use `var(--space-1)` or `var(--space-1-5)` for icon-text pairs — they are too cramped on mobile.
+
+- **Status badges** (pill-shaped): `gap: var(--space-2)`, `padding: var(--space-1-5) var(--space-3)` — give the text breathing room inside the badge border.
+- **Meta items** (icon + label text): `gap: var(--space-2)`
+- **Action buttons/links** (icon + text): `gap: var(--space-2)`
+- **Summary items** (icon + count): `gap: var(--space-2)`
+
+This applies globally to all components, not just specific pages.
+
 ---
 
 ## RTL Notes
