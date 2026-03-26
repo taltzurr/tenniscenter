@@ -62,17 +62,6 @@ function MonthlyPlansStatus({ plans, groups }) {
 
     return (
         <div className={`${styles.card} ${needsAttention ? styles.attentionCard : ''}`}>
-            <div className={styles.header}>
-                <div className={styles.titleRow}>
-                    <FileText size={18} className={styles.titleIcon} />
-                    <h3 className={styles.title}>תכניות חודשיות — {monthName}</h3>
-                </div>
-                <Link to="/monthly-plans" className={styles.viewAll}>
-                    הצג הכל
-                    <ChevronLeft size={14} />
-                </Link>
-            </div>
-
             <div className={styles.groupList}>
                 {groupStatuses.map(({ groupId, groupName, status, feedback }) => {
                     const config = status ? STATUS_CONFIG[status] : null;

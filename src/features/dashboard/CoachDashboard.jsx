@@ -9,6 +9,7 @@ import {
     CalendarDays,
     Target,
     BookOpen,
+    FileText,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
@@ -481,9 +482,19 @@ function CoachDashboard() {
 
             <div className={styles.sectionDivider} />
 
-            {/* 6. Monthly Plans Status — MOVED here, after events, before monthly info */}
+            {/* 6. Monthly Plans Status */}
             {groups.length > 0 && (
                 <div className={`${styles.dashSection} ${styles.delay4}`}>
+                    <div className={styles.sectionHeader}>
+                        <div className={styles.sectionTitleRow}>
+                            <FileText size={18} className={styles.sectionIcon} />
+                            <h2 className={styles.sectionTitle}>תכניות חודשיות</h2>
+                        </div>
+                        <Link to="/monthly-plans" className={styles.sectionAction}>
+                            הצג הכל
+                            <ChevronLeft size={14} />
+                        </Link>
+                    </div>
                     <MonthlyPlansStatus plans={plans} groups={groups} />
                 </div>
             )}
