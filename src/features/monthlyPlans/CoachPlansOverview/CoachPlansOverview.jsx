@@ -36,28 +36,24 @@ const ENTITY_TYPE_MONTHLY_PLAN = 'monthlyPlan';
 
 const STATUS_CONFIG = {
     [PLAN_STATUS.APPROVED]: {
-        label: 'אושרה',
+        label: 'הוגש',
         icon: CheckCircle,
         className: 'approved',
-        description: 'הוגשה ואושרה',
     },
     [PLAN_STATUS.SUBMITTED]: {
         label: 'ממתינה לאישור',
         icon: Clock,
         className: 'submitted',
-        description: 'הוגשה, ממתינה לאישור',
     },
     [PLAN_STATUS.REJECTED]: {
         label: 'נדחתה',
         icon: XCircle,
         className: 'rejected',
-        description: 'התכנית נדחתה — יש לתקן ולהגיש מחדש',
     },
     [PLAN_STATUS.DRAFT]: {
         label: 'טיוטה',
         icon: Edit3,
         className: 'draft',
-        description: 'בטיוטה, טרם הוגשה',
     },
 };
 
@@ -346,7 +342,6 @@ function CoachPlansOverview() {
                     const StatusIcon = config?.icon || AlertTriangle;
                     const statusClass = config?.className || 'missing';
                     const statusLabel = config?.label || 'לא הוגשה';
-                    const description = config?.description || 'לא הוגשה';
 
                     const needsAction = !status || status === PLAN_STATUS.DRAFT || status === PLAN_STATUS.REJECTED;
                     const currentPlanComments = planId ? (planComments[planId] || []) : [];
@@ -366,7 +361,6 @@ function CoachPlansOverview() {
                                         <Users size={16} className={styles.groupIcon} />
                                         {groupName}
                                     </span>
-                                    <span className={styles.planDescription}>{description}</span>
                                 </div>
                                 <div className={`${styles.planStatus} ${styles[statusClass]}`}>
                                     <StatusIcon size={16} />
