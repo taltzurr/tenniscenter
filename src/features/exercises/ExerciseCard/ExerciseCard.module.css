@@ -1,82 +1,98 @@
 .card {
     background: white;
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    padding: var(--space-4);
     box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: inherit;
 }
 
 .card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
 }
 
-.thumbnail {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    background: var(--gray-100);
+.cardHeader {
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: var(--gray-400);
-}
-
-.thumbnailPlaceholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 140px;
-    background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-50) 100%);
-    color: var(--primary-400);
-}
-
-.content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     gap: var(--space-2);
-    flex: 1;
-}
-
-.title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    margin: 0;
-    line-height: 1.3;
 }
 
 .category {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--primary-600);
+    font-weight: var(--font-weight-semibold);
+    color: var(--primary-700);
     background: var(--primary-50);
-    padding: var(--space-1) var(--space-2);
+    padding: 2px var(--space-2);
     border-radius: var(--radius-full);
-    width: fit-content;
+}
+
+.title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.description {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+}
+
+.tag {
+    font-size: 11px;
+    color: var(--accent-700);
+    background: var(--accent-100);
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.tagMore {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 1px var(--space-1);
 }
 
 .meta {
     display: flex;
     gap: var(--space-3);
     align-items: center;
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
     margin-top: auto;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--gray-100);
 }
 
 .metaItem {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: 3px;
 }
 
 .difficulty {
@@ -85,8 +101,8 @@
 }
 
 .difficultyDot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: var(--gray-200);
 }

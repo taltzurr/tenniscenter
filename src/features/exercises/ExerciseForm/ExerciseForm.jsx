@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, BookOpen, Settings, Tag, Video } from 'lucide-react';
+import { ArrowRight, BookOpen, Settings, Tag } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
 import useUIStore from '../../../stores/uiStore';
@@ -9,7 +9,6 @@ import { createRequest } from '../../../services/exerciseRequests';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
-import VideoUploader from '../../../components/ui/VideoUploader';
 import Comments from '../../../components/ui/Comments';
 import { ENTITY_TYPES } from '../../../services/comments';
 import styles from './ExerciseForm.module.css';
@@ -31,8 +30,7 @@ function ExerciseForm() {
         duration: 15,
         ageGroups: [],
         equipment: '',
-        tags: '',
-        videoUrl: ''
+        tags: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,8 +51,7 @@ function ExerciseForm() {
                 duration: currentExercise.duration || 15,
                 ageGroups: currentExercise.ageGroups || [],
                 equipment: currentExercise.equipment?.join(', ') || '',
-                tags: currentExercise.tags?.join(', ') || '',
-                videoUrl: currentExercise.videoUrl || ''
+                tags: currentExercise.tags?.join(', ') || ''
             });
         }
     }, [currentExercise, isEditMode]);
@@ -174,21 +171,6 @@ function ExerciseForm() {
                                 onChange={handleChange('description')}
                             />
                         </div>
-                    </div>
-                </div>
-
-                {/* Video Upload */}
-                <div className={styles.card}>
-                    <h2 className={styles.cardTitle}>
-                        <Video size={18} />
-                        וידאו הדגמה
-                    </h2>
-                    <div className={styles.fieldGroup}>
-                        <VideoUploader
-                            value={formData.videoUrl}
-                            onChange={(url) => setFormData(prev => ({ ...prev, videoUrl: url }))}
-                            exerciseId={id || 'new'}
-                        />
                     </div>
                 </div>
 

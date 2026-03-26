@@ -26,6 +26,7 @@ const TrainingDetailsPage = lazy(() => import('./features/trainings/TrainingDeta
 const WeeklyStatusPage = lazy(() => import('./features/trainings/WeeklyStatusPage'));
 const TrainingBuilderPage = lazy(() => import('./features/trainings/TrainingBuilder/TrainingBuilderPage'));
 const ExerciseList = lazy(() => import('./features/exercises/ExerciseList/ExerciseList'));
+const ExerciseDetail = lazy(() => import('./features/exercises/ExerciseDetail/ExerciseDetail'));
 const ExerciseForm = lazy(() => import('./features/exercises/ExerciseForm/ExerciseForm'));
 const RequestForm = lazy(() => import('./features/exerciseRequests/RequestForm/RequestForm'));
 const RequestsList = lazy(() => import('./features/exerciseRequests/RequestsList/RequestsList'));
@@ -115,7 +116,7 @@ function App() {
             {/* Exercises routes */}
             <Route path="/exercises" element={<ExerciseList />} />
             <Route path="/exercises/new" element={<ExerciseForm />} />
-            <Route path="/exercises/:id" element={<ExerciseForm />} />
+            <Route path="/exercises/:id" element={<ExerciseDetail />} />
             <Route path="/exercises/:id/edit" element={<ExerciseForm />} />
 
             {/* Exercise Requests routes */}
