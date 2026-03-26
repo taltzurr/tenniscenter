@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-26
 **Author:** Claude (AI Assistant)
-**Status:** Approved
+**Status:** Approved (reviewed)
 
 ---
 
@@ -29,9 +29,9 @@ After creating a recurring training series, coaches have no way to:
 **File:** `src/services/trainings.js`
 
 New functions:
-- `fetchSeriesTrainings(recurrenceGroupId)` — query all trainings with matching `recurrenceGroupId`, ordered by date
-- `updateSeriesTrainings(recurrenceGroupId, updates, scope)` — batch update future trainings in series (fields: startTime, endTime, topic, location, equipment)
-- `deleteSeriesTrainings(recurrenceGroupId, scope)` — batch delete with scope options: "future" (from today onward) or "all"
+- `fetchSeriesTrainings(recurrenceGroupId)` — query all trainings with matching `recurrenceGroupId`, ordered by date. **Requires Firestore composite index:** `recurrenceGroupId` + `date` (ascending).
+- `updateSeriesTrainings(recurrenceGroupId, updates, scope)` — batch update trainings in series. Scope: `"future"` (date > today, exclusive of today) or `"all"` (entire series). Updatable fields: startTime, endTime, topic, location, equipment. Uses Firestore `writeBatch()` (safe: max 100 trainings per series, well under 500-op limit).
+- `deleteSeriesTrainings(recurrenceGroupId, scope)` — batch delete with same scope options. "future" = date strictly after today. "all" = entire series regardless of date.
 
 #### A2. Store Functions
 
@@ -57,6 +57,9 @@ UI:
   - Action buttons: "עדכן אימונים עתידיים" / "מחק אימונים עתידיים" / "מחק את כל הסדרה"
 - Scope selector: "רק עתידיים" (future only) / "כל הסדרה" (entire series)
 - Confirmation dialog before destructive actions
+- **Loading state:** spinner while fetching series data
+- **Empty state:** if series has only 1 training, show message "אימון זה הוא היחיד בסדרה" with option to remove series marker
+- **Error state:** toast on batch failure with "שגיאה בעדכון הסדרה. נסה שוב."
 
 #### A4. Truncation Warning
 
@@ -90,7 +93,7 @@ UI:
 | 6 | Update future trainings (NEW) | Change time for future trainings | Future trainings updated | Firestore: future docs updated, past unchanged |
 | 7 | Delete future trainings (NEW) | Delete future trainings in series | Future trainings removed | Firestore: future docs deleted |
 | 8 | Delete entire series (NEW) | Delete all trainings in series | All trainings removed | Firestore: all docs with that groupId deleted |
-| 9 | Truncation warning (NEW) | Create daily training "never ending" | Warning toast at 100 limit | Firestore: exactly 100 docs |
+| 9 | Truncation warning (NEW) | Create daily training with endType "never" (or end date 1 year out) | Warning toast showing "נוצרו 100 אימונים מתוך X המבוקשים" | Firestore: exactly 100 docs with same groupId |
 
 ### B2. Password Change QA
 
