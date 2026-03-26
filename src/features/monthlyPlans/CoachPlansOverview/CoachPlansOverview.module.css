@@ -330,6 +330,9 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
+    padding-top: var(--space-3);
+    margin-top: var(--space-1);
+    border-top: 1px solid var(--gray-100);
 }
 
 .actionLink {
@@ -340,7 +343,7 @@
     color: var(--primary-600);
     font-weight: var(--font-weight-medium);
     text-decoration: none;
-    padding: var(--space-2) 0;
+    padding: var(--space-2) var(--space-2);
     transition: color var(--transition-fast);
     background: none;
     border: none;
@@ -445,12 +448,13 @@
 .commentInput {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-3);
+    margin-top: var(--space-2);
 }
 
 .commentField {
     flex: 1;
-    padding: var(--space-2-5) var(--space-3);
+    padding: var(--space-3) var(--space-4);
     border: 1px solid var(--gray-300);
     border-radius: var(--radius-lg);
     font-size: var(--font-size-sm);

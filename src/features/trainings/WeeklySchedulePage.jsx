@@ -1,16 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     format,
     startOfWeek,
     endOfWeek,
     eachDayOfInterval,
+    addWeeks,
+    subWeeks,
     isSameDay,
+    isSameWeek,
     isToday
 } from 'date-fns';
 import { he } from 'date-fns/locale';
 import {
     ChevronRight,
+    ChevronLeft,
     AlertCircle,
     Plus,
     Building2,
@@ -56,19 +60,29 @@ export default function WeeklySchedulePage() {
     const [selectedCenterIds, setSelectedCenterIds] = useState([]);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
-    // Calculate week range
+    // Calculate week range based on selectedDate
     const today = useMemo(() => new Date(), []);
-    const weekStart = useMemo(() => startOfWeek(today, { weekStartsOn: 0 }), [today]);
-    const weekEnd = useMemo(() => endOfWeek(today, { weekStartsOn: 0 }), [today]);
+    const weekStart = useMemo(() => startOfWeek(selectedDate, { weekStartsOn: 0 }), [selectedDate]);
+    const weekEnd = useMemo(() => endOfWeek(selectedDate, { weekStartsOn: 0 }), [selectedDate]);
     const days = useMemo(() => eachDayOfInterval({ start: weekStart, end: weekEnd }), [weekStart, weekEnd]);
+    const isCurrentWeek = isSameWeek(selectedDate, today, { weekStartsOn: 0 });
+
+    const goToPreviousWeek = useCallback(() => {
+        setSelectedDate(prev => subWeeks(prev, 1));
+    }, []);
+
+    const goToNextWeek = useCallback(() => {
+        setSelectedDate(prev => addWeeks(prev, 1));
+    }, []);
 
     useEffect(() => {
         if (!userData?.id) return;
 
-        fetchEvents(today.getFullYear(), today.getMonth());
+        fetchEvents(weekStart.getFullYear(), weekStart.getMonth());
         if (weekStart.getMonth() !== weekEnd.getMonth()) {
-            fetchEvents(today.getFullYear(), weekEnd.getMonth());
+            fetchEvents(weekEnd.getFullYear(), weekEnd.getMonth());
         }
 
         if (isSupervisor) {
@@ -83,7 +97,7 @@ export default function WeeklySchedulePage() {
             fetchGroups(userData.id);
             fetchTrainings(userData.id, weekStart, weekEnd);
         }
-    }, [userData?.id, isCenterManager, isSupervisor]);
+    }, [userData?.id, isCenterManager, isSupervisor, weekStart, weekEnd]);
 
     // For center managers: fetch trainings for all center coaches once users are loaded
     useEffect(() => {
@@ -93,7 +107,7 @@ export default function WeeklySchedulePage() {
             .filter(u => u.role === 'coach' && u.centerIds?.includes(centerId))
             .map(u => u.id);
         useTrainingsStore.getState().fetchCenterTrainings(coachIds, weekStart, weekEnd);
-    }, [isCenterManager, users?.length]);
+    }, [isCenterManager, users?.length, weekStart, weekEnd]);
 
     // For supervisors: fetch trainings for ALL coaches once users are loaded
     useEffect(() => {
@@ -102,7 +116,7 @@ export default function WeeklySchedulePage() {
             .filter(u => u.role === 'coach')
             .map(u => u.id);
         useTrainingsStore.getState().fetchCenterTrainings(coachIds, weekStart, weekEnd);
-    }, [isSupervisor, users?.length]);
+    }, [isSupervisor, users?.length, weekStart, weekEnd]);
 
     // Map coachId → user object for name lookup
     const coachMap = useMemo(() => {
@@ -207,10 +221,6 @@ export default function WeeklySchedulePage() {
         return center?.name || 'מרכז לא ידוע';
     };
 
-    const handleBack = () => {
-        navigate('/dashboard');
-    };
-
     const handleStatusToggle = async (e, trainingId, currentStatus) => {
         e.stopPropagation();
         const newStatus = currentStatus === 'completed' ? 'planned' : 'completed';
@@ -262,23 +272,60 @@ export default function WeeklySchedulePage() {
 
     return (
         <div className={styles.page}>
+            {/* Header */}
             <div className={styles.header}>
-                <Button variant="ghost" onClick={handleBack} style={{ padding: '8px' }}>
-                    <ChevronRight size={24} />
-                    <span className={styles.backButtonLabel}>חזרה</span>
-                </Button>
-                <div className={styles.headerContent}>
-                    <h1 className={styles.title}>אימוני השבוע</h1>
-                    <p className={styles.subtitle}>
-                        {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
-                    </p>
-                </div>
-                {!isViewOnly && (
-                    <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
-                        <Plus size={20} />
-                    </Button>
-                )}
+                <h1 className={styles.title}>אימוני השבוע</h1>
+                <p className={styles.subtitle}>סטטוס אימונים שבועי</p>
             </div>
+
+            {/* Week Navigation */}
+            <div className={styles.weekNav}>
+                <button
+                    className={styles.weekNavBtn}
+                    onClick={goToPreviousWeek}
+                    aria-label="שבוע קודם"
+                >
+                    <ChevronRight size={20} />
+                </button>
+                <span className={`${styles.weekLabel} ${isCurrentWeek ? styles.currentWeekLabel : ''}`}>
+                    {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
+                </span>
+                <button
+                    className={styles.weekNavBtn}
+                    onClick={goToNextWeek}
+                    aria-label="שבוע הבא"
+                >
+                    <ChevronLeft size={20} />
+                </button>
+            </div>
+
+            {/* Supervisor: Center Filter Chips (multi-select) */}
+            {isSupervisor && centers.length > 0 && (
+                <div className={styles.centerFilters}>
+                    <div className={`${styles.groupChips} hide-scrollbar`}>
+                        <button
+                            className={`${styles.filterChip} ${selectedCenterIds.length === 0 ? styles.active : ''}`}
+                            onClick={() => setSelectedCenterIds([])}
+                        >
+                            <Building2 size={14} />
+                            כל המרכזים
+                        </button>
+                        {centers.map(center => {
+                            const isActive = selectedCenterIds.includes(center.id);
+                            return (
+                                <button
+                                    key={center.id}
+                                    className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
+                                    onClick={() => toggleCenterFilter(center.id)}
+                                >
+                                    <Building2 size={14} />
+                                    {center.name}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* Coach: Group Filter Chips */}
             {!isViewOnly && (
@@ -315,29 +362,12 @@ export default function WeeklySchedulePage() {
                 </div>
             )}
 
-            {/* Supervisor: Center Filter Chips (multi-select) */}
-            {isSupervisor && centers.length > 0 && (
-                <div className={`${styles.groupChips} hide-scrollbar`}>
-                    <button
-                        className={`${styles.filterChip} ${selectedCenterIds.length === 0 ? styles.active : ''}`}
-                        onClick={() => setSelectedCenterIds([])}
-                    >
-                        <Building2 size={14} />
-                        כל המרכזים
-                    </button>
-                    {centers.map(center => {
-                        const isActive = selectedCenterIds.includes(center.id);
-                        return (
-                            <button
-                                key={center.id}
-                                className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
-                                onClick={() => toggleCenterFilter(center.id)}
-                            >
-                                <Building2 size={14} />
-                                {center.name}
-                            </button>
-                        );
-                    })}
+            {/* Coach: Add Training Button */}
+            {!isViewOnly && (
+                <div className={styles.addBtnRow}>
+                    <Button onClick={() => navigate(`/trainings/new?date=${format(new Date(), 'yyyy-MM-dd')}&groupId=${selectedGroup !== 'all' ? selectedGroup : ''}`)}>
+                        <Plus size={20} />
+                    </Button>
                 </div>
             )}
 
