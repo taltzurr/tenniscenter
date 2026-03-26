@@ -1,0 +1,135 @@
+.card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.titleIcon {
+    color: var(--primary-500);
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.viewAll {
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+}
+
+.viewAll:hover {
+    text-decoration: underline;
+}
+
+.daysList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.dayGroup {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.dayLabel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 52px;
+    padding-top: 2px;
+    flex-shrink: 0;
+}
+
+.dayName {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+}
+
+.dayDate {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.dayTrainings {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.trainingPill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 6px 12px;
+    border-radius: var(--radius-lg);
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.trainingPill:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-200);
+}
+
+.pillTime {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-700);
+}
+
+.pillGroup {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+    .card {
+        padding: var(--space-5);
+    }
+
+    .title {
+        font-size: var(--font-size-lg);
+    }
+
+    .dayLabel {
+        min-width: 64px;
+    }
+
+    .trainingPill {
+        padding: 8px 14px;
+    }
+}

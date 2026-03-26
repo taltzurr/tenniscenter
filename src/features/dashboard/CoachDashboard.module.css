@@ -100,6 +100,46 @@
     animation-delay: 380ms;
 }
 
+.delay6 {
+    animation-delay: 440ms;
+}
+
+/* Stats row: 3 cards + completion ring */
+.statsRow {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-2);
+}
+
+.statsRow > :first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.ringCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    min-width: 72px;
+    cursor: default;
+}
+
+.ringLabel {
+    font-size: 9px;
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
 /* Greeting */
 .greeting {
     margin-bottom: var(--space-1);

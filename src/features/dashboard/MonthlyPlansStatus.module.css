@@ -1,0 +1,157 @@
+.card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.attentionCard {
+    border-color: var(--warning-200);
+    background: linear-gradient(180deg, #fffbeb 0%, var(--bg-primary) 40px);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.titleIcon {
+    color: var(--primary-500);
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.viewAll {
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+}
+
+.viewAll:hover {
+    text-decoration: underline;
+}
+
+.groupList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.groupRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    background: var(--gray-50);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    gap: var(--space-3);
+}
+
+.groupRow:hover {
+    background: var(--gray-100);
+}
+
+.groupInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.groupName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.feedback {
+    font-size: var(--font-size-xs);
+    color: var(--error-600);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Status Badges */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.approved {
+    background: var(--success-100);
+    color: var(--success-700);
+}
+
+.submitted {
+    background: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.rejected {
+    background: var(--error-100);
+    color: var(--error-700);
+}
+
+.draft {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.missing {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+@media (min-width: 768px) {
+    .card {
+        padding: var(--space-5);
+    }
+
+    .title {
+        font-size: var(--font-size-lg);
+    }
+
+    .groupRow {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .groupName {
+        font-size: var(--font-size-base);
+    }
+
+    .statusBadge {
+        font-size: var(--font-size-sm);
+        padding: 5px 12px;
+    }
+}
