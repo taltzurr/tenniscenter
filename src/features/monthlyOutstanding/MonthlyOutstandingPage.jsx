@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import useSwipeNavigation from '../../hooks/useSwipeNavigation';
 import { Link } from 'react-router-dom';
 import {
     ChevronRight, ChevronLeft, Award, Star, Building2,
@@ -87,6 +88,10 @@ function MonthlyOutstandingPage() {
             return newMonth;
         });
     }, [selectedYear]);
+
+    const handleNextMonth = useCallback(() => navigateMonth(1), [navigateMonth]);
+    const handlePrevMonth = useCallback(() => navigateMonth(-1), [navigateMonth]);
+    const swipeHandlers = useSwipeNavigation(handleNextMonth, handlePrevMonth);
 
     // Filter categories by role
     const visibleCategories = useMemo(() => {
@@ -187,7 +192,7 @@ function MonthlyOutstandingPage() {
     };
 
     return (
-        <div className={styles.page}>
+        <div className={styles.page} {...swipeHandlers}>
             <div className={styles.header}>
                 <Link to="/dashboard" className={styles.backLink}>
                     <ChevronRight size={16} />

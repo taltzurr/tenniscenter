@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Target, Calendar, Save, Trash2, AlertTriangle, Send, Clock, XCircle } from 'lucide-react';
+import { ArrowRight, Target, Calendar, Save, Trash2, AlertTriangle, Send, Clock, XCircle, MessageSquare } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
+import useCentersStore from '../../../stores/centersStore';
 import useUIStore from '../../../stores/uiStore';
 import { HEBREW_MONTHS, WEEK_STRUCTURE } from '../../../services/monthlyPlans';
 import { PLAN_STATUS } from '../../../config/constants';
@@ -28,6 +29,7 @@ function PlanForm() {
     const { userData } = useAuthStore();
     const { groups, fetchGroups } = useGroupsStore();
     const { currentPlan, fetchPlan, savePlan, submitPlan, removePlan, isLoading } = useMonthlyPlansStore();
+    const { getCenterName } = useCentersStore();
     const { addToast } = useUIStore();
 
     const currentYear = new Date().getFullYear();
@@ -42,6 +44,7 @@ function PlanForm() {
     const [existingPlanId, setExistingPlanId] = useState(null);
     const [planStatus, setPlanStatus] = useState(PLAN_STATUS.DRAFT);
     const [managerFeedback, setManagerFeedback] = useState('');
+    const [managerNotes, setManagerNotes] = useState('');
 
     const [formData, setFormData] = useState({
         monthlyGoals: '',
@@ -74,6 +77,7 @@ function PlanForm() {
                     setExistingPlanId(plan.id);
                     setPlanStatus(plan.status || PLAN_STATUS.DRAFT);
                     setManagerFeedback(plan.managerFeedback || '');
+                    setManagerNotes(plan.managerNotes || '');
 
                     // Specific logic: if plan exists and is locked, ensure we are not in editing mode initially unless explicit override?
                     // Actually, if it is locked, we force isEditing to false mostly, or we keep it true but input disabled.
@@ -82,6 +86,7 @@ function PlanForm() {
                     setExistingPlanId(null);
                     setPlanStatus(PLAN_STATUS.DRAFT);
                     setManagerFeedback('');
+                    setManagerNotes('');
                 }
             }
         };
@@ -182,7 +187,13 @@ function PlanForm() {
 
         if (window.confirm('האם אתה בטוח שברצונך להגיש את התכנית לאישור? לא ניתן יהיה לערוך אותה לאחר מכן.')) {
             const group = groups.find(g => g.id === selectedGroup);
-            const result = await submitPlan(existingPlanId, group?.name);
+            const centerId = group?.centerId || userData?.centerIds?.[0] || '';
+            const centerName = centerId ? getCenterName(centerId) : '';
+            const result = await submitPlan(existingPlanId, group?.name, {
+                centerName,
+                coachName: userData?.displayName || userData?.email || '',
+                centerId
+            });
 
             if (result.success) {
                 addToast({ type: 'success', message: 'התכנית הוגשה לאישור בהצלחה' });
@@ -261,6 +272,17 @@ function PlanForm() {
                         <span>הערות המנהל לדחייה:</span>
                     </div>
                     <p>{managerFeedback}</p>
+                </div>
+            )}
+
+            {/* Manager Notes */}
+            {managerNotes && (
+                <div style={{ marginBottom: '16px', backgroundColor: 'var(--primary-50)', color: 'var(--primary-800)', padding: '12px', borderRadius: '8px', border: '1px solid var(--primary-200)' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', fontWeight: 'bold' }}>
+                        <MessageSquare size={18} />
+                        <span>הערות המנהל:</span>
+                    </div>
+                    <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{managerNotes}</p>
                 </div>
             )}
 

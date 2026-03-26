@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import useSwipeNavigation from '../../../hooks/useSwipeNavigation';
 import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, Building2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
@@ -45,6 +46,10 @@ function EventsCalendarPage() {
         setSelectedMonth(newMonth);
         setSelectedYear(newYear);
     }, [selectedMonth, selectedYear]);
+
+    const handleNextMonth = useCallback(() => navigateMonth(1), [navigateMonth]);
+    const handlePrevMonth = useCallback(() => navigateMonth(-1), [navigateMonth]);
+    const swipeHandlers = useSwipeNavigation(handleNextMonth, handlePrevMonth);
 
     // Goals default: one empty string per group type
     const emptyGoals = () => Object.fromEntries(DEFAULT_GROUP_TYPES.map(g => [g.id, '']));
@@ -428,37 +433,33 @@ function EventsCalendarPage() {
                 <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
                     <ArrowRight size={20} /> חזרה לדאשבורד
                 </button>
-                <div className={styles.headerRow}>
-                    <div>
-                        <h1 className={styles.title}>לוח אירועים, מטרות וערכים</h1>
-                        <p className={styles.subtitle}>ניהול אירועים, מטרות חודשיות לפי סוג קבוצה וערכים</p>
-                    </div>
-                    {/* Month/Year navigation with arrows */}
-                    <div className={styles.monthNav}>
-                        <button
-                            className={styles.monthNavBtn}
-                            onClick={() => navigateMonth(-1)}
-                            aria-label="חודש קודם"
-                        >
-                            <ChevronRight size={20} />
-                        </button>
-                        <span className={styles.monthLabel}>
-                            {HEBREW_MONTHS[selectedMonth]} {selectedYear}
-                        </span>
-                        <button
-                            className={styles.monthNavBtn}
-                            onClick={() => navigateMonth(1)}
-                            aria-label="חודש הבא"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
-                    </div>
+                <h1 className={styles.title}>לוח אירועים, מטרות וערכים</h1>
+                <p className={styles.subtitle}>ניהול אירועים, מטרות חודשיות לפי סוג קבוצה וערכים</p>
+                {/* Month/Year navigation with arrows */}
+                <div className={styles.monthNav}>
+                    <button
+                        className={styles.monthNavBtn}
+                        onClick={() => navigateMonth(-1)}
+                        aria-label="חודש קודם"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                    <span className={styles.monthLabel}>
+                        {HEBREW_MONTHS[selectedMonth]} {selectedYear}
+                    </span>
+                    <button
+                        className={styles.monthNavBtn}
+                        onClick={() => navigateMonth(1)}
+                        aria-label="חודש הבא"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
                 </div>
             </div>
 
             <div className={styles.container}>
                 {/* Left: Interactive Calendar */}
-                <div ref={calendarRef} className={styles.calendarSection}>
+                <div ref={calendarRef} className={styles.calendarSection} {...swipeHandlers}>
                     <div className={styles.calendarHeader}>
                         <h2 className={styles.cardTitle}>לוח שנה ארגוני</h2>
                         <div className={styles.calendarLegend}>

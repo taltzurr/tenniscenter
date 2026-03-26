@@ -11,9 +11,8 @@
 
 .headerRow {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 /* Month/Year arrow navigation */
@@ -26,7 +25,8 @@
     border-radius: 0.75rem;
     padding: 0.5rem 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 0.5rem;
 }
 
 .monthNavBtn {
@@ -91,7 +91,7 @@
 }
 
 .title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.25rem;
@@ -99,8 +99,8 @@
 
 .subtitle {
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0;
 }
 
 

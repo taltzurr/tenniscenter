@@ -110,10 +110,10 @@ const useMonthlyPlansStore = create((set, get) => ({
     // --- Submission & Review Actions ---
 
     // Submit plan
-    submitPlan: async (id, groupName) => {
+    submitPlan: async (id, groupName, extra = {}) => {
         set({ isLoading: true, error: null });
         try {
-            await submitMonthlyPlan(id, groupName);
+            await submitMonthlyPlan(id, groupName, extra);
             set(state => ({
                 currentPlan: state.currentPlan?.id === id ? { ...state.currentPlan, status: 'submitted' } : state.currentPlan,
                 plans: state.plans.map(p => p.id === id ? { ...p, status: 'submitted' } : p),
@@ -145,10 +145,10 @@ const useMonthlyPlansStore = create((set, get) => ({
     },
 
     // Reject plan
-    rejectPlan: async (id, feedback, groupName) => {
+    rejectPlan: async (id, feedback, groupName, coachId) => {
         set({ isLoading: true, error: null });
         try {
-            await rejectMonthlyPlan(id, feedback, groupName);
+            await rejectMonthlyPlan(id, feedback, groupName, coachId);
             set(state => ({
                 pendingPlans: state.pendingPlans ? state.pendingPlans.filter(p => p.id !== id) : [],
                 plans: state.plans.map(p => p.id === id ? { ...p, status: 'rejected' } : p),
@@ -159,6 +159,22 @@ const useMonthlyPlansStore = create((set, get) => ({
         } catch (error) {
             set({ error: 'שגיאה בביצוע הפעולה', isLoading: false });
             return { success: false, error: 'שגיאה בביצוע הפעולה' };
+        }
+    },
+
+    // Save manager notes on a plan
+    saveManagerNotes: async (planId, notes, coachId, groupName) => {
+        try {
+            const { saveManagerNotesOnPlan } = await import('../services/monthlyPlans');
+            await saveManagerNotesOnPlan(planId, notes, coachId, groupName);
+            set(state => ({
+                plans: state.plans.map(p => p.id === planId ? { ...p, managerNotes: notes } : p),
+                currentPlan: state.currentPlan?.id === planId ? { ...state.currentPlan, managerNotes: notes } : state.currentPlan,
+            }));
+            return { success: true };
+        } catch (error) {
+            console.error('Error saving manager notes:', error);
+            return { success: false };
         }
     },
 

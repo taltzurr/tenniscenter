@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { PLAN_STATUS, ROLES } from '../config/constants';
-import { notifyRole, NOTIFICATION_TYPES, notifyGroup } from './notifications';
+import { notifyRole, NOTIFICATION_TYPES, createNotification, notifyCenterManagers } from './notifications';
 
 const COLLECTION = 'monthlyPlans';
 
@@ -171,7 +171,7 @@ export const deleteMonthlyPlan = async (id) => {
 /**
  * Submit a monthly plan for approval
  */
-export const submitMonthlyPlan = async (id, groupName) => {
+export const submitMonthlyPlan = async (id, groupName, { centerName, coachName, centerId } = {}) => {
     try {
         const docRef = doc(db, COLLECTION, id);
         await updateDoc(docRef, {
@@ -179,13 +179,27 @@ export const submitMonthlyPlan = async (id, groupName) => {
             updatedAt: serverTimestamp()
         });
 
-        await notifyRole(ROLES.SUPERVISOR, {
+        const centerLabel = centerName ? ` | ${centerName}` : '';
+        const coachLabel = coachName ? ` (${coachName})` : '';
+
+        const notificationData = {
             type: NOTIFICATION_TYPES.INFO,
             title: 'תכנית חודשית חדשה הוגשה',
-            message: `תכנית חודשית לקבוצה ${groupName} הוגשה לאישור`,
+            message: `תכנית לקבוצה ${groupName}${coachLabel} הוגשה לאישור${centerLabel}`,
             relatedEntityId: id,
-            relatedEntityType: 'monthlyPlan'
-        });
+            relatedEntityType: 'monthlyPlan',
+            centerName: centerName || '',
+            centerId: centerId || '',
+            link: `/monthly-plans/review`
+        };
+
+        // Notify supervisors
+        await notifyRole(ROLES.SUPERVISOR, notificationData);
+
+        // Notify center managers of the relevant center
+        if (centerId) {
+            await notifyCenterManagers(centerId, notificationData);
+        }
 
         return { success: true };
     } catch (error) {
@@ -206,6 +220,19 @@ export const approveMonthlyPlan = async (id, coachId, groupName) => {
             updatedAt: serverTimestamp()
         });
 
+        // Notify the coach
+        if (coachId) {
+            await createNotification({
+                userId: coachId,
+                type: NOTIFICATION_TYPES.SUCCESS,
+                title: 'תכנית חודשית אושרה',
+                message: `התכנית של קבוצה ${groupName} אושרה`,
+                relatedEntityId: id,
+                relatedEntityType: 'monthlyPlan',
+                link: `/monthly-plans`
+            });
+        }
+
         return { success: true };
     } catch (error) {
         console.error('Error approving plan:', error);
@@ -216,7 +243,7 @@ export const approveMonthlyPlan = async (id, coachId, groupName) => {
 /**
  * Reject a monthly plan
  */
-export const rejectMonthlyPlan = async (id, feedback, groupName) => {
+export const rejectMonthlyPlan = async (id, feedback, groupName, coachId) => {
     try {
         const docRef = doc(db, COLLECTION, id);
         await updateDoc(docRef, {
@@ -224,6 +251,19 @@ export const rejectMonthlyPlan = async (id, feedback, groupName) => {
             managerFeedback: feedback,
             updatedAt: serverTimestamp()
         });
+
+        // Notify the coach
+        if (coachId) {
+            await createNotification({
+                userId: coachId,
+                type: NOTIFICATION_TYPES.WARNING,
+                title: 'תכנית חודשית נדחתה',
+                message: `התכנית של קבוצה ${groupName} נדחתה${feedback ? ': ' + feedback : ''}`,
+                relatedEntityId: id,
+                relatedEntityType: 'monthlyPlan',
+                link: `/monthly-plans`
+            });
+        }
 
         return { success: true };
     } catch (error) {
@@ -253,6 +293,37 @@ export const getPendingMonthlyPlans = async () => {
     } catch (error) {
         console.error('Error fetching pending plans:', error);
         return [];
+    }
+};
+
+/**
+ * Save manager notes/comments on a plan (visible to coach)
+ */
+export const saveManagerNotesOnPlan = async (planId, notes, coachId, groupName) => {
+    try {
+        const docRef = doc(db, COLLECTION, planId);
+        await updateDoc(docRef, {
+            managerNotes: notes,
+            updatedAt: serverTimestamp()
+        });
+
+        // Notify the coach about the notes
+        if (coachId && notes.trim()) {
+            await createNotification({
+                userId: coachId,
+                type: NOTIFICATION_TYPES.INFO,
+                title: 'הערות חדשות על תכנית האימונים',
+                message: `המנהל הוסיף הערות לתכנית של ${groupName}`,
+                relatedEntityId: planId,
+                relatedEntityType: 'monthlyPlan',
+                link: `/monthly-plans`
+            });
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error saving manager notes:', error);
+        throw error;
     }
 };
 

@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import useSwipeNavigation from '../../../hooks/useSwipeNavigation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     ChevronRight,
@@ -150,13 +151,15 @@ function PlansList() {
         }
     }, [userData, currentDate, fetchGroups, fetchTrainings, fetchEvents]);
 
-    const handlePrevious = () => {
+    const handlePrevious = useCallback(() => {
         setCurrentDate(prev => subMonths(prev, 1));
-    };
+    }, []);
 
-    const handleNext = () => {
+    const handleNext = useCallback(() => {
         setCurrentDate(prev => addMonths(prev, 1));
-    };
+    }, []);
+
+    const swipeHandlers = useSwipeNavigation(handleNext, handlePrevious);
 
     const handleDayClick = (date) => {
         setSelectedDateModal(date); // Open Modal
@@ -400,7 +403,7 @@ function PlansList() {
             </div>
 
             {/* MONTHLY CALENDAR GRID (Now Bottom) */}
-            <div className={styles.calendarContainer}>
+            <div className={styles.calendarContainer} {...swipeHandlers}>
                 {/* Navigator Moved Here */}
                 <div className={styles.monthNav} style={{ marginBottom: '16px', justifyContent: 'center' }}>
                     <button onClick={handlePrevious} className={styles.navButton}>

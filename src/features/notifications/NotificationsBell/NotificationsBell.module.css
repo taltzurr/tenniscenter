@@ -206,6 +206,22 @@
     overflow: hidden;
 }
 
+.itemMeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.centerLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--primary-600);
+    font-weight: 500;
+}
+
 .itemTime {
     color: var(--text-tertiary);
     font-size: 11px;

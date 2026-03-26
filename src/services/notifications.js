@@ -109,3 +109,34 @@ export const notifyRole = async (role, notification) => {
         console.error(`Error notifying role ${role}:`, error);
     }
 };
+
+/**
+ * Notify center managers of a specific center
+ */
+export const notifyCenterManagers = async (centerId, notification) => {
+    try {
+        const q = query(
+            collection(db, 'users'),
+            where('role', '==', 'centerManager'),
+            where('centerIds', 'array-contains', centerId)
+        );
+
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return;
+
+        const batch = writeBatch(db);
+        snapshot.docs.forEach(userDoc => {
+            const docRef = doc(collection(db, COLLECTION));
+            batch.set(docRef, {
+                ...notification,
+                userId: userDoc.id,
+                isRead: false,
+                createdAt: serverTimestamp()
+            });
+        });
+
+        await batch.commit();
+    } catch (error) {
+        console.error('Error notifying center managers:', error);
+    }
+};

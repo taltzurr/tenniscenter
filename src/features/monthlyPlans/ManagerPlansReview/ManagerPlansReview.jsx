@@ -214,10 +214,10 @@ function ManagerPlansReview() {
         }
     };
 
-    const handleRejectPlan = async (e, plan, groupName) => {
+    const handleRejectPlan = async (e, plan, groupName, coachId) => {
         e.stopPropagation();
         const feedback = window.prompt('סיבת הדחייה (אופציונלי):') ?? '';
-        const result = await rejectPlan(plan.id, feedback, groupName);
+        const result = await rejectPlan(plan.id, feedback, groupName, coachId);
         if (!result.success) {
             alert('שגיאה בדחיית התוכנית');
         }
@@ -424,7 +424,11 @@ function ManagerPlansReview() {
                                 <Button
                                     variant="danger"
                                     onClick={(e) => {
-                                        handleRejectPlan(e, previewPlan.plan, previewPlan.groupName);
+                                        const rejectCoach = coaches.find(c =>
+                                            c.displayName === previewPlan.coachName ||
+                                            `${c.firstName} ${c.lastName}` === previewPlan.coachName
+                                        );
+                                        handleRejectPlan(e, previewPlan.plan, previewPlan.groupName, rejectCoach?.id);
                                         setPreviewPlan(null);
                                     }}
                                 >
@@ -612,7 +616,7 @@ function ManagerPlansReview() {
                                                                             <Button
                                                                                 size="small"
                                                                                 variant="danger"
-                                                                                onClick={(e) => handleRejectPlan(e, plan, group.name)}
+                                                                                onClick={(e) => handleRejectPlan(e, plan, group.name, coach.id)}
                                                                             >
                                                                                 דחייה
                                                                             </Button>

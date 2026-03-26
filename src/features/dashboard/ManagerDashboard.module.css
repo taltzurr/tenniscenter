@@ -4,6 +4,14 @@
     background-color: var(--bg-secondary);
 }
 
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+/* ── Greeting ── */
 .greeting {
     margin-bottom: var(--space-4);
 }
@@ -18,6 +26,730 @@
 .greetingSubtitle {
     color: var(--text-secondary);
     font-size: var(--font-size-base);
+}
+
+/* ── Quick Stats Row ── */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.statCard {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-xs);
+    border: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.statCard:hover {
+    box-shadow: var(--shadow-sm);
+    border-color: var(--primary-200);
+}
+
+.statIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.statIcon.blue { background-color: var(--primary-50); color: var(--primary-600); }
+.statIcon.green { background-color: var(--success-bg, #ecfdf5); color: var(--success-600, #059669); }
+.statIcon.orange { background-color: var(--orange-50, #fff7ed); color: var(--orange-600, #ea580c); }
+.statIcon.purple { background-color: var(--purple-50, #faf5ff); color: var(--purple-600, #9333ea); }
+.statIcon.yellow { background-color: #fef9c3; color: #ca8a04; }
+
+.statInfo { min-width: 0; }
+
+.statValue {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.statLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ── Section Dividers ── */
+.sectionDivider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    margin-top: var(--space-2);
+}
+
+.sectionDivider::before,
+.sectionDivider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to left, transparent, var(--gray-200), transparent);
+}
+
+.sectionDividerText {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    padding: var(--space-1) var(--space-3);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-full);
+}
+
+/* ── Section Card ── */
+.section {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    margin-bottom: var(--space-4);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.sectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.sectionAction {
+    font-size: var(--font-size-sm);
+    color: var(--primary-600);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sectionAction:hover { text-decoration: underline; }
+
+/* ── Alerts Card ── */
+.alertsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.alertItem {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.alertItem.danger {
+    background-color: var(--error-50, #fef2f2);
+    border: 1px solid var(--error-200, #fecaca);
+}
+
+.alertItem.warning {
+    background-color: var(--warning-50, #fffbeb);
+    border: 1px solid var(--warning-200, #fde68a);
+}
+
+.alertItem.info {
+    background-color: var(--info-50, #eff6ff);
+    border: 1px solid var(--info-200, #bfdbfe);
+}
+
+.alertIcon { flex-shrink: 0; margin-top: 2px; }
+.alertIcon.danger { color: var(--error-500); }
+.alertIcon.warning { color: var(--warning-500); }
+.alertIcon.info { color: var(--info-500, #3b82f6); }
+
+.alertContent { min-width: 0; flex: 1; }
+
+.alertTitle {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.alertDetails {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.noAlerts {
+    text-align: center;
+    padding: var(--space-4);
+    color: var(--success-600, #059669);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+/* ── Today's Trainings by Center ── */
+.centerTrainingsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.centerTrainingRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background-color: var(--gray-50);
+}
+
+.centerTrainingName {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+}
+
+.centerTrainingCount {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--primary-600);
+    min-width: 28px;
+    text-align: center;
+}
+
+.centerTrainingMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ── Pie Chart Cards ── */
+.pieChartsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.pieChartCard {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pieChartCard:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+}
+
+.pieChartHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.pieChartTitle {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.pieChartHint {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.pieChartSubtitle {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-3);
+    margin-top: calc(-1 * var(--space-1));
+}
+
+.pieChartContent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.pieChartSvg {
+    flex-shrink: 0;
+}
+
+.pieChartLegend {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+}
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.legendLabel {
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.legendValue {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.pieChartCenter {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+}
+
+/* ── Pie Detail Modal (Overlay) ── */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.modalContent {
+    background: white;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+    padding: var(--space-4);
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.modalTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.modalClose {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}
+
+.modalClose:hover {
+    background-color: var(--gray-100);
+    color: var(--text-primary);
+}
+
+/* ── Modal Summary Strip ── */
+.modalSummary {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background-color: var(--gray-50);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+}
+
+.modalSummaryItem {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-2) var(--space-1);
+}
+
+.modalSummaryItem + .modalSummaryItem {
+    border-inline-start: 1px solid var(--gray-200);
+}
+
+.modalSummaryValue {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+.modalSummaryLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.modalSectionTitle {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.modalSectionTitle:first-of-type {
+    margin-top: 0;
+}
+
+.modalRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background-color: var(--gray-50);
+    margin-bottom: var(--space-2);
+}
+
+.modalRowInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.modalRowName {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.modalRowCenter {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.modalRowStats {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.modalRowBar {
+    width: 50px;
+    height: 6px;
+    background-color: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.modalRowBarFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+}
+
+/* ── Center Comparison ── */
+.comparisonGrid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.comparisonRow {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background-color: var(--gray-50);
+}
+
+.comparisonCenter { min-width: 0; }
+
+.comparisonCenterName {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.comparisonCenterMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.comparisonRate {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    min-width: 44px;
+    text-align: center;
+}
+
+.comparisonRate.success { color: var(--success-600, #059669); }
+.comparisonRate.warning { color: var(--warning-600, #d97706); }
+.comparisonRate.danger { color: var(--error-500); }
+
+.comparisonBar {
+    width: 60px;
+    height: 6px;
+    background-color: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.comparisonBarFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+.comparisonBarFill.success { background-color: var(--success-500, #10b981); }
+.comparisonBarFill.warning { background-color: var(--warning-500); }
+.comparisonBarFill.danger { background-color: var(--error-500); }
+
+/* ── Show More Button ── */
+.showMoreBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    width: 100%;
+    padding: var(--space-2);
+    margin-top: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--primary-600);
+    border-radius: var(--radius-md);
+    transition: all 0.15s;
+}
+
+.showMoreBtn:hover {
+    background-color: var(--primary-50);
+}
+
+/* ── Plan Submission Status ── */
+.planStatusSummary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background-color: var(--gray-50);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-3);
+}
+
+.planStatusNumber {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: var(--primary-600);
+}
+
+.planStatusText {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.planCoachList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.planCoachItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+}
+
+.coachAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.planCoachName {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    min-width: 0;
+}
+
+.planCoachCenter {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.planCoachMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ── Top/Bottom Coaches ── */
+.coachRankGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+}
+
+.coachRankSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.coachRankLabel {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: fit-content;
+}
+
+.coachRankLabel.top {
+    background-color: var(--success-bg, #ecfdf5);
+    color: var(--success-600, #059669);
+}
+
+.coachRankLabel.bottom {
+    background-color: var(--error-50, #fef2f2);
+    color: var(--error-500);
+}
+
+.coachRankItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background-color: var(--gray-50);
+}
+
+.coachRankInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.coachRankName {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.coachRankCenter {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.coachRankRate {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.coachRankRate.top { color: var(--success-600, #059669); }
+.coachRankRate.bottom { color: var(--error-500); }
+
+.coachRankMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+/* ── Two-Col Layout ── */
+.twoColGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+/* ── Navigation Cards Grid ── */
+.navSectionTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 }
 
 .grid {
@@ -57,27 +789,6 @@
     margin-bottom: var(--space-4);
 }
 
-/* Icon Colors */
-.blue {
-    background-color: var(--primary-50);
-    color: var(--primary-600);
-}
-
-.green {
-    background-color: var(--success-bg);
-    color: var(--success);
-}
-
-.purple {
-    background-color: var(--purple-50);
-    color: var(--purple-600);
-}
-
-.orange {
-    background-color: var(--orange-50);
-    color: var(--orange-600);
-}
-
 .cardTitle {
     font-size: var(--font-size-lg);
     font-weight: 700;
@@ -91,85 +802,12 @@
     line-height: 1.5;
 }
 
-.quickActions {
-    margin-top: var(--space-6);
-}
-
-.sectionTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--space-4);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-/* Tablet breakpoint */
-@media (min-width: 768px) {
-    .page {
-        padding: var(--space-6);
-    }
-
-    .greetingTitle {
-        font-size: var(--font-size-2xl);
-    }
-
-    .greeting {
-        margin-bottom: var(--space-6);
-    }
-
-    .greetingSubtitle {
-        font-size: var(--font-size-lg);
-    }
-
-    .grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-6);
-    }
-
-    .card {
-        padding: var(--space-6);
-    }
-
-    .contextGrid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Desktop breakpoint */
-@media (min-width: 1024px) {
-    .page {
-        padding: var(--space-8);
-    }
-
-    .greetingTitle {
-        font-size: var(--font-size-3xl);
-    }
-
-    .grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .sectionTitle {
-        font-size: var(--font-size-2xl);
-    }
-}
-
-/* Monthly Context Section (Values & Goals) */
+/* ── Monthly Context (Goals/Values) ── */
 .contextGrid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-3);
     margin-bottom: var(--space-6);
-}
-
-@media (min-width: 768px) {
-    .contextGrid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-6);
-        margin-bottom: var(--space-8);
-    }
 }
 
 .dashboardCard {
@@ -248,12 +886,250 @@
     min-width: 80px;
 }
 
-.goalText {
-    color: var(--text-primary);
-    flex: 1;
+/* ── Ranking Explanation ── */
+.rankingExplain {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--gray-50);
+    border-radius: var(--radius-md);
+    line-height: 1.5;
 }
 
-.yellow {
-    background-color: #fef9c3;
-    color: #ca8a04;
+/* ── Mini Calendar ── */
+.calendarSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.calendarNav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.calendarNavBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+
+.calendarNavBtn:hover {
+    background-color: var(--gray-100);
+    color: var(--text-primary);
+}
+
+.calendarMonthLabel {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 120px;
+    text-align: center;
+}
+
+.calendarFilter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+}
+
+.calendarSelect {
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-1) var(--space-2);
+    padding-inline-end: var(--space-4);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 8px center;
+}
+
+.calendarSelect:focus {
+    outline: none;
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 2px var(--primary-100);
+}
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: var(--gray-100);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.calendarDayName {
+    padding: var(--space-2);
+    text-align: center;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: var(--gray-50);
+}
+
+.calendarCell {
+    min-height: 48px;
+    padding: 4px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+}
+
+.calendarToday {
+    background-color: var(--primary-50);
+}
+
+.calendarToday .calendarDayNum {
+    color: var(--primary-700);
+    font-weight: 800;
+}
+
+.calendarHasEvents {
+    cursor: pointer;
+}
+
+.calendarDayNum {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.calendarEvent {
+    font-size: 9px;
+    color: white;
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: opacity 0.15s ease;
+}
+
+.calendarEvent:hover {
+    opacity: 0.85;
+}
+
+.calendarMore {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    text-align: center;
+}
+
+.calendarLegend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    padding-top: var(--space-2);
+}
+
+/* ── Empty State ── */
+.emptyState {
+    text-align: center;
+    padding: var(--space-4);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* ── Tablet ── */
+@media (min-width: 768px) {
+    .page { padding: var(--space-6); }
+    .greetingTitle { font-size: var(--font-size-2xl); }
+    .greeting { margin-bottom: var(--space-6); }
+
+    .statsGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-4);
+    }
+
+    .pieChartsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .twoColGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .coachRankGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-6);
+    }
+
+    .contextGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-6);
+    }
+
+    .comparisonRow {
+        grid-template-columns: 1fr auto auto auto;
+    }
+
+    .calendarCell {
+        min-height: 64px;
+        padding: 6px;
+    }
+
+    .calendarDayNum {
+        font-size: var(--font-size-sm);
+    }
+
+    .calendarEvent {
+        font-size: 10px;
+        padding: 2px 5px;
+    }
+
+    .modalContent {
+        border-radius: var(--radius-xl);
+        margin: auto;
+        max-height: 80vh;
+    }
+
+    .modalOverlay {
+        align-items: center;
+    }
+}
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+    .page { padding: var(--space-8); }
+    .greetingTitle { font-size: var(--font-size-3xl); }
+
+    .statsGrid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }

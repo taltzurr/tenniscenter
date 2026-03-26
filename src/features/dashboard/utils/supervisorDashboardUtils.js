@@ -463,7 +463,7 @@ export const getTrainingExecutionData = (trainings, groups, users, centers) => {
 
   // Per coach breakdown - derive from trainings so NO training is missing
   const coachIds = [...new Set(pastTrainings.map(t => t.coachId).filter(Boolean))];
-  const byCoach = coachIds.map(coachId => {
+  const byCoachRaw = coachIds.map(coachId => {
     const coach = users.find(u => u.id === coachId);
     const coachTrainings = pastTrainings.filter(t => t.coachId === coachId);
     const cCompleted = coachTrainings.filter(t => t.status === 'completed').length;
@@ -477,9 +477,27 @@ export const getTrainingExecutionData = (trainings, groups, users, centers) => {
       completed: cCompleted,
       cancelled: cCancelled,
       notCompleted: coachTrainings.length - cCompleted - cCancelled,
-      rate: coachTrainings.length > 0 ? Math.round((cCompleted / coachTrainings.length) * 100) : 0
     };
-  }).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
+  }).filter(c => c.total > 0);
+
+  // Merge entries with the same coach name (same person may have multiple coachIds)
+  const mergedMap = new Map();
+  byCoachRaw.forEach(c => {
+    if (mergedMap.has(c.name)) {
+      const existing = mergedMap.get(c.name);
+      existing.total += c.total;
+      existing.completed += c.completed;
+      existing.cancelled += c.cancelled;
+      existing.notCompleted += c.notCompleted;
+      if (!existing.centerName && c.centerName) existing.centerName = c.centerName;
+    } else {
+      mergedMap.set(c.name, { ...c });
+    }
+  });
+  const byCoach = [...mergedMap.values()].map(c => ({
+    ...c,
+    rate: c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0
+  })).sort((a, b) => b.total - a.total);
 
   return {
     total: pastTrainings.length,

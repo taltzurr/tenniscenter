@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import useSwipeNavigation from '../../../hooks/useSwipeNavigation';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -47,6 +48,18 @@ export default function CalendarPage() {
     const [selectedEvent, setSelectedEvent] = useState(null);
 
     const coachCenterId = userData?.centerIds?.[0] || null;
+
+    const handleNextMonth = useCallback(() => {
+        const next = new Date(date);
+        next.setMonth(next.getMonth() + 1);
+        setDate(next);
+    }, [date]);
+    const handlePrevMonth = useCallback(() => {
+        const prev = new Date(date);
+        prev.setMonth(prev.getMonth() - 1);
+        setDate(prev);
+    }, [date]);
+    const swipeHandlers = useSwipeNavigation(handleNextMonth, handlePrevMonth);
 
     useEffect(() => {
         fetchCenters();
@@ -143,7 +156,7 @@ export default function CalendarPage() {
                 </Button>
             </div>
 
-            <div style={{ flex: 1, backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ flex: 1, backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }} {...swipeHandlers}>
                 <Calendar
                     localizer={localizer}
                     events={events}

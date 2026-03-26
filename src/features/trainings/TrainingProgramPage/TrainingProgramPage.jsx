@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import useSwipeNavigation from '../../../hooks/useSwipeNavigation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     ChevronRight,
@@ -12,8 +13,6 @@ import {
     Send,
     CheckCircle,
     AlertCircle,
-    Target,
-    Heart,
     Lock
 } from 'lucide-react';
 import {
@@ -38,8 +37,9 @@ import useUsersStore from '../../../stores/usersStore';
 import useEventsStore from '../../../stores/eventsStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
 import useMonthlyPlansStore from '../../../stores/monthlyPlansStore';
+import useCentersStore from '../../../stores/centersStore';
 import { normalizeDate } from '../../../utils/dateUtils';
-import { EVENT_COLORS, EVENT_LABELS } from '../../../services/events';
+import { EVENT_COLORS, EVENT_LABELS, isEventVisibleForCenter } from '../../../services/events';
 import { PLAN_STATUS } from '../../../config/constants';
 
 import Button from '../../../components/ui/Button';
@@ -80,11 +80,13 @@ export default function TrainingProgramPage() {
     const { groups, fetchGroups } = useGroupsStore();
     const { users, fetchUsers } = useUsersStore();
     const isCenterManager = userData?.role === 'centerManager';
+    const coachCenterId = userData?.centerIds?.[0] || userData?.managedCenterId || null;
 
     // New Stores
-    const { events, fetchEvents } = useEventsStore();
-    const { currentTheme, fetchTheme } = useMonthlyThemesStore();
+    const { events: allEvents, fetchEvents } = useEventsStore();
+    const { fetchTheme } = useMonthlyThemesStore();
     const { currentPlan, fetchPlan, savePlan, submitPlan, isLoading: planLoading } = useMonthlyPlansStore();
+    const { getCenterName } = useCentersStore();
 
     const [currentDate, setCurrentDate] = useState(() => {
         const dateParam = searchParams.get('date');
@@ -95,6 +97,10 @@ export default function TrainingProgramPage() {
     const [selectedGroup, setSelectedGroup] = useState('all');
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTraining, setSelectedTraining] = useState(null);
+
+    const handleNextMonth = useCallback(() => setCurrentDate(addMonths(currentDate, 1)), [currentDate]);
+    const handlePrevMonth = useCallback(() => setCurrentDate(subMonths(currentDate, 1)), [currentDate]);
+    const swipeHandlers = useSwipeNavigation(handleNextMonth, handlePrevMonth);
 
     // Initial Data Load
     useEffect(() => {
@@ -154,6 +160,23 @@ export default function TrainingProgramPage() {
         const monthEnd = endOfMonth(addMonths(safeDate, 1));
         useTrainingsStore.getState().fetchCenterTrainings(coachIds, monthStart, monthEnd);
     }, [isCenterManager, users?.length, currentMonth]);
+
+    // Filter events visible for this coach's center
+    const events = useMemo(() => {
+        if (!allEvents) return [];
+        return allEvents.filter(e => isEventVisibleForCenter(e, coachCenterId));
+    }, [allEvents, coachCenterId]);
+
+    // Helper: check if an event falls on a given day (supports date ranges)
+    const isEventOnDay = useCallback((event, day) => {
+        const d = normalizeDate(event.date);
+        if (!d) return false;
+        if (isSameDay(d, day)) return true;
+        // Check date range
+        const end = normalizeDate(event.endDate);
+        if (end && day >= d && day <= end) return true;
+        return false;
+    }, []);
 
     const calendarDays = useMemo(() => {
         const monthStart = startOfMonth(currentDate);
@@ -217,7 +240,13 @@ export default function TrainingProgramPage() {
             }
 
             if (planId) {
-                await submitPlan(planId, currentGroup?.name);
+                const centerId = currentGroup?.centerId || coachCenterId || '';
+                const centerName = centerId ? getCenterName(centerId) : '';
+                await submitPlan(planId, currentGroup?.name, {
+                    centerName,
+                    coachName: userData?.displayName || userData?.email || '',
+                    centerId
+                });
             }
         }
     };
@@ -292,47 +321,6 @@ export default function TrainingProgramPage() {
                         💡 יש לבחור קבוצה ספציפית כדי להגיש — ההגשה היא לפי קבוצה בנפרד
                     </p>
                 )}
-            </div>
-
-            {/* Context Bar (Goals & Values) */}
-            <div className={styles.contextBar}>
-                {/* Monthly Values */}
-                <div className={styles.valuesCard}>
-                    <div className={styles.valuesTitle} style={{ color: 'var(--primary-700)' }}>
-                        <Heart size={14} />
-                        ערכי החודש
-                    </div>
-                    <div className={styles.valuesContent}>
-                        {currentTheme?.values?.length > 0 ? (
-                            currentTheme.values.map((val, i) => (
-                                <span key={i} className={styles.valueTag}>
-                                    {val}
-                                </span>
-                            ))
-                        ) : (
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>שאל את המנהל שלך על הערכים החודש</span>
-                        )}
-                    </div>
-                </div>
-
-                {/* Monthly Goals */}
-                <div className={styles.valuesCard}>
-                    <div className={styles.valuesTitle} style={{ color: 'var(--accent-600)' }}>
-                        <Target size={14} />
-                        מטרות החודש
-                    </div>
-                    <div className={styles.valuesContent}>
-                        {currentTheme?.goals?.length > 0 ? (
-                            currentTheme.goals.map((goal, i) => (
-                                <span key={i} className={styles.goalTag}>
-                                    {goal}
-                                </span>
-                            ))
-                        ) : (
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>שאל את המנהל שלך על המטרות החודש</span>
-                        )}
-                    </div>
-                </div>
             </div>
 
             {/* Main Content Grid */}
@@ -431,7 +419,7 @@ export default function TrainingProgramPage() {
                 </div>
 
                 {/* 2. Calendar */}
-                <div className={styles.calendarContainer}>
+                <div className={styles.calendarContainer} {...swipeHandlers}>
                     <div className={styles.calendarGrid}>
                         {DAY_NAMES.map(day => (
                             <div key={day} className={styles.dayHeader}>{day}</div>
@@ -439,11 +427,7 @@ export default function TrainingProgramPage() {
 
                         {calendarDays.map(day => {
                             const isCurrent = isSameMonth(day, currentDate);
-                            const dayEvents = (events || []).filter(e => {
-                                const d = normalizeDate(e.date);
-                                if (!d) return false;
-                                return isSameDay(d, day);
-                            });
+                            const dayEvents = (events || []).filter(e => isEventOnDay(e, day));
                             const dayTrainings = getTrainingsForDay(day);
                             const hasHoliday = dayEvents.some(e => e.type === 'holiday');
 
@@ -459,9 +443,11 @@ export default function TrainingProgramPage() {
                                             <div
                                                 key={event.id}
                                                 className={styles.eventPill}
-                                                style={{ backgroundColor: EVENT_COLORS[event.type] }}
+                                                style={{ backgroundColor: EVENT_COLORS[event.type] || EVENT_COLORS.OTHER }}
                                                 title={event.title}
-                                            />
+                                            >
+                                                {event.title}
+                                            </div>
                                         ))}
                                     </div>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle, ChevronLeft } from 'lucide-react';
+import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle, ChevronLeft, MapPin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { he } from 'date-fns/locale';
 import useNotificationsStore from '../../../stores/notificationsStore';
@@ -18,8 +18,14 @@ const TYPE_ICONS = {
  * Returns a route path based on notification type/data.
  */
 function getNotificationLink(notification) {
+    // Use explicit link if stored
     if (notification.link) return notification.link;
     if (notification.route) return notification.route;
+
+    // Use relatedEntityType + relatedEntityId for specific navigation
+    if (notification.relatedEntityType === 'monthlyPlan' && notification.relatedEntityId) {
+        return '/monthly-plans/review';
+    }
 
     const type = (notification.type || '').toLowerCase();
     const title = (notification.title || '').toLowerCase();
@@ -27,7 +33,7 @@ function getNotificationLink(notification) {
     const combined = `${type} ${title} ${message}`;
 
     if (combined.includes('training') || combined.includes('אימון')) return '/calendar';
-    if (combined.includes('plan') || combined.includes('תכנית') || combined.includes('תוכנית')) return '/plans';
+    if (combined.includes('plan') || combined.includes('תכנית') || combined.includes('תוכנית')) return '/monthly-plans';
     if (combined.includes('event') || combined.includes('אירוע')) return '/events-calendar';
     if (combined.includes('goal') || combined.includes('יעד') || combined.includes('מטר')) return '/goals';
     if (combined.includes('exercise') || combined.includes('תרגיל')) return '/exercises';
@@ -130,8 +136,16 @@ export default function NotificationsBell() {
                                     <div className={styles.itemContent}>
                                         <div className={styles.itemTitle}>{notification.title}</div>
                                         <div className={styles.itemMessage}>{notification.message}</div>
-                                        <div className={styles.itemTime}>
-                                            {notification.createdAt?.toDate ? formatDistanceToNow(notification.createdAt.toDate(), { addSuffix: true, locale: he }) : 'עכשיו'}
+                                        <div className={styles.itemMeta}>
+                                            {notification.centerName && (
+                                                <span className={styles.centerLabel}>
+                                                    <MapPin size={10} />
+                                                    {notification.centerName}
+                                                </span>
+                                            )}
+                                            <span className={styles.itemTime}>
+                                                {notification.createdAt?.toDate ? formatDistanceToNow(notification.createdAt.toDate(), { addSuffix: true, locale: he }) : 'עכשיו'}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className={styles.itemActions}>
