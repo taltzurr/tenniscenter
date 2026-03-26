@@ -22,7 +22,7 @@ function ExerciseCard({ exercise }) {
         <Link to={`/exercises/${exercise.id}`} className={styles.card}>
             <div className={styles.cardHeader}>
                 <span className={styles.category}>
-                    {category?.label || exercise.category}
+                    {category ? `${category.emoji} ${category.label}` : exercise.category}
                 </span>
                 {exercise.difficulty && (
                     <div className={styles.difficulty}>

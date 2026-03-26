@@ -25,7 +25,7 @@ function ExerciseForm() {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        category: 'forehand',
+        category: 'two_behind',
         difficulty: 2,
         duration: 15,
         ageGroups: [],
@@ -191,7 +191,7 @@ function ExerciseForm() {
                                 >
                                     {EXERCISE_CATEGORIES.map(cat => (
                                         <option key={cat.value} value={cat.value}>
-                                            {cat.label}
+                                            {cat.emoji} {cat.label}
                                         </option>
                                     ))}
                                 </select>

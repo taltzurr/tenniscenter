@@ -8,6 +8,7 @@ import {
     CalendarCheck,
     CalendarRange,
     Dumbbell,
+    MessageSquarePlus,
     Target,
     Building2,
     UserCog,
@@ -83,6 +84,8 @@ function Sidebar() {
                         { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                         { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
                         { to: '/monthly-plans/review', icon: CalendarCheck, label: 'אישור תכניות' },
+                        { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
+                        { to: '/exercise-requests', icon: MessageSquarePlus, label: 'בקשות תרגילים' },
                     ]
                 },
                 {

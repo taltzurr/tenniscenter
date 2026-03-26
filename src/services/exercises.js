@@ -129,16 +129,14 @@ export const deleteExercise = async (id) => {
     }
 };
 
-// Exercise categories
+// Exercise categories (game situations / מצבי משחק)
 export const EXERCISE_CATEGORIES = [
-    { value: 'forehand', label: 'פורהנד' },
-    { value: 'backhand', label: 'בקהנד' },
-    { value: 'serve', label: 'הגשה' },
-    { value: 'volley', label: 'וולי' },
-    { value: 'footwork', label: 'עבודת רגליים' },
-    { value: 'strategy', label: 'אסטרטגיה' },
-    { value: 'warmup', label: 'חימום' },
-    { value: 'cooldown', label: 'שחרור' },
+    { value: 'serving', label: 'שחקן מגיש', emoji: '🎾' },
+    { value: 'returning', label: 'שחקן מחזיר', emoji: '↩️' },
+    { value: 'two_behind', label: 'שניים מאחור', emoji: '👬' },
+    { value: 'approaching', label: 'שחקן מתקרב', emoji: '⬅️' },
+    { value: 'passing', label: 'שחקן מעביר', emoji: '↖️' },
+    { value: 'practice_games', label: 'משחקי אימון', emoji: '🆚' },
 ];
 
 // Age groups

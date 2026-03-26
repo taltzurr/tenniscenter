@@ -61,7 +61,8 @@ function ExercisePicker({ selectedExercises = [], onChange }) {
     );
 
     const getCategoryLabel = (value) => {
-        return EXERCISE_CATEGORIES.find(c => c.value === value)?.label || value;
+        const cat = EXERCISE_CATEGORIES.find(c => c.value === value);
+        return cat ? `${cat.emoji} ${cat.label}` : value;
     };
 
     return (

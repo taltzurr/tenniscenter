@@ -14,8 +14,8 @@ function ExerciseDetail() {
     const { currentExercise, isLoading, fetchExercise, clearCurrentExercise } = useExercisesStore();
     const { userData } = useAuthStore();
 
-    const canEdit = userData?.role === 'supervisor' || userData?.role === 'admin' ||
-        (currentExercise?.createdBy === userData?.id);
+    // Only supervisors can edit exercises
+    const canEdit = userData?.role === 'supervisor' || userData?.role === 'admin';
 
     useEffect(() => {
         fetchExercise(id);
@@ -45,7 +45,7 @@ function ExerciseDetail() {
                 <div className={styles.headerContent}>
                     <h1 className={styles.title}>{currentExercise.title}</h1>
                     {category && (
-                        <span className={styles.categoryBadge}>{category.label}</span>
+                        <span className={styles.categoryBadge}>{category.emoji} {category.label}</span>
                     )}
                 </div>
                 {canEdit && (

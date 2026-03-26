@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, BookOpen, MessageSquarePlus } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
+import useAuthStore from '../../../stores/authStore';
 import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, AGE_GROUPS } from '../../../services/exercises';
 import ExerciseCard from '../ExerciseCard';
 import Button from '../../../components/ui/Button';
@@ -17,7 +18,9 @@ function ExerciseList() {
         filters,
         setFilters
     } = useExercisesStore();
+    const { userData } = useAuthStore();
 
+    const isSupervisor = userData?.role === 'supervisor' || userData?.role === 'admin';
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
 
     useEffect(() => {
@@ -59,19 +62,30 @@ function ExerciseList() {
         <div className={styles.page}>
             <div className={styles.header}>
                 <h1 className={styles.title}>ספריית תרגילים</h1>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <Link to="/exercise-requests">
-                        <Button variant="outline">
-                            <MessageSquarePlus size={18} />
-                            בקשות
-                        </Button>
-                    </Link>
-                    <Link to="/exercises/new">
-                        <Button>
-                            <Plus size={18} />
-                            תרגיל חדש
-                        </Button>
-                    </Link>
+                <div className={styles.headerActions}>
+                    {isSupervisor && (
+                        <Link to="/exercise-requests">
+                            <Button variant="outline" size="small">
+                                <MessageSquarePlus size={16} />
+                                בקשות
+                            </Button>
+                        </Link>
+                    )}
+                    {isSupervisor ? (
+                        <Link to="/exercises/new">
+                            <Button size="small">
+                                <Plus size={16} />
+                                תרגיל חדש
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Link to="/exercise-requests/new">
+                            <Button size="small">
+                                <MessageSquarePlus size={16} />
+                                הגש בקשה לתרגיל
+                            </Button>
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -97,7 +111,7 @@ function ExerciseList() {
                     >
                         <option value="">הכל</option>
                         {EXERCISE_CATEGORIES.map(cat => (
-                            <option key={cat.value} value={cat.value}>{cat.label}</option>
+                            <option key={cat.value} value={cat.value}>{cat.emoji} {cat.label}</option>
                         ))}
                     </select>
                 </div>
