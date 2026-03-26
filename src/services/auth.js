@@ -5,6 +5,9 @@ import {
     verifyPasswordResetCode,
     confirmPasswordReset,
     onAuthStateChanged,
+    reauthenticateWithCredential,
+    updatePassword,
+    EmailAuthProvider,
 } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -40,32 +43,50 @@ export async function signOut() {
 
 /**
  * Send password reset email
+ * Tries custom Cloud Function first (professional HTML email),
+ * falls back to Firebase's built-in email if CF is not configured.
  * @param {string} email
  * @returns {Promise<void>}
  */
-// Production URL – hardcoded so emails always link to the real site,
-// regardless of which domain the admin is currently on.
 const PRODUCTION_URL = 'https://tennis-centers.web.app';
 
 export async function resetPassword(email) {
-    const actionCodeSettings = {
-        url: `${PRODUCTION_URL}/reset-password`,
-        handleCodeInApp: true,
-    };
-    await sendPasswordResetEmail(auth, email, actionCodeSettings);
+    try {
+        const { httpsCallable } = await import('firebase/functions');
+        const { functions } = await import('./firebase');
+        const sendCustomReset = httpsCallable(functions, 'sendCustomResetEmail');
+        await sendCustomReset({ email });
+    } catch (cfError) {
+        console.warn('[Auth] Custom reset email failed, falling back to Firebase:', cfError.message);
+        const actionCodeSettings = {
+            url: `${PRODUCTION_URL}/reset-password`,
+            handleCodeInApp: true,
+        };
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
+    }
 }
 
 /**
- * Send welcome/invitation email (uses password reset flow but redirects to /welcome)
+ * Send welcome/invitation email (professional HTML email via Cloud Function)
+ * Falls back to Firebase's built-in email if CF is not configured.
  * @param {string} email
+ * @param {string} [displayName]
  * @returns {Promise<void>}
  */
-export async function sendWelcomeEmail(email) {
-    const actionCodeSettings = {
-        url: `${PRODUCTION_URL}/welcome`,
-        handleCodeInApp: true,
-    };
-    await sendPasswordResetEmail(auth, email, actionCodeSettings);
+export async function sendWelcomeEmail(email, displayName) {
+    try {
+        const { httpsCallable } = await import('firebase/functions');
+        const { functions } = await import('./firebase');
+        const sendCustomWelcome = httpsCallable(functions, 'sendCustomWelcomeEmail');
+        await sendCustomWelcome({ email, displayName });
+    } catch (cfError) {
+        console.warn('[Auth] Custom welcome email failed, falling back to Firebase:', cfError.message);
+        const actionCodeSettings = {
+            url: `${PRODUCTION_URL}/welcome`,
+            handleCodeInApp: true,
+        };
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
+    }
 }
 
 /**
@@ -138,6 +159,22 @@ export function onAuthChange(callback, getIsCancelled) {
             callback({ user: null, userData: null });
         }
     });
+}
+
+/**
+ * Change password directly (in-app, no email needed)
+ * Requires re-authentication with current password first
+ * @param {string} currentPassword
+ * @param {string} newPassword
+ * @returns {Promise<void>}
+ */
+export async function changePassword(currentPassword, newPassword) {
+    const user = auth.currentUser;
+    if (!user || !user.email) throw new Error('No authenticated user');
+
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
 }
 
 /**

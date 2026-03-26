@@ -121,7 +121,7 @@ const useUsersStore = create((set, get) => ({
             let welcomeLink = null;
             if (onboardingMethod === 'invitation') {
                 try {
-                    await sendWelcomeEmail(profileData.email);
+                    await sendWelcomeEmail(profileData.email, profileData.displayName);
                     emailSent = true;
                 } catch (emailErr) {
                     console.warn('Welcome email failed (client-side):', emailErr.message);
@@ -198,10 +198,10 @@ const useUsersStore = create((set, get) => ({
         }
     },
 
-    resendInvitation: async (email) => {
-        // Try client-side email first
+    resendInvitation: async (email, displayName) => {
+        // Try Cloud Function email first (professional template)
         try {
-            await sendWelcomeEmail(email);
+            await sendWelcomeEmail(email, displayName);
             return { success: true, method: 'email' };
         } catch (emailErr) {
             console.warn('Client-side welcome email failed:', emailErr.message);

@@ -86,6 +86,16 @@ const useAuthStore = create((set, get) => ({
         }
     },
 
+    changePassword: async (currentPassword, newPassword) => {
+        try {
+            const { changePassword } = await import('../services/auth');
+            await changePassword(currentPassword, newPassword);
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.code || error.message };
+        }
+    },
+
     clearError: () => set({ error: null }),
 
     updateProfile: async (data) => {

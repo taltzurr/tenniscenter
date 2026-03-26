@@ -733,6 +733,160 @@
     color: var(--text-secondary);
 }
 
+/* ── Center Performance Table ── */
+.centerTable {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.centerTableHeader {
+    display: grid;
+    grid-template-columns: 1.5fr 1.2fr 0.8fr 0.6fr;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.centerTableGroup {
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.centerTableGroup:last-child {
+    border-bottom: none;
+}
+
+.centerTableRow {
+    display: grid;
+    grid-template-columns: 1.5fr 1.2fr 0.8fr 0.6fr;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.centerTableRow:hover {
+    background-color: var(--gray-50);
+}
+
+.centerTableRowExpanded {
+    background-color: var(--primary-50);
+}
+
+.centerTableRowExpanded:hover {
+    background-color: var(--primary-50);
+}
+
+.centerTableCol {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.centerTableName {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.centerTableChevron {
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    transition: transform 0.2s ease;
+}
+
+.centerTableMetric {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.centerTableBar {
+    flex: 1;
+    height: 6px;
+    background-color: var(--gray-100);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 40px;
+}
+
+.centerTableBarFill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.centerTableBarFill.success { background-color: var(--success-500); }
+.centerTableBarFill.warning { background-color: var(--warning-500); }
+.centerTableBarFill.danger { background-color: var(--error-500); }
+
+.centerTableRate {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.centerTableRate.success { color: var(--success-600, #059669); }
+.centerTableRate.warning { color: var(--warning-700); }
+.centerTableRate.danger { color: var(--error-500); }
+
+.centerTableSub {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.centerTableCoachCount {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.centerTableDraftBadge {
+    font-size: 10px;
+    color: var(--warning-700);
+    background-color: var(--warning-100);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    width: fit-content;
+}
+
+/* Expanded coach details */
+.centerTableExpanded {
+    background-color: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    padding: var(--space-2) 0;
+}
+
+.centerTableCoachRow {
+    display: grid;
+    grid-template-columns: 1.5fr 1.2fr 0.8fr 0.6fr;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    padding-inline-start: var(--space-6);
+    align-items: center;
+}
+
+.centerTableCoachName {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
 /* ── Two-Col Layout ── */
 .twoColGrid {
     display: grid;

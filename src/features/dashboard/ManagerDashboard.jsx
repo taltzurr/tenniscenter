@@ -102,6 +102,7 @@ const ManagerDashboard = () => {
   const [planModal, setPlanModal] = useState(false);
   const [statModal, setStatModal] = useState(null); // 'coaches' | 'todayTrainings'
   const [selectedCenter, setSelectedCenter] = useState(null); // center object from centerComparison
+  const [expandedCenterId, setExpandedCenterId] = useState(null); // for center table drill-down
 
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -453,90 +454,106 @@ const ManagerDashboard = () => {
         <span className={styles.sectionDividerText}>מאמנים ותוכניות</span>
       </div>
 
-      {/* ═══ Plan Status + Coach Ranking ═══ */}
-      <div className={styles.twoColGrid}>
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}><FileText size={18} /> סטטוס תוכניות</h2>
-            <Link to="/monthly-plans/review" className={styles.sectionAction}>סקירה</Link>
-          </div>
-          <div className={styles.planStatusSummary}>
-            <div className={styles.planStatusNumber}>{planStatus.submitted.length}/{planStatus.submitted.length + planStatus.notSubmitted.length}</div>
-            <div className={styles.planStatusText}>מאמנים הגישו את כל התוכניות</div>
-          </div>
-          {planStatus.notSubmitted.length > 0 && (
-            <div className={styles.planCoachList}>
-              {planStatus.notSubmitted.slice(0, 5).map(coach => (
-                <div key={coach.id} className={styles.planCoachItem}>
-                  <div className={styles.coachAvatar}>{coach.name?.charAt(0) || 'M'}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className={styles.planCoachName}>{coach.name}</div>
-                    {coach.centerName && <div className={styles.planCoachCenter}>{coach.centerName}</div>}
-                  </div>
-                  <div className={styles.planCoachMeta}>{coach.submittedGroups}/{coach.totalGroups} קבוצות</div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* ═══ Center Performance Table ═══ */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}><Building2 size={18} /> ביצוע ותוכניות לפי מרכז</h2>
+          <Link to="/analytics" className={styles.sectionAction}>צפייה מפורטת</Link>
+        </div>
+        <div className={styles.rankingExplain}>
+          לחץ על מרכז לפירוט מאמנים · נתוני ביצוע מבוססים על אימונים שתאריכם עבר
         </div>
 
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}><Trophy size={18} /> דירוג מאמנים</h2>
-          </div>
-          <div className={styles.rankingExplain}>
-            מבוסס על אחוז ביצוע אימונים שתאריכם עבר (3+ אימונים)
-          </div>
-          <div className={styles.coachRankGrid}>
-            {topBottom.top.length > 0 && (
-              <div className={styles.coachRankSection}>
-                <div className={`${styles.coachRankLabel} ${styles.top}`}><ArrowUp size={12} /> מובילים</div>
-                {(showAllTop ? topBottom.top : topBottom.top.slice(0, 5)).map(coach => (
-                  <div key={coach.id} className={styles.coachRankItem}>
-                    <div className={styles.coachAvatar}>{coach.name?.charAt(0) || 'M'}</div>
-                    <div className={styles.coachRankInfo}>
-                      <div className={styles.coachRankName}>{coach.name}</div>
-                      {coach.centerName && <div className={styles.coachRankCenter}>{coach.centerName}</div>}
+        {activeCenters.length > 0 ? (
+          <div className={styles.centerTable}>
+            {/* Table header */}
+            <div className={styles.centerTableHeader}>
+              <div className={styles.centerTableCol}>מרכז</div>
+              <div className={styles.centerTableCol}>ביצוע</div>
+              <div className={styles.centerTableCol}>תוכניות</div>
+              <div className={styles.centerTableCol}>מאמנים</div>
+            </div>
+
+            {activeCenters.map(center => {
+              const isExpanded = expandedCenterId === center.id;
+              const execColor = center.completionRate >= 75 ? 'success' : center.completionRate >= 50 ? 'warning' : 'danger';
+              const planColor = center.planRate >= 75 ? 'success' : center.planRate >= 50 ? 'warning' : 'danger';
+
+              return (
+                <div key={center.id} className={styles.centerTableGroup}>
+                  <div
+                    className={`${styles.centerTableRow} ${isExpanded ? styles.centerTableRowExpanded : ''}`}
+                    onClick={() => setExpandedCenterId(isExpanded ? null : center.id)}
+                  >
+                    <div className={styles.centerTableCol}>
+                      <div className={styles.centerTableName}>
+                        <ChevronDown size={14} className={styles.centerTableChevron} style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }} />
+                        {center.name}
+                      </div>
                     </div>
-                    <div className={`${styles.coachRankRate} ${styles.top}`}>{coach.rate}%</div>
-                    <div className={styles.coachRankMeta}>{coach.completed}/{coach.total}</div>
-                  </div>
-                ))}
-                {topBottom.top.length > 5 && (
-                  <button className={styles.showMoreBtn} onClick={() => setShowAllTop(!showAllTop)}>
-                    <ChevronDown size={14} style={{ transform: showAllTop ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                    {showAllTop ? 'הצג פחות' : `עוד ${topBottom.top.length - 5}`}
-                  </button>
-                )}
-              </div>
-            )}
-            {topBottom.bottom.length > 0 && (
-              <div className={styles.coachRankSection}>
-                <div className={`${styles.coachRankLabel} ${styles.bottom}`}><ArrowDown size={12} /> דורשים תשומת לב</div>
-                {(showAllBottom ? topBottom.bottom : topBottom.bottom.slice(0, 5)).map(coach => (
-                  <div key={coach.id} className={styles.coachRankItem}>
-                    <div className={styles.coachAvatar}>{coach.name?.charAt(0) || 'M'}</div>
-                    <div className={styles.coachRankInfo}>
-                      <div className={styles.coachRankName}>{coach.name}</div>
-                      {coach.centerName && <div className={styles.coachRankCenter}>{coach.centerName}</div>}
+                    <div className={styles.centerTableCol}>
+                      <div className={styles.centerTableMetric}>
+                        <div className={styles.centerTableBar}>
+                          <div className={`${styles.centerTableBarFill} ${styles[execColor]}`} style={{ width: `${center.completionRate}%` }} />
+                        </div>
+                        <span className={`${styles.centerTableRate} ${styles[execColor]}`}>{center.completionRate}%</span>
+                      </div>
+                      <div className={styles.centerTableSub}>{center.completed}/{center.trainings}</div>
                     </div>
-                    <div className={`${styles.coachRankRate} ${styles.bottom}`}>{coach.rate}%</div>
-                    <div className={styles.coachRankMeta}>{coach.completed}/{coach.total}</div>
+                    <div className={styles.centerTableCol}>
+                      <span className={`${styles.centerTableRate} ${styles[planColor]}`}>{center.plansSubmitted}/{center.plansTotal}</span>
+                    </div>
+                    <div className={styles.centerTableCol}>
+                      <span className={styles.centerTableCoachCount}>{center.coaches}</span>
+                    </div>
                   </div>
-                ))}
-                {topBottom.bottom.length > 5 && (
-                  <button className={styles.showMoreBtn} onClick={() => setShowAllBottom(!showAllBottom)}>
-                    <ChevronDown size={14} style={{ transform: showAllBottom ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                    {showAllBottom ? 'הצג פחות' : `עוד ${topBottom.bottom.length - 5}`}
-                  </button>
-                )}
-              </div>
-            )}
-            {topBottom.top.length === 0 && topBottom.bottom.length === 0 && (
-              <div className={styles.emptyState}>אין מספיק נתונים לדירוג (נדרשים 3+ אימונים)</div>
-            )}
+
+                  {/* Expanded coach details */}
+                  {isExpanded && center.coachDetails.length > 0 && (
+                    <div className={styles.centerTableExpanded}>
+                      {center.coachDetails.map(coach => {
+                        const coachExecColor = coach.trainingRate >= 75 ? 'success' : coach.trainingRate >= 50 ? 'warning' : 'danger';
+                        return (
+                          <div key={coach.id} className={styles.centerTableCoachRow}>
+                            <div className={styles.centerTableCol}>
+                              <div className={styles.centerTableCoachName}>
+                                <div className={styles.coachAvatar}>{coach.name?.charAt(0) || 'M'}</div>
+                                {coach.name}
+                              </div>
+                            </div>
+                            <div className={styles.centerTableCol}>
+                              <div className={styles.centerTableMetric}>
+                                <div className={styles.centerTableBar}>
+                                  <div className={`${styles.centerTableBarFill} ${styles[coachExecColor]}`} style={{ width: `${coach.trainingRate}%` }} />
+                                </div>
+                                <span className={`${styles.centerTableRate} ${styles[coachExecColor]}`}>{coach.trainingRate}%</span>
+                              </div>
+                              <div className={styles.centerTableSub}>{coach.completedTrainings}/{coach.trainings}</div>
+                            </div>
+                            <div className={styles.centerTableCol}>
+                              <span className={styles.centerTableRate}>{coach.plansSubmitted}/{coach.plansTotal}</span>
+                              {coach.plansDraft > 0 && <span className={styles.centerTableDraftBadge}>{coach.plansDraft} טיוטה</span>}
+                            </div>
+                            <div className={styles.centerTableCol}>
+                              <span className={styles.centerTableSub}>{coach.groups} קבוצות</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {isExpanded && center.coachDetails.length === 0 && (
+                    <div className={styles.centerTableExpanded}>
+                      <div className={styles.emptyState}>אין מאמנים פעילים במרכז</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </div>
+        ) : (
+          <div className={styles.emptyState}>אין נתונים זמינים</div>
+        )}
       </div>
 
       {/* ═══ Section: הקשר חודשי ═══ */}

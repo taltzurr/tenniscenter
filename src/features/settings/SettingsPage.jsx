@@ -5,14 +5,15 @@ import useAuthStore from '../../stores/authStore';
 import useUIStore from '../../stores/uiStore';
 import useCentersStore from '../../stores/centersStore';
 import ProfileForm from './ProfileForm';
+import ChangePasswordModal from './ChangePasswordModal';
 import styles from './SettingsPage.module.css';
 
 function SettingsPage() {
-    const { logout, user, userData, updateProfile, sendPasswordReset } = useAuthStore();
+    const { logout, user, userData, updateProfile } = useAuthStore();
     const { addToast } = useUIStore();
     const { getCenterName } = useCentersStore();
     const [isEditingProfile, setIsEditingProfile] = useState(false);
-    const [isResetingPassword, setIsResetingPassword] = useState(false);
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
 
     const handleNotificationToggle = async () => {
         // Optimistic update would be good, but for now simple await
@@ -40,28 +41,8 @@ function SettingsPage() {
         }
     };
 
-    const handlePasswordReset = async () => {
-        if (!user?.email) return;
-
-        if (confirm(`לשלוח הוראות לאיפוס סיסמה לכתובת ${user.email}?`)) {
-            setIsResetingPassword(true);
-            const result = await sendPasswordReset(user.email);
-            setIsResetingPassword(false);
-
-            if (result.success) {
-                addToast({
-                    title: 'נשלח אימייל לאיפוס סיסמה',
-                    message: 'בדוק את תיבת הדואר הנכנס שלך',
-                    type: 'success'
-                });
-            } else {
-                addToast({
-                    title: 'שגיאה בשליחת אימייל',
-                    message: result.error,
-                    type: 'error'
-                });
-            }
-        }
+    const handlePasswordChange = () => {
+        setIsChangingPassword(true);
     };
 
     return (
@@ -153,15 +134,12 @@ function SettingsPage() {
                     <div className={styles.settingRow}>
                         <div className={styles.settingInfo}>
                             <span className={styles.settingLabel}>סיסמה</span>
-                            <span className={styles.settingDescription}>
-                                {isResetingPassword ? 'שולח...' : 'שנה סיסמה באמצעות אימייל'}
-                            </span>
+                            <span className={styles.settingDescription}>שינוי סיסמה ישירות</span>
                         </div>
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={handlePasswordReset}
-                            disabled={isResetingPassword}
+                            onClick={handlePasswordChange}
                         >
                             שנה
                         </Button>
@@ -180,6 +158,10 @@ function SettingsPage() {
 
             {isEditingProfile && (
                 <ProfileForm onClose={() => setIsEditingProfile(false)} />
+            )}
+
+            {isChangingPassword && (
+                <ChangePasswordModal onClose={() => setIsChangingPassword(false)} />
             )}
         </div>
     );

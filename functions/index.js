@@ -1,9 +1,115 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 
 admin.initializeApp();
 
 const ALLOWED_ROLES = ['supervisor', 'centerManager'];
+
+// SMTP credentials via Firebase secrets
+const smtpEmail = defineSecret('SMTP_EMAIL');
+const smtpPassword = defineSecret('SMTP_PASSWORD');
+
+function createTransporter(email, password) {
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: email, pass: password },
+    });
+}
+
+function getEmailTemplate(type, link, recipientName) {
+    const name = recipientName || '';
+    const greeting = name ? `שלום ${name},` : 'שלום,';
+
+    const templates = {
+        welcome: {
+            subject: 'ברוכים הבאים למערכת ניהול הטניס - איגוד הטניס הישראלי',
+            html: `
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f4f9fd;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f9fd;padding:40px 20px;">
+<tr><td align="center">
+<table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#1a4a6e 0%,#3d7db5 100%);padding:32px 40px;text-align:center;">
+    <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:800;">מערכת ניהול אימוני טניס</h1>
+    <p style="margin:8px 0 0;color:#b0dbf2;font-size:14px;">איגוד הטניס הישראלי</p>
+  </td></tr>
+  <tr><td style="padding:40px;">
+    <h2 style="margin:0 0 16px;color:#1a4a6e;font-size:20px;font-weight:700;">ברוכים הבאים!</h2>
+    <p style="margin:0 0 12px;color:#374151;font-size:15px;line-height:1.7;">${greeting}</p>
+    <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.7;">
+      הוזמנת להצטרף למערכת ניהול אימוני הטניס של איגוד הטניס הישראלי.
+      כדי להתחיל, לחץ על הכפתור למטה כדי להגדיר את הסיסמה שלך ולהיכנס למערכת.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 32px;">
+      <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#3d7db5 0%,#1a4a6e 100%);color:#ffffff;font-size:16px;font-weight:700;padding:14px 40px;border-radius:10px;text-decoration:none;">
+        הגדרת סיסמה וכניסה למערכת
+      </a>
+    </td></tr></table>
+    <div style="background:#f4f9fd;border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+      <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.6;">
+        <strong style="color:#374151;">שים לב:</strong> הקישור תקף ל-24 שעות בלבד. אם פג תוקפו, פנה למנהל המערכת לקבלת קישור חדש.
+      </p>
+    </div>
+    <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.5;">
+      אם לא ביקשת להצטרף למערכת, אפשר להתעלם מהודעה זו.
+    </p>
+  </td></tr>
+  <tr><td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+    <p style="margin:0;color:#9ca3af;font-size:12px;">איגוד הטניס הישראלי &copy; ${new Date().getFullYear()}</p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`,
+        },
+        resetPassword: {
+            subject: 'איפוס סיסמה - מערכת ניהול אימוני טניס',
+            html: `
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f4f9fd;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f9fd;padding:40px 20px;">
+<tr><td align="center">
+<table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#1a4a6e 0%,#3d7db5 100%);padding:32px 40px;text-align:center;">
+    <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:800;">מערכת ניהול אימוני טניס</h1>
+    <p style="margin:8px 0 0;color:#b0dbf2;font-size:14px;">איגוד הטניס הישראלי</p>
+  </td></tr>
+  <tr><td style="padding:40px;">
+    <h2 style="margin:0 0 16px;color:#1a4a6e;font-size:20px;font-weight:700;">איפוס סיסמה</h2>
+    <p style="margin:0 0 12px;color:#374151;font-size:15px;line-height:1.7;">${greeting}</p>
+    <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.7;">
+      קיבלנו בקשה לאיפוס הסיסמה שלך במערכת ניהול אימוני הטניס.
+      לחץ על הכפתור למטה כדי לבחור סיסמה חדשה.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 32px;">
+      <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#3d7db5 0%,#1a4a6e 100%);color:#ffffff;font-size:16px;font-weight:700;padding:14px 40px;border-radius:10px;text-decoration:none;">
+        איפוס סיסמה
+      </a>
+    </td></tr></table>
+    <div style="background:#f4f9fd;border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+      <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.6;">
+        <strong style="color:#374151;">שים לב:</strong> הקישור תקף ל-24 שעות בלבד. אם לא ביקשת לאפס את הסיסמה, אפשר להתעלם מהודעה זו.
+      </p>
+    </div>
+    <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.5;">
+      אם לא ביקשת לאפס את הסיסמה, הסיסמה הנוכחית שלך תישאר ללא שינוי.
+    </p>
+  </td></tr>
+  <tr><td style="background:#f9fafb;padding:20px 40px;text-align:center;border-top:1px solid #e5e7eb;">
+    <p style="margin:0;color:#9ca3af;font-size:12px;">איגוד הטניס הישראלי &copy; ${new Date().getFullYear()}</p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`,
+        },
+    };
+    return templates[type];
+}
 
 async function getCallerRole(uid) {
     const doc = await admin.firestore().collection('users').doc(uid).get();
@@ -52,8 +158,108 @@ exports.createUser = onCall(async (request) => {
  * Returns: { success: true }
  */
 /**
+ * sendCustomResetEmail — generates a password reset link and sends a professional HTML email.
+ * Used for "forgot password" flow.
+ *
+ * Input: { email: string }
+ * Returns: { success: true }
+ */
+exports.sendCustomResetEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, async (request) => {
+    if (!request.auth) {
+        // Allow unauthenticated calls for forgot password (called from login page)
+        // But require email
+    }
+
+    const { email } = request.data;
+    if (!email) {
+        throw new HttpsError('invalid-argument', 'email is required');
+    }
+
+    try {
+        // Look up user display name
+        let displayName = '';
+        try {
+            const userRecord = await admin.auth().getUserByEmail(email);
+            displayName = userRecord.displayName || '';
+        } catch (_) { /* user not found — still generate link so Firebase returns proper error */ }
+
+        const actionCodeSettings = { url: 'https://tennis-centers.web.app/reset-password' };
+        const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+        const template = getEmailTemplate('resetPassword', link, displayName);
+
+        const transporter = createTransporter(smtpEmail.value(), smtpPassword.value());
+        await transporter.sendMail({
+            from: `"מערכת ניהול טניס - איגוד הטניס" <${smtpEmail.value()}>`,
+            to: email,
+            subject: template.subject,
+            html: template.html,
+        });
+        return { success: true };
+    } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+            throw new HttpsError('not-found', 'משתמש לא נמצא');
+        }
+        console.error('sendCustomResetEmail error:', err);
+        throw new HttpsError('internal', err.message);
+    }
+});
+
+/**
+ * sendCustomWelcomeEmail — generates a welcome link and sends a professional HTML email.
+ * Used for user invitation flow.
+ *
+ * Input: { email: string, displayName?: string }
+ * Returns: { success: true }
+ */
+exports.sendCustomWelcomeEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const callerRole = await getCallerRole(request.auth.uid);
+    if (!ALLOWED_ROLES.includes(callerRole)) {
+        throw new HttpsError('permission-denied', 'Only supervisors and center managers can send invitations');
+    }
+
+    const { email, displayName } = request.data;
+    if (!email) {
+        throw new HttpsError('invalid-argument', 'email is required');
+    }
+
+    try {
+        // Look up display name if not provided
+        let name = displayName || '';
+        if (!name) {
+            try {
+                const userRecord = await admin.auth().getUserByEmail(email);
+                name = userRecord.displayName || '';
+            } catch (_) { /* ok */ }
+        }
+
+        const actionCodeSettings = { url: 'https://tennis-centers.web.app/welcome' };
+        const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+        const template = getEmailTemplate('welcome', link, name);
+
+        const transporter = createTransporter(smtpEmail.value(), smtpPassword.value());
+        await transporter.sendMail({
+            from: `"מערכת ניהול טניס - איגוד הטניס" <${smtpEmail.value()}>`,
+            to: email,
+            subject: template.subject,
+            html: template.html,
+        });
+        return { success: true };
+    } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+            throw new HttpsError('not-found', 'משתמש לא נמצא');
+        }
+        console.error('sendCustomWelcomeEmail error:', err);
+        throw new HttpsError('internal', err.message);
+    }
+});
+
+/**
  * generatePasswordResetLink — generates a password reset link without sending an email.
- * Used for internal systems where email delivery is unreliable.
+ * Used as fallback when email delivery is unreliable.
  *
  * Input: { email: string }
  * Returns: { link: string }

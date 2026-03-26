@@ -53,12 +53,20 @@ export const getCoachPlanProgress = (coachId, groups, plans, currentYear, curren
 
 /**
  * Calculate execution completion rate for a coach
+ * Only counts PAST trainings (date <= today) for consistency with supervisor dashboard
  * @param {string} coachId - The coach's ID
  * @param {Array} trainings - All trainings
  * @returns {Object} - Execution data { total, completed, percentage }
  */
 export const getCoachExecutionRate = (coachId, trainings) => {
-  const coachTrainings = trainings.filter(t => t.coachId === coachId);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
+  const coachTrainings = trainings.filter(t => {
+    if (t.coachId !== coachId) return false;
+    const d = normalizeDate(t.date);
+    return d && d <= today;
+  });
   const total = coachTrainings.length;
   const completed = coachTrainings.filter(t => t.status === 'completed').length;
 
