@@ -1,5 +1,4 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 
@@ -7,9 +6,16 @@ admin.initializeApp();
 
 const ALLOWED_ROLES = ['supervisor', 'centerManager'];
 
-// SMTP credentials via Firebase secrets
-const smtpEmail = defineSecret('SMTP_EMAIL');
-const smtpPassword = defineSecret('SMTP_PASSWORD');
+// SMTP credentials via environment variables
+// Set in Firebase Console: Functions > Configuration, or via:
+//   firebase functions:config:set smtp.email="..." smtp.password="..."
+// For Gmail: use an App Password (not regular password)
+function getSmtpConfig() {
+    const email = process.env.SMTP_EMAIL;
+    const password = process.env.SMTP_PASSWORD;
+    if (!email || !password) return null;
+    return { email, password };
+}
 
 function createTransporter(email, password) {
     return nodemailer.createTransport({
@@ -164,32 +170,31 @@ exports.createUser = onCall(async (request) => {
  * Input: { email: string }
  * Returns: { success: true }
  */
-exports.sendCustomResetEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, async (request) => {
-    if (!request.auth) {
-        // Allow unauthenticated calls for forgot password (called from login page)
-        // But require email
-    }
-
+exports.sendCustomResetEmail = onCall(async (request) => {
     const { email } = request.data;
     if (!email) {
         throw new HttpsError('invalid-argument', 'email is required');
     }
 
+    const smtp = getSmtpConfig();
+    if (!smtp) {
+        throw new HttpsError('failed-precondition', 'SMTP not configured — use Firebase built-in email');
+    }
+
     try {
-        // Look up user display name
         let displayName = '';
         try {
             const userRecord = await admin.auth().getUserByEmail(email);
             displayName = userRecord.displayName || '';
-        } catch (_) { /* user not found — still generate link so Firebase returns proper error */ }
+        } catch (_) { /* ok */ }
 
         const actionCodeSettings = { url: 'https://tennis-centers.web.app/reset-password' };
         const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         const template = getEmailTemplate('resetPassword', link, displayName);
 
-        const transporter = createTransporter(smtpEmail.value(), smtpPassword.value());
+        const transporter = createTransporter(smtp.email, smtp.password);
         await transporter.sendMail({
-            from: `"מערכת ניהול טניס - איגוד הטניס" <${smtpEmail.value()}>`,
+            from: `"מערכת ניהול טניס - איגוד הטניס" <${smtp.email}>`,
             to: email,
             subject: template.subject,
             html: template.html,
@@ -211,7 +216,7 @@ exports.sendCustomResetEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, as
  * Input: { email: string, displayName?: string }
  * Returns: { success: true }
  */
-exports.sendCustomWelcomeEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, async (request) => {
+exports.sendCustomWelcomeEmail = onCall(async (request) => {
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'Authentication required');
     }
@@ -226,8 +231,12 @@ exports.sendCustomWelcomeEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, 
         throw new HttpsError('invalid-argument', 'email is required');
     }
 
+    const smtp = getSmtpConfig();
+    if (!smtp) {
+        throw new HttpsError('failed-precondition', 'SMTP not configured — use Firebase built-in email');
+    }
+
     try {
-        // Look up display name if not provided
         let name = displayName || '';
         if (!name) {
             try {
@@ -240,9 +249,9 @@ exports.sendCustomWelcomeEmail = onCall({ secrets: [smtpEmail, smtpPassword] }, 
         const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         const template = getEmailTemplate('welcome', link, name);
 
-        const transporter = createTransporter(smtpEmail.value(), smtpPassword.value());
+        const transporter = createTransporter(smtp.email, smtp.password);
         await transporter.sendMail({
-            from: `"מערכת ניהול טניס - איגוד הטניס" <${smtpEmail.value()}>`,
+            from: `"מערכת ניהול טניס - איגוד הטניס" <${smtp.email}>`,
             to: email,
             subject: template.subject,
             html: template.html,
