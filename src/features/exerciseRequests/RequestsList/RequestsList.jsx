@@ -7,7 +7,7 @@ import useAuthStore from '../../../stores/authStore';
 import useExerciseRequestsStore from '../../../stores/exerciseRequestsStore';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useUIStore from '../../../stores/uiStore';
-import { STATUS_LABELS, REQUEST_STATUSES } from '../../../services/exerciseRequests';
+import { STATUS_LABELS, REQUEST_STATUSES, linkToExercise } from '../../../services/exerciseRequests';
 import { EXERCISE_CATEGORIES } from '../../../services/exercises';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
@@ -47,6 +47,9 @@ function RequestsList() {
     };
 
     const handleApprove = async (request) => {
+        // Guard: prevent approving already-approved requests
+        if (request.status !== REQUEST_STATUSES.PENDING) return;
+
         setProcessingId(request.id);
         try {
             // Create the exercise from the request
@@ -62,10 +65,10 @@ function RequestsList() {
                 createdBy: request.requestedBy,
                 createdByName: request.requestedByName || 'מאמן',
             };
-            await addExercise(exerciseData);
+            const newExercise = await addExercise(exerciseData);
 
-            // Update request status to approved
-            await updateStatus(request.id, REQUEST_STATUSES.APPROVED, 'אושר על ידי מנהל מקצועי');
+            // Link the request to the created exercise (sets status + linkedExerciseId atomically)
+            await linkToExercise(request.id, newExercise.id);
             addToast({ type: 'success', message: `התרגיל "${request.title}" אושר ונוסף למאגר` });
 
             // Refresh
@@ -113,10 +116,12 @@ function RequestsList() {
                         {isSupervisor ? 'בקשות לתרגילים' : 'הבקשות שלי'}
                     </h1>
                 </div>
-                <Button size="small" onClick={() => navigate('/exercise-requests/new')}>
-                    <Plus size={16} />
-                    בקשה חדשה
-                </Button>
+                {!isSupervisor && (
+                    <Button size="small" onClick={() => navigate('/exercise-requests/new')}>
+                        <Plus size={16} />
+                        בקשה חדשה
+                    </Button>
+                )}
             </div>
 
             {/* Status Tabs */}
