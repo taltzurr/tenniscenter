@@ -119,6 +119,7 @@ function CompletionDetail({ isOpen, onClose, trainings, groups }) {
                                                 </div>
                                                 <div className={styles.trainingInfo}>
                                                     <span className={styles.trainingGroup}>{t.groupName}</span>
+                                                    {t.topic && <span className={styles.trainingTopic}>{t.topic}</span>}
                                                     <span className={styles.trainingMeta}>
                                                         {t.time} · {t.location}
                                                     </span>

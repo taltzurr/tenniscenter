@@ -32,6 +32,7 @@ const RequestForm = lazy(() => import('./features/exerciseRequests/RequestForm/R
 const RequestsList = lazy(() => import('./features/exerciseRequests/RequestsList/RequestsList'));
 const PlanForm = lazy(() => import('./features/monthlyPlans/PlanForm/PlanForm'));
 const PlansList = lazy(() => import('./features/monthlyPlans/PlansList/PlansList'));
+const CoachPlansOverview = lazy(() => import('./features/monthlyPlans/CoachPlansOverview/CoachPlansOverview'));
 const ManagerPlansReview = lazy(() => import('./features/monthlyPlans/ManagerPlansReview/ManagerPlansReview'));
 const EventsCalendarPage = lazy(() => import('./features/manager/MonthlyThemes/EventsCalendarPage'));
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
@@ -124,7 +125,8 @@ function App() {
             <Route path="/exercise-requests/new" element={<RequestForm />} />
 
             {/* Monthly Plans routes */}
-            <Route path="/monthly-plans" element={<PlansList />} />
+            <Route path="/monthly-plans" element={<CoachPlansOverview />} />
+            <Route path="/monthly-plans/calendar" element={<PlansList />} />
             <Route path="/monthly-plans/new" element={<PlanForm />} />
             <Route path="/monthly-plans/edit" element={<PlanForm />} />
             <Route path="/monthly-plans/review" element={

@@ -19,7 +19,15 @@ function FullPageSpinner({ text = 'טוען...' }) {
     return (
         <div className={styles.fullPage}>
             <div className={styles.container}>
-                <Spinner size="large" />
+                <div className={styles.logoWrapper}>
+                    <div className={styles.ringOuter} />
+                    <div className={styles.ringInner} />
+                    <img
+                        src="/logo.png"
+                        alt="מרכזי הטניס"
+                        className={styles.logo}
+                    />
+                </div>
                 {text && <span className={styles.text}>{text}</span>}
             </div>
         </div>

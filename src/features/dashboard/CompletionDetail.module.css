@@ -225,6 +225,12 @@
     color: var(--text-primary);
 }
 
+.trainingTopic {
+    font-size: var(--font-size-xs);
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+}
+
 .trainingMeta {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);

@@ -13,7 +13,8 @@ import {
     Building2,
     UserCog,
     Settings,
-    LogOut
+    LogOut,
+    FileText
 } from 'lucide-react';
 import Avatar from '../../ui/Avatar';
 import useAuthStore from '../../../stores/authStore';
@@ -112,6 +113,7 @@ function Sidebar() {
             {
                 section: 'ניהול',
                 items: [
+                    { to: '/monthly-plans', icon: FileText, label: 'הגשת תכניות' },
                     { to: '/groups', icon: Users, label: 'קבוצות' },
                     { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
                     { to: '/settings', icon: Settings, label: 'הגדרות' },

@@ -33,7 +33,7 @@ const STATUS_CONFIG = {
         className: 'submitted',
     },
     approved: {
-        text: 'מאושר',
+        text: 'הוגש',
         Icon: CheckCircle,
         className: 'approved',
     },

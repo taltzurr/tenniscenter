@@ -501,9 +501,11 @@ function CoachDashboard() {
 
             {/* 7. Monthly Info */}
             <div className={`${styles.dashSection} ${styles.delay4}`}>
-                <div className={styles.sectionTitleRow}>
-                    <BookOpen size={18} className={styles.sectionIcon} />
-                    <span className={styles.sectionSubheading}>מידע חודשי</span>
+                <div className={styles.sectionHeader}>
+                    <div className={styles.sectionTitleRow}>
+                        <BookOpen size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>מידע חודשי</h2>
+                    </div>
                 </div>
 
                 {/* Goals & Values Grid */}

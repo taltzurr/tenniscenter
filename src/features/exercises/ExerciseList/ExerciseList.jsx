@@ -98,7 +98,7 @@ function ExerciseList() {
                 </div>
 
                 <div className={styles.filterGroup}>
-                    <label className={styles.filterLabel}>קטגוריה</label>
+                    <label className={styles.filterLabel}>מצב משחק</label>
                     <select
                         value={filters.category || ''}
                         onChange={handleCategoryChange}
@@ -112,7 +112,7 @@ function ExerciseList() {
                 </div>
 
                 <div className={styles.filterGroup}>
-                    <label className={styles.filterLabel}>רמת משחק</label>
+                    <label className={styles.filterLabel}>רמה</label>
                     <select
                         value={filters.difficulty || ''}
                         onChange={handleDifficultyChange}

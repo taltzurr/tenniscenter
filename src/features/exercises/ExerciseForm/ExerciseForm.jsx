@@ -175,7 +175,7 @@ function ExerciseForm() {
                     <div className={styles.fieldGroup}>
                         <div className={styles.row}>
                             <div>
-                                <label className={styles.label}>קטגוריה</label>
+                                <label className={styles.label}>מצב משחק</label>
                                 <select
                                     className={styles.select}
                                     value={formData.category}
@@ -190,7 +190,7 @@ function ExerciseForm() {
                             </div>
 
                             <div>
-                                <label className={styles.label}>רמת משחק</label>
+                                <label className={styles.label}>רמה</label>
                                 <select
                                     className={styles.select}
                                     value={formData.difficulty}

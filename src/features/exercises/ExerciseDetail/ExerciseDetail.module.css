@@ -16,7 +16,7 @@
 
 .header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--space-3);
 }
 
@@ -33,7 +33,6 @@
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-top: 2px;
 }
 
 .backButton:hover {
@@ -41,15 +40,8 @@
     color: var(--text-primary);
 }
 
-.headerContent {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-}
-
 .title {
+    flex: 1;
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-primary);
@@ -63,52 +55,11 @@
     }
 }
 
-.categoryBadge {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    color: var(--primary-700);
-    background: var(--primary-50);
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-full);
-}
-
-/* Stats row */
-.statsRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-}
-
-.statChip {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-}
-
-.difficulty {
-    display: flex;
-    gap: 2px;
-    margin-inline-start: var(--space-1);
-}
-
-.diffDot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--gray-200);
-}
-
-.diffDot.active {
-    background: var(--accent-500);
+/* Info row - side by side cards */
+.infoRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
 }
 
 /* Content cards */
@@ -128,6 +79,28 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
+}
+
+/* Category & Level badges inside cards */
+.categoryBadge {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--primary-700);
+    background: var(--primary-50);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+}
+
+.levelBadge {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--space-1) var(--space-3);
+    background: var(--gray-50);
+    border-radius: var(--radius-full);
 }
 
 .descriptionText {

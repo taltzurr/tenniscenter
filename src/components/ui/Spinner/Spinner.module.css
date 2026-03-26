@@ -52,7 +52,7 @@
     border-left-color: var(--gray-200);
 }
 
-/* Full page spinner */
+/* Full page spinner with logo */
 .fullPage {
     position: fixed;
     top: 0;
@@ -62,7 +62,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: #ffffff;
     z-index: var(--z-modal);
 }
 
@@ -71,9 +71,70 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-4);
+    /* offset text height so logo sits at visual center of screen */
+    margin-bottom: 60px;
+}
+
+.logoWrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    animation: pulse 2s ease-in-out infinite;
+    z-index: 2;
+}
+
+.ringOuter {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: var(--primary-600);
+    border-right-color: var(--accent-500);
+    animation: spin 1.2s linear infinite;
+    z-index: 1;
+}
+
+.ringInner {
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 2.5px solid transparent;
+    border-bottom-color: var(--primary-400);
+    border-left-color: var(--accent-400);
+    animation: spinReverse 1.6s linear infinite;
+    z-index: 1;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.92);
+        opacity: 0.85;
+    }
+}
+
+@keyframes spinReverse {
+    to {
+        transform: rotate(-360deg);
+    }
 }
 
 .text {
     font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+    color: var(--primary-700);
+    letter-spacing: 0.5px;
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, Users, Tag, Layers, Edit3, Puzzle } from 'lucide-react';
+import { ArrowRight, Tag, Layers, Edit3, Puzzle, Crosshair, BarChart3 } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
 import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, EXERCISE_TOPICS, GAME_COMPONENTS } from '../../../services/exercises';
@@ -47,12 +47,7 @@ function ExerciseDetail() {
                 >
                     <ArrowRight size={20} />
                 </button>
-                <div className={styles.headerContent}>
-                    <h1 className={styles.title}>{currentExercise.title}</h1>
-                    {category && (
-                        <span className={styles.categoryBadge}>{category.emoji} {category.label}</span>
-                    )}
-                </div>
+                <h1 className={styles.title}>{currentExercise.title}</h1>
                 {canEdit && (
                     <Button
                         variant="outline"
@@ -65,11 +60,26 @@ function ExerciseDetail() {
                 )}
             </div>
 
-            {/* Quick stats row */}
-            <div className={styles.statsRow}>
+            {/* Game Situation & Level */}
+            <div className={styles.infoRow}>
+                {category && (
+                    <div className={styles.card}>
+                        <h2 className={styles.sectionTitle}>
+                            <Crosshair size={18} />
+                            מצב משחק
+                        </h2>
+                        <span className={styles.categoryBadge}>{category.emoji} {category.label}</span>
+                    </div>
+                )}
                 {diffLevel && (
-                    <div className={styles.statChip} style={{ color: diffLevel.color }}>
-                        <span>{diffLevel.emoji} {diffLevel.label}</span>
+                    <div className={styles.card}>
+                        <h2 className={styles.sectionTitle}>
+                            <BarChart3 size={18} />
+                            רמה
+                        </h2>
+                        <span className={styles.levelBadge} style={{ color: diffLevel.color }}>
+                            {diffLevel.emoji} {diffLevel.label}
+                        </span>
                     </div>
                 )}
             </div>

@@ -474,8 +474,13 @@
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
-/* Mobile: show as colored bars */
-.trainingDot .timeText,
+/* Mobile: show time, hide group name */
+.trainingDot .timeText {
+    display: inline;
+    font-weight: 700;
+    font-size: 9px;
+}
+
 .trainingDot .groupText {
     display: none;
 }

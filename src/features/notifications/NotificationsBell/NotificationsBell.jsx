@@ -23,8 +23,13 @@ function getNotificationLink(notification) {
     if (notification.route) return notification.route;
 
     // Use relatedEntityType + relatedEntityId for specific navigation
-    if (notification.relatedEntityType === 'monthlyPlan' && notification.relatedEntityId) {
-        return '/monthly-plans/review';
+    if (notification.relatedEntityType === 'monthlyPlan') {
+        const basePath = '/monthly-plans';
+        // Append plan reference as hash fragment for scroll-to behavior
+        if (notification.relatedEntityId) {
+            return `${basePath}#plan-${notification.relatedEntityId}`;
+        }
+        return basePath;
     }
 
     const type = (notification.type || '').toLowerCase();

@@ -72,7 +72,7 @@ function MonthlyPlansStatus({ plans, groups }) {
                     return (
                         <Link
                             key={groupId}
-                            to={`/monthly-plans?groupId=${groupId}`}
+                            to="/monthly-plans"
                             className={styles.groupRow}
                         >
                             <div className={styles.groupInfo}>
