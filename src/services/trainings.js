@@ -11,7 +11,8 @@ import {
     serverTimestamp,
     Timestamp,
     writeBatch,
-    limit
+    limit,
+    orderBy
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -209,11 +210,77 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
         }
 
         await batch.commit();
-        return trainings;
+        return {
+            trainings,
+            wasTruncated: trainings.length >= ABSOLUTE_MAX_COUNT,
+            actualCount: trainings.length
+        };
     } catch (error) {
         console.error('Error creating recurring trainings:', error);
         throw error;
     }
+};
+
+export const fetchSeriesTrainings = async (recurrenceGroupId) => {
+    const q = query(
+        collection(db, 'trainings'),
+        where('recurrenceGroupId', '==', recurrenceGroupId),
+        orderBy('date', 'asc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: doc.data().date?.toDate?.() ? doc.data().date.toDate() : doc.data().date
+    }));
+};
+
+export const updateSeriesTrainings = async (recurrenceGroupId, updates, scope = 'future') => {
+    const seriesTrainings = await fetchSeriesTrainings(recurrenceGroupId);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const trainingsToUpdate = scope === 'all'
+        ? seriesTrainings
+        : seriesTrainings.filter(t => {
+            const trainingDate = t.date instanceof Date ? t.date : new Date(t.date);
+            return trainingDate > today;
+        });
+
+    if (trainingsToUpdate.length === 0) return { updated: 0 };
+
+    const batch = writeBatch(db);
+    trainingsToUpdate.forEach(training => {
+        const ref = doc(db, 'trainings', training.id);
+        batch.update(ref, { ...updates, updatedAt: Timestamp.now() });
+    });
+
+    await batch.commit();
+    return { updated: trainingsToUpdate.length };
+};
+
+export const deleteSeriesTrainings = async (recurrenceGroupId, scope = 'future') => {
+    const seriesTrainings = await fetchSeriesTrainings(recurrenceGroupId);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const trainingsToDelete = scope === 'all'
+        ? seriesTrainings
+        : seriesTrainings.filter(t => {
+            const trainingDate = t.date instanceof Date ? t.date : new Date(t.date);
+            return trainingDate > today;
+        });
+
+    if (trainingsToDelete.length === 0) return { deleted: 0 };
+
+    const batch = writeBatch(db);
+    trainingsToDelete.forEach(training => {
+        const ref = doc(db, 'trainings', training.id);
+        batch.delete(ref);
+    });
+
+    await batch.commit();
+    return { deleted: trainingsToDelete.length, deletedIds: trainingsToDelete.map(t => t.id) };
 };
 
 /**
