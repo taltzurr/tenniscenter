@@ -46,6 +46,13 @@ function ResetPasswordPage() {
         verify();
     }, [oobCode, mode]);
 
+    // Auto-redirect to login after successful reset
+    useEffect(() => {
+        if (!success) return;
+        const timer = setTimeout(() => navigate('/login'), 3000);
+        return () => clearTimeout(timer);
+    }, [success, navigate]);
+
     const getCodeErrorMessage = (code) => {
         const messages = {
             'auth/expired-action-code': 'הקישור פג תוקף. נסה לבקש איפוס סיסמה מחדש.',
@@ -84,7 +91,6 @@ function ResetPasswordPage() {
         try {
             await confirmReset(oobCode, newPassword);
             setSuccess(true);
-            setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
             setError(getSubmitErrorMessage(err.code));
         } finally {

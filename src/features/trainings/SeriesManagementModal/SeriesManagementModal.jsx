@@ -43,10 +43,11 @@ function SeriesManagementModal({ recurrenceGroupId, currentTrainingId, onClose, 
         };
     }, [recurrenceGroupId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const futureTrainings = seriesTrainings.filter((t) => {
         const d = t.date instanceof Date ? t.date : t.date?.toDate?.() ?? new Date(t.date);
-        return d >= now;
+        return d > today;
     });
     const futureCount = futureTrainings.length;
     const total = seriesTrainings.length;
@@ -99,7 +100,8 @@ function SeriesManagementModal({ recurrenceGroupId, currentTrainingId, onClose, 
             addToast({ type: 'success', message: `${count} אימונים נמחקו בהצלחה` });
             setShowConfirm(false);
             setAction(null);
-            if (scope === 'all' && onSeriesDeleted) {
+            const currentWasDeleted = result?.deletedIds?.includes(currentTrainingId);
+            if ((scope === 'all' || currentWasDeleted) && onSeriesDeleted) {
                 onSeriesDeleted();
             } else {
                 onClose();

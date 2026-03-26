@@ -118,6 +118,7 @@ const useUsersStore = create((set, get) => ({
 
             // Send welcome email for invitation flow (non-blocking — user is already created)
             let emailSent = false;
+            let welcomeLink = null;
             if (onboardingMethod === 'invitation') {
                 try {
                     await sendWelcomeEmail(profileData.email);
@@ -129,7 +130,7 @@ const useUsersStore = create((set, get) => ({
                         const genLinkFn = httpsCallable(getFunctions(), 'generatePasswordResetLink');
                         const result = await genLinkFn({ email: profileData.email, isWelcome: true });
                         emailSent = 'link';
-                        console.info('Generated welcome link via Cloud Function:', result.data.link);
+                        welcomeLink = result.data?.link || null;
                     } catch (cfErr) {
                         console.warn('Cloud Function link generation also failed:', cfErr.message);
                     }
@@ -140,7 +141,7 @@ const useUsersStore = create((set, get) => ({
                 users: [...state.users, newUser],
                 isLoading: false
             }));
-            return { success: true, emailSent };
+            return { success: true, emailSent, welcomeLink };
         } catch (error) {
             console.error('Error adding user:', error);
             const friendlyMsg = error.code === 'auth/email-already-in-use'
@@ -223,7 +224,7 @@ const useUsersStore = create((set, get) => ({
             // Get user data BEFORE deleting so we can save email→UID mapping
             const currentUser = get().users.find(u => u.id === uid);
 
-            // Save email→UID mapping in deletedUsers collection
+            // Save email→UID mapping in deletedUsers collection FIRST
             // This allows re-adding the same email later without Cloud Functions
             if (currentUser?.email) {
                 await setDoc(doc(db, 'deletedUsers', uid), {
@@ -231,6 +232,9 @@ const useUsersStore = create((set, get) => ({
                     deletedAt: new Date().toISOString(),
                 });
             }
+
+            // Delete Firestore user document BEFORE Auth (source of truth for UI)
+            await deleteDoc(doc(db, 'users', uid));
 
             // Try to delete Auth account via Cloud Function (best-effort)
             try {
@@ -244,9 +248,6 @@ const useUsersStore = create((set, get) => ({
                 // Cloud Function not deployed — orphan record stays for recovery on next add
                 console.warn('Auth account not deleted (Cloud Functions not deployed). Orphan record saved for recovery.');
             }
-
-            // Delete Firestore user document
-            await deleteDoc(doc(db, 'users', uid));
             set(state => ({
                 users: state.users.filter(user => user.id !== uid),
                 isLoading: false

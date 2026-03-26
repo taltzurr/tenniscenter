@@ -88,9 +88,12 @@ export const createExercise = async (data) => {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         });
+        const now = new Date();
         return {
             id: docRef.id,
-            ...data
+            ...data,
+            createdAt: now,
+            updatedAt: now
         };
     } catch (error) {
         console.error('Error creating exercise:', error);
@@ -109,7 +112,7 @@ export const updateExercise = async (id, data) => {
             updatedAt: serverTimestamp()
         };
         await updateDoc(docRef, updateData);
-        return { id, ...updateData };
+        return { id, ...data, updatedAt: new Date() };
     } catch (error) {
         console.error('Error updating exercise:', error);
         throw error;

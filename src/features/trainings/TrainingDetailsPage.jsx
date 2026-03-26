@@ -199,12 +199,8 @@ export default function TrainingDetailsPage() {
         if (found) {
             setTraining(found);
         } else {
-            // Fetch if not found (assuming fetchTraining exists, or just fetch all? Store usually fetches all by date range)
-            // For now, let's assume if it's not in store we might need to fetch it specifically or handle error.
-            // But since the user likely navigated from a list, it should be there. 
-            // If explicit fetch is needed, implement it. 
-            // Looking at store: fetchTrainings is range based. 
-            // We can treat this as "if not found, maybe show loading or error"
+            // Not in store — fetch individually (e.g., direct navigation / deep link)
+            fetchTraining(id);
         }
     }, [id, trainings]);
 

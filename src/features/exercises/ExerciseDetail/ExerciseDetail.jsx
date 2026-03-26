@@ -22,8 +22,17 @@ function ExerciseDetail() {
         return () => clearCurrentExercise();
     }, [id, fetchExercise, clearCurrentExercise]);
 
-    if (isLoading || !currentExercise) {
+    if (isLoading) {
         return <Spinner.FullPage />;
+    }
+
+    if (!currentExercise) {
+        return (
+            <div style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--text-secondary)' }}>
+                <p style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-4)' }}>התרגיל לא נמצא</p>
+                <button onClick={() => navigate('/exercises')} style={{ color: 'var(--primary-600)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'var(--font-size-sm)' }}>חזרה לספריית תרגילים</button>
+            </div>
+        );
     }
 
     const category = EXERCISE_CATEGORIES.find(c => c.value === currentExercise.category);

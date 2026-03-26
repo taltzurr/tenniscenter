@@ -89,17 +89,17 @@ const useAuthStore = create((set, get) => ({
     clearError: () => set({ error: null }),
 
     updateProfile: async (data) => {
-        set({ isLoading: true, error: null });
+        set({ error: null });
         try {
             const { user, userData } = get();
             if (!user) throw new Error('No user logged in');
 
             const { updateUserData } = await import('../services/auth');
             await updateUserData(user.uid, data);
-            set({ userData: { ...userData, ...data }, isLoading: false });
+            set({ userData: { ...userData, ...data } });
             return { success: true };
         } catch (error) {
-            set({ error: error.message, isLoading: false });
+            set({ error: error.message });
             return { success: false, error: error.code || error.message };
         }
     },

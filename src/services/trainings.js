@@ -141,7 +141,8 @@ import {
     addYears,
     isBefore,
     getDay,
-    setDay
+    setDay,
+    startOfWeek
 } from 'date-fns';
 
 /**
@@ -195,7 +196,7 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
                         const diff = nextDayInWeek - currentDayIndex;
                         currentDate = addDays(currentDate, diff);
                     } else {
-                        const currentSunday = setDay(currentDate, 0);
+                        const currentSunday = startOfWeek(currentDate, { weekStartsOn: 0 });
                         const nextTargetSunday = addWeeks(currentSunday, interval);
                         currentDate = setDay(nextTargetSunday, selectedIndices[0]);
                     }
@@ -210,9 +211,11 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
         }
 
         await batch.commit();
+        // Only flag truncation if the cap cut the series short (not when count-based endType matches exactly)
+        const wasHardCapped = endType !== 'count' && trainings.length >= ABSOLUTE_MAX_COUNT;
         return {
             trainings,
-            wasTruncated: trainings.length >= ABSOLUTE_MAX_COUNT,
+            wasTruncated: wasHardCapped,
             actualCount: trainings.length
         };
     } catch (error) {

@@ -112,11 +112,12 @@ function UsersPage() {
                             message: `המשתמש נוצר בהצלחה | אימייל הזמנה נשלח ל-${formData.email}`,
                             duration: 6000,
                         });
-                    } else if (result.emailSent === 'link') {
+                    } else if (result.emailSent === 'link' && result.welcomeLink) {
+                        await navigator.clipboard.writeText(result.welcomeLink).catch(() => {});
                         addToast({
                             type: 'warning',
-                            message: 'המשתמש נוצר בהצלחה, אך שליחת המייל נכשלה. השתמש בכפתור "שלח הזמנה" לשליחה חוזרת.',
-                            duration: 8000,
+                            message: 'המשתמש נוצר בהצלחה. שליחת המייל נכשלה — קישור הזמנה הועתק ללוח. שלח אותו למשתמש ידנית.',
+                            duration: 10000,
                         });
                     } else {
                         addToast({

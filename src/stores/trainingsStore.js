@@ -154,12 +154,12 @@ const useTrainingsStore = create((set, get) => ({
     updateSeries: async (recurrenceGroupId, updates, scope) => {
         try {
             const result = await updateSeriesTrainings(recurrenceGroupId, updates, scope);
-            // Refresh series list only (main trainings list requires coachId/date params — caller refreshes as needed)
+            // Refresh series list (single Firestore read)
             const { fetchSeries } = get();
             await fetchSeries(recurrenceGroupId);
-            // Update local trainings array for any that were modified
-            const { trainings } = get();
-            const updatedIds = new Set((await fetchSeriesTrainings(recurrenceGroupId)).map(t => t.id));
+            // Use already-fetched seriesTrainings to update local trainings array
+            const { trainings, seriesTrainings } = get();
+            const updatedIds = new Set(seriesTrainings.map(t => t.id));
             set({ trainings: trainings.map(t => updatedIds.has(t.id) ? { ...t, ...updates } : t) });
             return result;
         } catch (error) {

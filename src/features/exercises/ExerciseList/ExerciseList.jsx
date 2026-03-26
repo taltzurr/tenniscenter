@@ -32,21 +32,23 @@ function ExerciseList() {
         const timer = setTimeout(() => {
             if (searchTerm !== filters.search) {
                 setFilters({ search: searchTerm });
-                fetchExercises();
             }
         }, 300);
         return () => clearTimeout(timer);
-    }, [searchTerm, filters.search, setFilters, fetchExercises]);
+    }, [searchTerm, filters.search, setFilters]);
+
+    // Re-fetch when any filter changes (after state commits)
+    useEffect(() => {
+        fetchExercises();
+    }, [filters.category, filters.difficulty, filters.search, fetchExercises]);
 
     const handleCategoryChange = (e) => {
         setFilters({ category: e.target.value || null });
-        fetchExercises();
     };
 
     const handleDifficultyChange = (e) => {
         const value = e.target.value || null;
         setFilters({ difficulty: value });
-        fetchExercises();
     };
 
     if (isLoading && exercises.length === 0) {
