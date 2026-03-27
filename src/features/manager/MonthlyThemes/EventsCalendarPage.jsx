@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import useSwipeNavigation from '../../../hooks/useSwipeNavigation';
-import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, Building2 } from 'lucide-react';
+import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, ChevronDown, Building2, Check } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
@@ -62,6 +62,8 @@ function EventsCalendarPage() {
 
     // Center filter (supervisors can filter by center - multi-select)
     const [selectedCenterIds, setSelectedCenterIds] = useState([]);
+    const [centerDropdownOpen, setCenterDropdownOpen] = useState(false);
+    const centerDropdownRef = useRef(null);
 
     // Events State
     const [showEventModal, setShowEventModal] = useState(false);
@@ -84,6 +86,17 @@ function EventsCalendarPage() {
             fetchCenters();
         }
     }, [isSupervisor, fetchCenters]);
+
+    // Close center dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (centerDropdownRef.current && !centerDropdownRef.current.contains(e.target)) {
+                setCenterDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     // Load Data
     useEffect(() => {
@@ -448,19 +461,19 @@ function EventsCalendarPage() {
                 <h1 className={styles.title}>לוח אירועים, מטרות וערכים</h1>
                 <p className={styles.subtitle}>ניהול אירועים, מטרות חודשיות לפי סוג קבוצה וערכים</p>
                 {/* Month/Year navigation with arrows */}
-                <div className={styles.monthNav}>
+                <div className={styles.monthSelector}>
                     <button
-                        className={styles.monthNavBtn}
+                        className={styles.navButton}
                         onClick={() => navigateMonth(-1)}
                         aria-label="חודש קודם"
                     >
                         <ChevronRight size={20} />
                     </button>
-                    <span className={styles.monthLabel}>
+                    <span className={`${styles.monthTitle} ${selectedMonth === new Date().getMonth() && selectedYear === new Date().getFullYear() ? styles.monthTitleCurrent : ''}`}>
                         {HEBREW_MONTHS[selectedMonth]} {selectedYear}
                     </span>
                     <button
-                        className={styles.monthNavBtn}
+                        className={styles.navButton}
                         onClick={() => navigateMonth(1)}
                         aria-label="חודש הבא"
                     >
@@ -483,33 +496,60 @@ function EventsCalendarPage() {
                             ))}
                         </div>
                     </div>
-                    {/* Center filter chips for supervisors (multi-select) */}
+                    {/* Center filter dropdown for supervisors (multi-select) */}
                     {isSupervisor() && centers.length > 0 && (
-                        <div className={styles.centerChips}>
+                        <div className={styles.centerDropdown} ref={centerDropdownRef}>
                             <button
-                                className={`${styles.centerChip} ${selectedCenterIds.length === 0 ? styles.centerChipActive : ''}`}
-                                onClick={() => setSelectedCenterIds([])}
+                                className={`${styles.centerDropdownTrigger} ${centerDropdownOpen ? styles.centerDropdownTriggerOpen : ''}`}
+                                onClick={() => setCenterDropdownOpen(!centerDropdownOpen)}
                             >
-                                <Building2 size={14} />
-                                כל המרכזים
+                                <Building2 size={16} />
+                                {selectedCenterIds.length === 0
+                                    ? 'כל המרכזים'
+                                    : `${selectedCenterIds.length} מרכזים`}
+                                {selectedCenterIds.length > 0 && (
+                                    <span className={styles.centerDropdownCount}>{selectedCenterIds.length}</span>
+                                )}
+                                <ChevronDown
+                                    size={16}
+                                    className={`${styles.centerDropdownArrow} ${centerDropdownOpen ? styles.centerDropdownArrowOpen : ''}`}
+                                />
                             </button>
-                            {centers.map(c => {
-                                const isActive = selectedCenterIds.includes(c.id);
-                                return (
+                            {centerDropdownOpen && (
+                                <div className={styles.centerDropdownPanel}>
                                     <button
-                                        key={c.id}
-                                        className={`${styles.centerChip} ${isActive ? styles.centerChipActive : ''}`}
-                                        onClick={() => setSelectedCenterIds(prev =>
-                                            prev.includes(c.id)
-                                                ? prev.filter(id => id !== c.id)
-                                                : [...prev, c.id]
-                                        )}
+                                        className={`${styles.centerDropdownItem} ${selectedCenterIds.length === 0 ? styles.centerDropdownItemActive : ''}`}
+                                        onClick={() => { setSelectedCenterIds([]); }}
                                     >
+                                        <div className={`${styles.centerDropdownCheckbox} ${selectedCenterIds.length === 0 ? styles.centerDropdownCheckboxChecked : ''}`}>
+                                            {selectedCenterIds.length === 0 && <Check size={12} color="white" />}
+                                        </div>
                                         <Building2 size={14} />
-                                        {c.name}
+                                        כל המרכזים
                                     </button>
-                                );
-                            })}
+                                    <div className={styles.centerDropdownDivider} />
+                                    {centers.map(c => {
+                                        const isActive = selectedCenterIds.includes(c.id);
+                                        return (
+                                            <button
+                                                key={c.id}
+                                                className={`${styles.centerDropdownItem} ${isActive ? styles.centerDropdownItemActive : ''}`}
+                                                onClick={() => setSelectedCenterIds(prev =>
+                                                    prev.includes(c.id)
+                                                        ? prev.filter(id => id !== c.id)
+                                                        : [...prev, c.id]
+                                                )}
+                                            >
+                                                <div className={`${styles.centerDropdownCheckbox} ${isActive ? styles.centerDropdownCheckboxChecked : ''}`}>
+                                                    {isActive && <Check size={12} color="white" />}
+                                                </div>
+                                                <Building2 size={14} />
+                                                {c.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     )}
                     {renderCalendar()}

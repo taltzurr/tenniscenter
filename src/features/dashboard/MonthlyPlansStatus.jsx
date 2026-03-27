@@ -6,12 +6,12 @@ import styles from './MonthlyPlansStatus.module.css';
 
 const STATUS_CONFIG = {
     [PLAN_STATUS.APPROVED]: {
-        label: 'אושרה',
+        label: 'הוגשה',
         icon: CheckCircle,
         className: 'approved',
     },
     [PLAN_STATUS.SUBMITTED]: {
-        label: 'ממתינה לאישור',
+        label: 'הוגשה',
         icon: Clock,
         className: 'submitted',
     },

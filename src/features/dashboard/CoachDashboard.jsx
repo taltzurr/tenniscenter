@@ -511,48 +511,40 @@ function CoachDashboard() {
                 {/* Goals & Values Grid */}
                 <div className={styles.monthlyCardsGrid}>
                     {/* Monthly Goals */}
-                    <div className={styles.dashboardCard}>
-                        <div className={styles.cardHeader}>
-                            <div className={styles.cardTitle} style={{ color: 'var(--accent-700)' }}>
-                                <Target size={18} />
-                                מטרות החודש
+                    <div className={styles.contextCard}>
+                        <div className={styles.contextCardHeader}>
+                            <Target size={16} className={styles.contextCardIcon} style={{ color: 'var(--accent-700)' }} />
+                            <h3 className={styles.contextCardTitle}>מטרות החודש</h3>
+                        </div>
+                        {monthlyGoals.length > 0 ? (
+                            <div className={styles.goalsList}>
+                                {monthlyGoals.map((goal) => (
+                                    <div key={goal.id} className={styles.goalItem}>
+                                        <span className={styles.goalTypeBadge}>{goal.typeName}</span>
+                                        <span className={styles.goalText}>{goal.name}</span>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
-                        <div className={styles.cardContent}>
-                            {monthlyGoals.length > 0 ? monthlyGoals.map((goal) => (
-                                <div key={goal.id} className={styles.goalRow}>
-                                    <span className={styles.goalTypeLabel}>{goal.typeName}</span>
-                                    <span className={`${styles.tag} ${styles.tagGoal}`}>
-                                        {goal.name}
-                                    </span>
-                                </div>
-                            )) : (
-                                <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                                    שאל את המנהל שלך על המטרות החודש
-                                </span>
-                            )}
-                        </div>
+                        ) : (
+                            <div className={styles.contextEmpty}>שאל את המנהל שלך על המטרות החודש</div>
+                        )}
                     </div>
 
                     {/* Monthly Values */}
-                    <div className={styles.dashboardCard}>
-                        <div className={styles.cardHeader}>
-                            <div className={styles.cardTitle} style={{ color: 'var(--primary-700)' }}>
-                                <Heart size={18} />
-                                ערכי החודש
+                    <div className={styles.contextCard}>
+                        <div className={styles.contextCardHeader}>
+                            <Heart size={16} className={styles.contextCardIcon} style={{ color: 'var(--primary-600)' }} />
+                            <h3 className={styles.contextCardTitle}>ערכי החודש</h3>
+                        </div>
+                        {monthlyValues.length > 0 ? (
+                            <div className={styles.valuesList}>
+                                {monthlyValues.map((value) => (
+                                    <span key={value.id} className={styles.valueTag}>{value.name}</span>
+                                ))}
                             </div>
-                        </div>
-                        <div className={styles.cardContent}>
-                            {monthlyValues.length > 0 ? monthlyValues.map((value) => (
-                                <span key={value.id} className={`${styles.tag} ${styles.tagValue}`}>
-                                    {value.name}
-                                </span>
-                            )) : (
-                                <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>
-                                    שאל את המנהל שלך על הערכים החודש
-                                </span>
-                            )}
-                        </div>
+                        ) : (
+                            <div className={styles.contextEmpty}>שאל את המנהל שלך על הערכים החודש</div>
+                        )}
                     </div>
                 </div>
             </div>

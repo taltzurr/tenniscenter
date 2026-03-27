@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     format,
@@ -15,9 +15,11 @@ import { he } from 'date-fns/locale';
 import {
     ChevronRight,
     ChevronLeft,
+    ChevronDown,
     AlertCircle,
     Plus,
     Building2,
+    Check,
 } from 'lucide-react';
 
 import useAuthStore from '../../stores/authStore';
@@ -61,6 +63,8 @@ export default function WeeklySchedulePage() {
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [centerDropdownOpen, setCenterDropdownOpen] = useState(false);
+    const centerDropdownRef = useRef(null);
 
     // Calculate week range based on selectedDate
     const today = useMemo(() => new Date(), []);
@@ -162,6 +166,16 @@ export default function WeeklySchedulePage() {
 
         return null;
     }, [isViewOnly, isCenterManager, isSupervisor, selectedCenterIds, users, userData?.managedCenterId]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (centerDropdownRef.current && !centerDropdownRef.current.contains(e.target)) {
+                setCenterDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const toggleCenterFilter = (centerId) => {
         setSelectedCenterIds(prev =>
@@ -299,31 +313,56 @@ export default function WeeklySchedulePage() {
                 </button>
             </div>
 
-            {/* Supervisor: Center Filter Chips (multi-select) */}
+            {/* Supervisor: Center Filter Dropdown (multi-select) */}
             {isSupervisor && centers.length > 0 && (
-                <div className={styles.centerFilters}>
-                    <div className={`${styles.groupChips} hide-scrollbar`}>
-                        <button
-                            className={`${styles.filterChip} ${selectedCenterIds.length === 0 ? styles.active : ''}`}
-                            onClick={() => setSelectedCenterIds([])}
-                        >
-                            <Building2 size={14} />
-                            כל המרכזים
-                        </button>
-                        {centers.map(center => {
-                            const isActive = selectedCenterIds.includes(center.id);
-                            return (
-                                <button
-                                    key={center.id}
-                                    className={`${styles.filterChip} ${isActive ? styles.active : ''}`}
-                                    onClick={() => toggleCenterFilter(center.id)}
-                                >
-                                    <Building2 size={14} />
-                                    {center.name}
-                                </button>
-                            );
-                        })}
-                    </div>
+                <div className={styles.centerDropdown} ref={centerDropdownRef}>
+                    <button
+                        className={`${styles.centerDropdownTrigger} ${centerDropdownOpen ? styles.centerDropdownTriggerOpen : ''}`}
+                        onClick={() => setCenterDropdownOpen(!centerDropdownOpen)}
+                    >
+                        <Building2 size={16} />
+                        {selectedCenterIds.length === 0
+                            ? 'כל המרכזים'
+                            : `${selectedCenterIds.length} מרכזים`}
+                        {selectedCenterIds.length > 0 && (
+                            <span className={styles.centerDropdownCount}>{selectedCenterIds.length}</span>
+                        )}
+                        <ChevronDown
+                            size={16}
+                            className={`${styles.centerDropdownArrow} ${centerDropdownOpen ? styles.centerDropdownArrowOpen : ''}`}
+                        />
+                    </button>
+                    {centerDropdownOpen && (
+                        <div className={styles.centerDropdownPanel}>
+                            <button
+                                className={`${styles.centerDropdownItem} ${selectedCenterIds.length === 0 ? styles.centerDropdownItemActive : ''}`}
+                                onClick={() => { setSelectedCenterIds([]); }}
+                            >
+                                <div className={`${styles.centerDropdownCheckbox} ${selectedCenterIds.length === 0 ? styles.centerDropdownCheckboxChecked : ''}`}>
+                                    {selectedCenterIds.length === 0 && <Check size={12} color="white" />}
+                                </div>
+                                <Building2 size={14} />
+                                כל המרכזים
+                            </button>
+                            <div className={styles.centerDropdownDivider} />
+                            {centers.map(center => {
+                                const isActive = selectedCenterIds.includes(center.id);
+                                return (
+                                    <button
+                                        key={center.id}
+                                        className={`${styles.centerDropdownItem} ${isActive ? styles.centerDropdownItemActive : ''}`}
+                                        onClick={() => toggleCenterFilter(center.id)}
+                                    >
+                                        <div className={`${styles.centerDropdownCheckbox} ${isActive ? styles.centerDropdownCheckboxChecked : ''}`}>
+                                            {isActive && <Check size={12} color="white" />}
+                                        </div>
+                                        <Building2 size={14} />
+                                        {center.name}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
 

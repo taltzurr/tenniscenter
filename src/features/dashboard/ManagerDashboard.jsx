@@ -301,15 +301,15 @@ const ManagerDashboard = () => {
       )}
 
       {/* ═══ Section: מצב נוכחי ═══ */}
-      <div className={styles.sectionDivider}>
-        <span className={styles.sectionDividerText}>מצב נוכחי</span>
+      <div className={styles.pageSectionHeader}>
+        <h2 className={styles.pageSectionTitle}>מצב נוכחי</h2>
       </div>
 
       {/* Alerts */}
       {alerts.length > 0 && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}><AlertTriangle size={18} /> התראות</h2>
+            <div className={styles.sectionTitleRow}><AlertTriangle size={18} className={styles.sectionIcon} /><h2 className={styles.sectionTitle}>התראות</h2></div>
             <span className={styles.alertBadge}>{alerts.length}</span>
           </div>
           <div className={styles.alertsList}>
@@ -357,7 +357,7 @@ const ManagerDashboard = () => {
       {todayByCenter.length > 0 && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}><Clock size={18} /> אימונים היום לפי מרכז</h2>
+            <div className={styles.sectionTitleRow}><Clock size={18} className={styles.sectionIcon} /><h2 className={styles.sectionTitle}>אימונים היום לפי מרכז</h2></div>
             <span className={styles.sectionAction} onClick={() => setStatModal('todayTrainings')} style={{ cursor: 'pointer' }}>פירוט מלא</span>
           </div>
           <div className={styles.centerTrainingsList}>
@@ -384,15 +384,18 @@ const ManagerDashboard = () => {
       )}
 
       {/* ═══ Section: ביצועים חודשיים ═══ */}
-      <div className={styles.sectionDivider}>
-        <span className={styles.sectionDividerText}>ביצועים חודשיים</span>
+      <div className={styles.pageSectionHeader}>
+        <h2 className={styles.pageSectionTitle}>ביצועים חודשיים</h2>
       </div>
 
       {/* ═══ Pie Charts ═══ */}
       <div className={styles.pieChartsGrid}>
         <div className={styles.pieChartCard} onClick={() => setTrainingModal(true)}>
           <div className={styles.pieChartHeader}>
-            <div className={styles.pieChartTitle}><BarChart2 size={18} /> ביצוע אימונים - {monthName}</div>
+            <div className={styles.sectionTitleRow}>
+              <BarChart2 size={18} className={styles.sectionIcon} />
+              <h2 className={styles.sectionTitle}>ביצוע אימונים - {monthName}</h2>
+            </div>
             <span className={styles.pieChartHint}>לחץ לפירוט</span>
           </div>
           <div className={styles.pieChartSubtitle}>{trainingExec.total} אימונים שתאריכם עבר | {trainingExec.completed} בוצעו ({trainingExec.rate}%)</div>
@@ -409,7 +412,10 @@ const ManagerDashboard = () => {
         </div>
         <div className={styles.pieChartCard} onClick={() => setPlanModal(true)}>
           <div className={styles.pieChartHeader}>
-            <div className={styles.pieChartTitle}><FileText size={18} /> הגשת תוכניות - {monthName}</div>
+            <div className={styles.sectionTitleRow}>
+              <FileText size={18} className={styles.sectionIcon} />
+              <h2 className={styles.sectionTitle}>הגשת תוכניות - {monthName}</h2>
+            </div>
             <span className={styles.pieChartHint}>לחץ לפירוט</span>
           </div>
           <div className={styles.pieChartSubtitle}>{planData.total} קבוצות | {planData.submitted} הוגשו ({planData.rate}%)</div>
@@ -428,8 +434,8 @@ const ManagerDashboard = () => {
 
 
       {/* ═══ Section: הקשר חודשי ═══ */}
-      <div className={styles.sectionDivider}>
-        <span className={styles.sectionDividerText}>הקשר חודשי</span>
+      <div className={styles.pageSectionHeader}>
+        <h2 className={styles.pageSectionTitle}>הקשר חודשי</h2>
       </div>
 
       {/* ═══ Monthly Context ═══ */}
@@ -479,7 +485,9 @@ const ManagerDashboard = () => {
       </div>
 
       {/* ═══ Navigation Cards ═══ */}
-      <h2 className={styles.navSectionTitle}><ShieldCheck size={20} /> ניהול שוטף</h2>
+      <div className={styles.pageSectionHeader}>
+        <h2 className={styles.pageSectionTitle}>ניהול שוטף</h2>
+      </div>
       <div className={styles.grid}>
         {dashboardItems.map((item, index) => (
           <div key={index} className={styles.card} onClick={() => navigate(item.path)}>

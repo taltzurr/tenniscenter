@@ -20,9 +20,17 @@ export const getAllCoaches = (users) => {
  * This is the SINGLE source of truth for filtering trainings - guarantees
  * org-wide total = sum of per-center totals (no orphan trainings).
  */
-const getValidGroupIds = (groups, centers) => {
+const getValidGroupIds = (groups, centers, users) => {
   const centerIds = new Set(centers.map(c => c.id));
-  const validGroups = groups.filter(g => g.isActive !== false && centerIds.has(g.centerId));
+  const activeCoachIds = users
+    ? new Set(users.filter(u => u.role === 'coach' && u.isActive !== false).map(u => u.id))
+    : null;
+  const validGroups = groups.filter(g =>
+    g.isActive !== false &&
+    centerIds.has(g.centerId) &&
+    g.coachId &&
+    (!activeCoachIds || activeCoachIds.has(g.coachId))
+  );
   return new Set(validGroups.map(g => g.id));
 };
 
@@ -40,12 +48,14 @@ export const getCoachCenterName = (coach, centers) => {
  * Only counts trainings with past dates for completion rate
  */
 export const getOrgQuickStats = (users, trainings, plans, groups, events, centers, currentYear, currentMonth) => {
-  const coaches = getAllCoaches(users);
+  const allCoaches = getAllCoaches(users);
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 
-  const validGroupIds = getValidGroupIds(groups, centers);
-  const activeGroups = groups.filter(g => g.isActive !== false);
+  const validGroupIds = getValidGroupIds(groups, centers, users);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
+  // Only coaches that have at least one active assigned group are considered active
+  const coaches = allCoaches.filter(c => activeGroups.some(g => g.coachId === c.id));
 
   // Today's trainings
   const todaysTrainings = trainings.filter(t => {
@@ -95,9 +105,10 @@ export const getOrgQuickStats = (users, trainings, plans, groups, events, center
  * Get dynamic alert items (relevant red flags only)
  */
 export const getAlerts = (users, trainings, plans, groups, events, centers, currentYear, currentMonth) => {
-  const coaches = getAllCoaches(users);
-  const activeGroups = groups.filter(g => g.isActive !== false);
-  const validGroupIds = getValidGroupIds(groups, centers);
+  const allCoaches = getAllCoaches(users);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
+  const coaches = allCoaches.filter(c => activeGroups.some(g => g.coachId === c.id));
+  const validGroupIds = getValidGroupIds(groups, centers, users);
   const alerts = [];
   const today = new Date();
   today.setHours(23, 59, 59, 999);
@@ -123,7 +134,8 @@ export const getAlerts = (users, trainings, plans, groups, events, centers, curr
     alerts.push({
       type: 'danger',
       title: `${lowCompletionCoaches.length} מאמנים עם ביצוע נמוך מ-50%`,
-      details: lowCompletionCoaches.map(c => `${c.name} (${c.rate}%)`).join(', ')
+      details: lowCompletionCoaches.map(c => `${c.name} (${c.rate}%)`).join(', '),
+      action: { type: 'navigate', path: '/analytics', label: 'צפה בדוחות' }
     });
   }
 
@@ -144,7 +156,8 @@ export const getAlerts = (users, trainings, plans, groups, events, centers, curr
     alerts.push({
       type: 'warning',
       title: `${coachesWithoutPlans.length} מאמנים טרם הגישו תוכנית חודשית`,
-      details: coachesWithoutPlans.join(', ')
+      details: coachesWithoutPlans.join(', '),
+      action: { type: 'modal', modal: 'plans', label: 'צפה בתוכניות' }
     });
   }
 
@@ -155,7 +168,8 @@ export const getAlerts = (users, trainings, plans, groups, events, centers, curr
     alerts.push({
       type: 'warning',
       title: `${cancelledCount} אימונים בוטלו החודש (${cancelRate}%)`,
-      details: null
+      details: null,
+      action: { type: 'modal', modal: 'trainings', label: 'צפה באימונים' }
     });
   }
 
@@ -166,7 +180,8 @@ export const getAlerts = (users, trainings, plans, groups, events, centers, curr
     alerts.push({
       type: 'danger',
       title: `שיעור ביצוע ארגוני נמוך: ${orgRate}%`,
-      details: `${totalCompleted} מתוך ${pastTrainings.length} אימונים בוצעו`
+      details: `${totalCompleted} מתוך ${pastTrainings.length} אימונים בוצעו`,
+      action: { type: 'modal', modal: 'trainings', label: 'צפה בפירוט' }
     });
   }
 
@@ -185,7 +200,8 @@ export const getAlerts = (users, trainings, plans, groups, events, centers, curr
       alerts.push({
         type: 'warning',
         title: `רק ${planRate}% מהמאמנים הגישו תוכניות מלאות`,
-        details: `${submittedCount} מתוך ${coachesWithGroups.length} מאמנים`
+        details: `${submittedCount} מתוך ${coachesWithGroups.length} מאמנים`,
+        action: { type: 'modal', modal: 'plans', label: 'צפה בתוכניות' }
       });
     }
   }
@@ -205,7 +221,7 @@ export const getTodayTrainingsByCenter = (trainings, groups, users, centers) => 
 
   return centers.map(center => {
     const centerGroupIds = groups
-      .filter(g => g.centerId === center.id && g.isActive !== false)
+      .filter(g => g.centerId === center.id && g.isActive !== false && g.coachId)
       .map(g => g.id);
 
     const centerTrainings = todaysTrainings.filter(t => centerGroupIds.includes(t.groupId));
@@ -227,8 +243,8 @@ export const getTodayTrainingsByCenter = (trainings, groups, users, centers) => 
  * Only counts trainings belonging to active groups (consistent with other funcs)
  */
 export const getCenterComparison = (users, trainings, plans, groups, centers, currentYear, currentMonth) => {
-  const activeGroups = groups.filter(g => g.isActive !== false);
-  const validGroupIds = getValidGroupIds(groups, centers);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
+  const validGroupIds = getValidGroupIds(groups, centers, users);
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 
@@ -345,8 +361,9 @@ export const getCenterComparison = (users, trainings, plans, groups, centers, cu
  * Get plan submission status per coach (with center name)
  */
 export const getPlanSubmissionStatus = (users, plans, groups, centers, currentYear, currentMonth) => {
-  const coaches = getAllCoaches(users);
-  const activeGroups = groups.filter(g => g.isActive !== false);
+  const allCoaches = getAllCoaches(users);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
+  const coaches = allCoaches.filter(c => activeGroups.some(g => g.coachId === c.id));
 
   const submitted = [];
   const notSubmitted = [];
@@ -390,7 +407,7 @@ export const getPlanSubmissionStatus = (users, plans, groups, centers, currentYe
  */
 export const getTopBottomCoaches = (users, trainings, groups, centers) => {
   const coaches = getAllCoaches(users);
-  const validGroupIds = getValidGroupIds(groups, centers);
+  const validGroupIds = getValidGroupIds(groups, centers, users);
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 
@@ -429,8 +446,8 @@ export const getTrainingExecutionData = (trainings, groups, users, centers) => {
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 
-  const activeGroups = groups.filter(g => g.isActive !== false);
-  const validGroupIds = getValidGroupIds(groups, centers);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
+  const validGroupIds = getValidGroupIds(groups, centers, users);
 
   // Only count past trainings that belong to valid groups (with real center)
   const pastTrainings = trainings.filter(t => {
@@ -515,8 +532,9 @@ export const getTrainingExecutionData = (trainings, groups, users, centers) => {
  * Returns org summary + per-center + per-coach breakdown
  */
 export const getPlanSubmissionData = (users, plans, groups, centers, currentYear, currentMonth) => {
-  const coaches = getAllCoaches(users);
-  const activeGroups = groups.filter(g => g.isActive !== false);
+  const allCoaches = getAllCoaches(users);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
+  const coaches = allCoaches.filter(c => activeGroups.some(g => g.coachId === c.id));
 
   let totalPlans = 0;
   let submittedPlans = 0;
@@ -620,7 +638,7 @@ export const getTodayTrainingsDetail = (trainings, groups, users, centers) => {
     return d && isSameDay(d, today);
   });
 
-  const activeGroups = groups.filter(g => g.isActive !== false);
+  const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
 
   return todaysTrainings.map(t => {
     const coach = users.find(u => u.id === t.coachId);

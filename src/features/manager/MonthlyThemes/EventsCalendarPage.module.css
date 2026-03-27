@@ -6,7 +6,7 @@
 }
 
 .header {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-4);
 }
 
 .headerRow {
@@ -15,47 +15,51 @@
     gap: 0.5rem;
 }
 
-/* Month/Year arrow navigation */
-.monthNav {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    align-self: flex-start;
-    margin-top: 0.5rem;
-}
-
-.monthNavBtn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
+/* Month Selector (standard pattern) */
+.monthSelector {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--space-2);
+    background: white;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+    margin-bottom: var(--space-4);
+}
+
+.monthTitle {
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    min-width: 100px;
+    text-align: center;
+}
+
+.monthTitleCurrent {
+    font-weight: 700;
+    color: var(--primary-700);
+    background: var(--primary-50);
+    border-radius: var(--radius-md);
+    padding: var(--space-1) var(--space-2);
+}
+
+.navButton {
     width: 40px;
     height: 40px;
-    border-radius: var(--radius-full);
-    transition: background-color 0.15s, color 0.15s;
-    padding: 0;
+    border-radius: var(--radius-md);
+    background: var(--primary-50);
+    color: var(--primary-600);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
 }
 
-.monthNavBtn:hover {
-    background-color: var(--gray-100);
-    color: var(--text-primary);
-}
-
-.monthLabel {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--text-primary);
-    min-width: 110px;
-    text-align: center;
-    white-space: nowrap;
+.navButton:hover {
+    background: var(--primary-100);
 }
 
 /* Goals by group type form */
@@ -91,16 +95,16 @@
 }
 
 .title {
-    font-size: 1.35rem;
-    font-weight: 700;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin: 0 0 var(--space-1) 0;
 }
 
 .subtitle {
+    font-size: var(--font-size-sm);
     color: var(--text-secondary);
-    font-size: 0.85rem;
-    margin-bottom: 0;
+    margin: 0;
 }
 
 
@@ -256,49 +260,121 @@
     flex-shrink: 0;
 }
 
-/* Center Filter Chips */
-.centerChips {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    margin-bottom: var(--space-3);
-    padding-bottom: 0.25rem;
+/* Center Dropdown Filter */
+.centerDropdown {
+    position: relative;
+    margin-bottom: var(--space-4);
 }
 
-.centerChips::-webkit-scrollbar {
-    display: none;
-}
-
-.centerChip {
+.centerDropdownTrigger {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: white;
     border: 1px solid var(--gray-200);
-    background: var(--bg-primary);
-    border-radius: 9999px;
+    border-radius: var(--radius-lg);
     cursor: pointer;
-    font-size: 0.8rem;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
     color: var(--text-primary);
-    flex-shrink: 0;
+    box-shadow: var(--shadow-xs);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    min-height: 44px;
+    font-family: inherit;
 }
 
-.centerChip:hover {
-    border-color: var(--primary-300);
-    background: var(--primary-50);
+.centerDropdownTrigger:hover {
+    border-color: var(--primary-400);
 }
 
-.centerChipActive {
+.centerDropdownTriggerOpen {
     border-color: var(--primary-500);
+    box-shadow: var(--shadow-sm);
+}
+
+.centerDropdownCount {
+    background: var(--primary-50);
+    color: var(--primary-700);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: var(--radius-full, 999px);
+}
+
+.centerDropdownArrow {
+    margin-inline-start: auto;
+    color: var(--text-tertiary);
+    transition: transform 0.2s;
+}
+
+.centerDropdownArrowOpen {
+    transform: rotate(180deg);
+}
+
+.centerDropdownPanel {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    right: 0;
+    left: 0;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    z-index: 50;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: var(--space-2);
+}
+
+.centerDropdownItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    transition: background 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: right;
+    font-family: inherit;
+}
+
+.centerDropdownItem:hover {
+    background: var(--gray-50);
+}
+
+.centerDropdownItemActive {
     background: var(--primary-50);
     color: var(--primary-700);
     font-weight: 600;
+}
+
+.centerDropdownCheckbox {
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.centerDropdownCheckboxChecked {
+    background: var(--primary-500);
+    border-color: var(--primary-500);
+}
+
+.centerDropdownDivider {
+    height: 1px;
+    background: var(--gray-100);
+    margin: var(--space-1) 0;
 }
 
 /* Sidebar (Themes) */
@@ -527,7 +603,17 @@
     }
 
     .title {
-        font-size: 2rem;
+        font-size: var(--font-size-2xl);
+    }
+
+    .monthSelector {
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .monthTitle {
+        font-size: var(--font-size-base);
+        min-width: 120px;
     }
 
     .container {

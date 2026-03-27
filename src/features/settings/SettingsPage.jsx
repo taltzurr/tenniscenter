@@ -47,13 +47,17 @@ function SettingsPage() {
 
     return (
         <div className={styles.page}>
-            <h1 className={styles.title}>הגדרות</h1>
+            <div className={styles.header}>
+                <h1 className={styles.title}>הגדרות</h1>
+            </div>
 
             {/* Profile Section */}
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <User className={styles.sectionIcon} size={20} />
-                    <h2 className={styles.sectionTitle}>פרופיל אישי</h2>
+                    <div className={styles.sectionTitleRow}>
+                        <User size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>פרופיל אישי</h2>
+                    </div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.settingRow}>
@@ -103,8 +107,10 @@ function SettingsPage() {
             {/* Notifications Section */}
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <Bell className={styles.sectionIcon} size={20} />
-                    <h2 className={styles.sectionTitle}>התראות</h2>
+                    <div className={styles.sectionTitleRow}>
+                        <Bell size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>התראות</h2>
+                    </div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.settingRow}>
@@ -127,8 +133,10 @@ function SettingsPage() {
             {/* Account Section */}
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <Shield className={styles.sectionIcon} size={20} />
-                    <h2 className={styles.sectionTitle}>פרטיות ואבטחה</h2>
+                    <div className={styles.sectionTitleRow}>
+                        <Shield size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>פרטיות ואבטחה</h2>
+                    </div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.settingRow}>

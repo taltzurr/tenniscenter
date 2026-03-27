@@ -277,7 +277,10 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
       {/* Plan Submission Status Section */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>סטטוס הגשות תוכניות חודשיות</h2>
+          <div className={styles.sectionTitleRow}>
+            <FileText size={18} className={styles.sectionIcon} />
+            <h2 className={styles.sectionTitle}>סטטוס הגשות תוכניות חודשיות</h2>
+          </div>
           <Link to="/monthly-plans/review" className={styles.sectionAction}>
             צפייה מפורטת
           </Link>
@@ -324,7 +327,10 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
       {/* Today's Trainings Section */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>אימונים היום</h2>
+          <div className={styles.sectionTitleRow}>
+            <Calendar size={18} className={styles.sectionIcon} />
+            <h2 className={styles.sectionTitle}>אימונים היום</h2>
+          </div>
         </div>
 
         {todaysTrainingsList.length === 0 ? (
@@ -350,7 +356,10 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
       {/* Monthly Execution Section */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>ביצוע חודשי - {format(currentDate, 'MMMM yyyy', { locale: he })}</h2>
+          <div className={styles.sectionTitleRow}>
+            <TrendingUp size={18} className={styles.sectionIcon} />
+            <h2 className={styles.sectionTitle}>ביצוע חודשי - {format(currentDate, 'MMMM yyyy', { locale: he })}</h2>
+          </div>
           <Link to="/analytics" className={styles.sectionAction}>
             צפייה מפורטת
           </Link>

@@ -7,17 +7,42 @@ admin.initializeApp();
 const ALLOWED_ROLES = ['supervisor', 'centerManager'];
 
 // SMTP credentials via environment variables
-// Set in Firebase Console: Functions > Configuration, or via:
-//   firebase functions:config:set smtp.email="..." smtp.password="..."
-// For Gmail: use an App Password (not regular password)
+// Set via .env file in functions/ directory or Firebase Console
+// For Microsoft 365 / Outlook: use the org email + app password
+// For Gmail / Google Workspace: use email + app password
 function getSmtpConfig() {
     const email = process.env.SMTP_EMAIL;
     const password = process.env.SMTP_PASSWORD;
     if (!email || !password) return null;
-    return { email, password };
+    // Auto-detect provider from email domain
+    const host = process.env.SMTP_HOST || null;
+    const port = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : null;
+    return { email, password, host, port };
 }
 
-function createTransporter(email, password) {
+function createTransporter(email, password, host, port) {
+    // If explicit host/port provided, use them
+    if (host) {
+        return nodemailer.createTransport({
+            host,
+            port: port || 587,
+            secure: port === 465,
+            auth: { user: email, pass: password },
+        });
+    }
+    // Auto-detect: Microsoft 365 for common org domains
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (domain && !domain.includes('gmail') && !domain.includes('google')) {
+        // Default to Microsoft 365 SMTP (covers outlook.com, hotmail, and org domains on M365)
+        return nodemailer.createTransport({
+            host: 'smtp.office365.com',
+            port: 587,
+            secure: false,
+            auth: { user: email, pass: password },
+            tls: { ciphers: 'SSLv3' },
+        });
+    }
+    // Gmail / Google Workspace
     return nodemailer.createTransport({
         service: 'gmail',
         auth: { user: email, pass: password },
@@ -192,7 +217,7 @@ exports.sendCustomResetEmail = onCall(async (request) => {
         const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         const template = getEmailTemplate('resetPassword', link, displayName);
 
-        const transporter = createTransporter(smtp.email, smtp.password);
+        const transporter = createTransporter(smtp.email, smtp.password, smtp.host, smtp.port);
         await transporter.sendMail({
             from: `"מערכת ניהול טניס - איגוד הטניס" <${smtp.email}>`,
             to: email,
@@ -249,7 +274,7 @@ exports.sendCustomWelcomeEmail = onCall(async (request) => {
         const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
         const template = getEmailTemplate('welcome', link, name);
 
-        const transporter = createTransporter(smtp.email, smtp.password);
+        const transporter = createTransporter(smtp.email, smtp.password, smtp.host, smtp.port);
         await transporter.sendMail({
             from: `"מערכת ניהול טניס - איגוד הטניס" <${smtp.email}>`,
             to: email,

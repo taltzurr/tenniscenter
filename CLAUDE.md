@@ -185,6 +185,69 @@ When placing a lucide-react icon next to text (in badges, meta items, buttons, l
 
 This applies globally to all components, not just specific pages.
 
+### Unified Header Standards
+
+The app uses two header levels with a single consistent format across ALL pages.
+
+#### Page Header (h1 -- every page)
+
+Every page starts with a `.header` div containing a title and optional subtitle. No centering, no flex tricks -- simple block layout.
+
+**CSS classes**: `.header`, `.title`, `.subtitle`
+
+```css
+.header { margin-bottom: var(--space-4); }
+.title { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--text-primary); margin: 0 0 var(--space-1) 0; }
+.subtitle { font-size: var(--font-size-sm); color: var(--text-secondary); margin: 0; }
+```
+
+**JSX pattern**:
+```jsx
+<div className={styles.header}>
+    <h1 className={styles.title}>כותרת עמוד</h1>
+    <p className={styles.subtitle}>תיאור קצר של העמוד</p>
+</div>
+```
+
+Desktop override: `.title { font-size: var(--font-size-2xl); }`
+
+#### Section Header (h2 -- inside white cards)
+
+Content sections use a card with an internal header. The icon and title are wrapped in a `sectionTitleRow` div -- the icon is NEVER inside the `<h2>` tag.
+
+**CSS classes**: `.section`, `.sectionHeader`, `.sectionTitleRow`, `.sectionIcon`, `.sectionTitle`, `.sectionBadge`, `.sectionAction`
+
+```css
+.section { background: white; border-radius: var(--radius-xl); padding: var(--space-4); box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: var(--space-4); }
+.sectionHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
+.sectionTitleRow { display: flex; align-items: center; gap: var(--space-2); }
+.sectionIcon { color: var(--primary-400); flex-shrink: 0; }
+.sectionTitle { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-secondary); margin: 0; letter-spacing: 0.02em; }
+.sectionBadge { font-size: var(--font-size-sm); font-weight: 700; padding: var(--space-1) var(--space-3); border-radius: var(--radius-full, 999px); background: var(--primary-50); color: var(--primary-700); }
+.sectionAction { font-size: var(--font-size-sm); color: var(--primary-600); font-weight: 600; }
+```
+
+**JSX pattern**:
+```jsx
+<div className={styles.section}>
+    <div className={styles.sectionHeader}>
+        <div className={styles.sectionTitleRow}>
+            <Icon size={18} className={styles.sectionIcon} />
+            <h2 className={styles.sectionTitle}>כותרת סקשן</h2>
+        </div>
+        {/* Right side: badge OR action link */}
+        <span className={styles.sectionBadge}>42%</span>
+    </div>
+    {/* section content */}
+</div>
+```
+
+**Key rules**:
+- Icon is ALWAYS 18px, inside `sectionTitleRow`, with `sectionIcon` class -- never inside the `<h2>`
+- Title text is muted (`text-secondary`, `semibold`) -- NOT bold/primary like page titles
+- Right side can be a badge (`.sectionBadge`) or action link (`.sectionAction`)
+- This pattern is used across ALL dashboards and data pages
+
 ### Monthly Context Cards (Goals & Values)
 
 Goals and values share a `.contextCard` container with consistent design. They appear on both ManagerDashboard and CoachDashboard.
@@ -264,10 +327,77 @@ All calendars in the app must follow a unified design system for consistency.
 - Mobile: show max 3 items (events first, then trainings), display `+N` badge for hidden items
 - Desktop: show all items, scrollable if needed
 
-### Month Navigation
-- Touch targets: minimum `40×40px`
+### Month Navigation (Standard monthSelector)
+
+All month navigation must use the unified `monthSelector` pattern:
+
+**CSS classes**: `.monthSelector`, `.navButton`, `.monthTitle`, `.monthTitleCurrent`
+
+```css
+.monthSelector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    background: white;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+    margin-bottom: var(--space-4);
+}
+
+.monthTitle {
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    min-width: 100px;
+    text-align: center;
+}
+
+.monthTitleCurrent {
+    font-weight: 700;
+    color: var(--primary-700);
+    background: var(--primary-50);
+    border-radius: var(--radius-md);
+    padding: var(--space-1) var(--space-2);
+}
+
+.navButton {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--primary-50);
+    color: var(--primary-600);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.navButton:hover { background: var(--primary-100); }
+```
+
+**JSX pattern**:
+```jsx
+const isCurrentMonth = selectedMonth === new Date().getMonth() && selectedYear === new Date().getFullYear();
+// ...
+<div className={styles.monthSelector}>
+    <button className={styles.navButton} onClick={handlePrevMonth}><ChevronRight size={20} /></button>
+    <span className={`${styles.monthTitle} ${isCurrentMonth ? styles.monthTitleCurrent : ''}`}>
+        {HEBREW_MONTHS[selectedMonth]} {selectedYear}
+    </span>
+    <button className={styles.navButton} onClick={handleNextMonth}><ChevronLeft size={20} /></button>
+</div>
+```
+
+**Key rules**:
+- Container is **centered** (`justify-content: center`)
+- Nav buttons have **blue background** (`primary-50`) and **rounded square** (`radius-md`), not transparent circles
+- Current month gets **highlighted** with `monthTitleCurrent` class (bold, primary colors, padding)
 - RTL arrows: ChevronRight = previous, ChevronLeft = next
-- Swipe: right = next, left = previous (RTL-aware)
+- Touch targets: minimum 40×40px
 
 ### Consistency Rule
 All changes to calendar design must be applied to **every** calendar in the app:
@@ -308,6 +438,30 @@ The analytics dashboard (`ManagerAnalyticsDashboard`) is the supervisor/centerMa
 - `≥80%`: success green (`--success-500`)
 - `≥50%`: warning orange (`--warning-500`)
 - `<50%`: error red (`--error-500`)
+
+---
+
+## Center Filter Dropdown
+
+When filtering by center (supervisor view), use a **multi-select dropdown** instead of scattered chips. This keeps the UI compact with 17+ centers.
+
+**Pages using this pattern**: `WeeklySchedulePage`, `EventsCalendarPage`
+
+**Behavior**:
+- Trigger shows "כל המרכזים" when no filter active, or "X מרכזים" with count badge when centers selected
+- Default: all centers selected (empty `selectedCenterIds` = show all)
+- Dropdown panel with checkboxes, closes on click outside
+- "כל המרכזים" option at top clears selection (shows all)
+- Uses `Building2` icon from lucide-react, `ChevronDown` for arrow, `Check` for checkboxes
+
+**CSS classes**: `.centerDropdown`, `.centerDropdownTrigger`, `.centerDropdownPanel`, `.centerDropdownItem`, `.centerDropdownCheckbox`
+
+**Key rules**:
+- Dropdown trigger: `min-height: 44px`, `border: 1px solid var(--gray-200)`, white background
+- Panel: absolute positioned, `max-height: 300px`, `overflow-y: auto`, `z-index: 50`
+- Active items: `primary-50` background, `primary-700` color, bold
+- Checked checkbox: `primary-500` background with white check icon
+- Do NOT use flat chip layout for center filters — always use dropdown
 
 ---
 

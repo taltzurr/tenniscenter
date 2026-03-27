@@ -9,8 +9,7 @@ import {
     TrendingUp,
     TrendingDown,
     Building2,
-    Users,
-    AlertTriangle
+    Users
 } from 'lucide-react';
 import {
     format,
@@ -158,17 +157,48 @@ const ManagerAnalyticsDashboard = () => {
     // Set of valid center IDs (real centers only)
     const validCenterIds = useMemo(() => new Set(centers.map(c => c.id)), [centers]);
 
+    // Set of active coach IDs (coaches that exist and are active)
+    const activeCoachIds = useMemo(() => {
+        if (!users?.length) return new Set();
+        return new Set(users.filter(u => u.role === 'coach' && u.isActive !== false).map(u => u.id));
+    }, [users]);
+
+    // Build valid group IDs set (active groups with an active coach, belonging to real centers)
+    const validGroupIds = useMemo(() => {
+        return new Set(
+            groups.filter(g => g.isActive !== false && g.coachId && activeCoachIds.has(g.coachId) && validCenterIds.has(g.centerId)).map(g => g.id)
+        );
+    }, [groups, validCenterIds, activeCoachIds]);
+
+    // Build group → coachId mapping
+    const groupCoachMap = useMemo(() => {
+        const map = {};
+        groups.forEach(g => { map[g.id] = g.coachId; });
+        return map;
+    }, [groups]);
+
+    // Only past trainings belonging to valid groups (matches supervisor dashboard)
+    const pastValidTrainings = useMemo(() => {
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        return trainings.filter(t => {
+            const d = t.date?.toDate ? t.date.toDate() : t.date instanceof Date ? t.date : new Date(t.date);
+            return d && d <= today && validGroupIds.has(t.groupId);
+        });
+    }, [trainings, validGroupIds]);
+
     // ── Training Execution stats by center → coach ──
     const executionData = useMemo(() => {
         const centerMap = {};
 
-        trainings.forEach(t => {
-            const coachId = t.coachId || 'unknown';
-            const coachInfo = coachCenterMap[coachId];
-            const centerId = coachInfo?.centerIds?.[0] || 'unknown';
+        pastValidTrainings.forEach(t => {
+            const centerId = groupCenterMap[t.groupId];
+            if (!centerId || !validCenterIds.has(centerId)) return;
 
-            // Skip trainings from unknown/invalid centers
-            if (!validCenterIds.has(centerId)) return;
+            const coachId = t.coachId;
+            if (!coachId) return;
+            const coachInfo = coachCenterMap[coachId];
+            if (!coachInfo) return; // skip unknown coaches
 
             if (!centerMap[centerId]) {
                 centerMap[centerId] = { total: 0, completed: 0, coaches: {} };
@@ -179,7 +209,7 @@ const ManagerAnalyticsDashboard = () => {
             if (!centerMap[centerId].coaches[coachId]) {
                 centerMap[centerId].coaches[coachId] = {
                     id: coachId,
-                    name: coachInfo?.name || t.coachName || 'מאמן לא ידוע',
+                    name: coachInfo.name,
                     total: 0,
                     completed: 0
                 };
@@ -199,63 +229,48 @@ const ManagerAnalyticsDashboard = () => {
                 rate: c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0
             })).sort((a, b) => b.total - a.total)
         })).sort((a, b) => b.total - a.total);
-    }, [trainings, coachCenterMap, centerNameMap, validCenterIds]);
+    }, [pastValidTrainings, groupCenterMap, coachCenterMap, centerNameMap, validCenterIds]);
 
-    // ── Plan Submission stats by center → coach ──
+    // ── Plan Submission stats by center → coach (matches supervisorDashboardUtils pattern) ──
     const planData = useMemo(() => {
-        const centerGroupCounts = {};
-        groups.forEach(g => {
-            const centerId = g.centerId || 'unknown';
-            if (!validCenterIds.has(centerId)) return;
-            const coachId = g.coachId || 'unknown';
-            if (!centerGroupCounts[centerId]) centerGroupCounts[centerId] = {};
-            if (!centerGroupCounts[centerId][coachId]) centerGroupCounts[centerId][coachId] = 0;
-            centerGroupCounts[centerId][coachId] += 1;
+        const activeGroups = groups.filter(g => g.isActive !== false && validCenterIds.has(g.centerId));
+
+        // Group active groups by center → coach
+        const centerCoachGroups = {};
+        activeGroups.forEach(g => {
+            const centerId = g.centerId;
+            const coachId = g.coachId;
+            if (!coachId || !coachCenterMap[coachId]) return; // skip groups without known coach
+            if (!centerCoachGroups[centerId]) centerCoachGroups[centerId] = {};
+            if (!centerCoachGroups[centerId][coachId]) centerCoachGroups[centerId][coachId] = [];
+            centerCoachGroups[centerId][coachId].push(g.id);
         });
 
-        const centerPlanCounts = {};
-        plans.forEach(p => {
-            const coachId = p.coachId || 'unknown';
-            const groupCenterId = groupCenterMap[p.groupId];
-            const coachInfo = coachCenterMap[coachId];
-            const centerId = groupCenterId || coachInfo?.centerIds?.[0] || 'unknown';
-
-            if (!validCenterIds.has(centerId)) return;
-
-            if (!centerPlanCounts[centerId]) centerPlanCounts[centerId] = {};
-            if (!centerPlanCounts[centerId][coachId]) centerPlanCounts[centerId][coachId] = 0;
-            if (['submitted', 'approved', 'reviewed'].includes(p.status)) {
-                centerPlanCounts[centerId][coachId] += 1;
-            }
-        });
-
-        const allCenterIds = new Set([
-            ...Object.keys(centerGroupCounts),
-            ...Object.keys(centerPlanCounts)
-        ]);
-
-        return Array.from(allCenterIds).map(centerId => {
-            const groupsByCoachs = centerGroupCounts[centerId] || {};
-            const plansByCoach = centerPlanCounts[centerId] || {};
-            const allCoachIds = new Set([...Object.keys(groupsByCoachs), ...Object.keys(plansByCoach)]);
-
+        // Count submitted plans per group (derive coach from group, NOT from plan)
+        return Object.entries(centerCoachGroups).map(([centerId, coachesByGroup]) => {
             let totalGroups = 0;
             let submittedPlans = 0;
             const coaches = [];
 
-            allCoachIds.forEach(coachId => {
-                const coachGroups = groupsByCoachs[coachId] || 0;
-                const coachSubmitted = plansByCoach[coachId] || 0;
-                totalGroups += coachGroups;
-                submittedPlans += coachSubmitted;
-
+            Object.entries(coachesByGroup).forEach(([coachId, groupIds]) => {
                 const coachInfo = coachCenterMap[coachId];
+                let coachSubmitted = 0;
+
+                groupIds.forEach(groupId => {
+                    totalGroups += 1;
+                    const plan = plans.find(p => p.groupId === groupId);
+                    if (plan && ['submitted', 'approved', 'reviewed'].includes(plan.status)) {
+                        submittedPlans += 1;
+                        coachSubmitted += 1;
+                    }
+                });
+
                 coaches.push({
                     id: coachId,
-                    name: coachInfo?.name || 'מאמן לא ידוע',
-                    totalGroups: coachGroups,
+                    name: coachInfo?.name || 'מאמן',
+                    totalGroups: groupIds.length,
                     submitted: coachSubmitted,
-                    rate: coachGroups > 0 ? Math.round((coachSubmitted / coachGroups) * 100) : 0
+                    rate: groupIds.length > 0 ? Math.round((coachSubmitted / groupIds.length) * 100) : 0
                 });
             });
 
@@ -268,70 +283,55 @@ const ManagerAnalyticsDashboard = () => {
                 coaches: coaches.sort((a, b) => b.totalGroups - a.totalGroups)
             };
         }).filter(c => c.totalGroups > 0).sort((a, b) => b.totalGroups - a.totalGroups);
-    }, [plans, groups, groupCenterMap, coachCenterMap, centerNameMap, validCenterIds]);
+    }, [plans, groups, coachCenterMap, centerNameMap, validCenterIds]);
 
-    // Overall stats
+    // Overall stats (uses pastValidTrainings — matches supervisor dashboard)
     const overallStats = useMemo(() => {
-        // Only count trainings belonging to valid centers
-        const validTrainings = trainings.filter(t => {
-            const coachInfo = coachCenterMap[t.coachId];
-            const centerId = coachInfo?.centerIds?.[0];
-            return centerId && validCenterIds.has(centerId);
-        });
-
-        const totalTrainings = validTrainings.length;
-        const completedTrainings = validTrainings.filter(t => t.status === 'completed').length;
+        const totalTrainings = pastValidTrainings.length;
+        const completedTrainings = pastValidTrainings.filter(t => t.status === 'completed').length;
         const executionRate = totalTrainings > 0 ? Math.round((completedTrainings / totalTrainings) * 100) : 0;
 
-        const validGroups = groups.filter(g => g.centerId && validCenterIds.has(g.centerId));
-        const totalGroups = validGroups.length;
-        const submittedPlans = plans.filter(p => ['submitted', 'approved', 'reviewed'].includes(p.status)).length;
+        const activeGroups = groups.filter(g => g.isActive !== false && validCenterIds.has(g.centerId) && g.coachId && coachCenterMap[g.coachId]);
+        const totalGroups = activeGroups.length;
+
+        // Count submitted plans per group (matching planData filter — only groups with known coaches)
+        let submittedPlans = 0;
+        activeGroups.forEach(g => {
+            const plan = plans.find(p => p.groupId === g.id);
+            if (plan && ['submitted', 'approved', 'reviewed'].includes(plan.status)) {
+                submittedPlans += 1;
+            }
+        });
         const planRate = totalGroups > 0 ? Math.round((submittedPlans / totalGroups) * 100) : 0;
 
-        const totalCoaches = users?.filter(u => u.role === 'coach' && u.isActive !== false).length || 0;
+        // Only count coaches that have at least one active assigned group
+        const totalCoaches = users?.filter(u => u.role === 'coach' && u.isActive !== false && activeGroups.some(g => g.coachId === u.id)).length || 0;
 
         return { totalTrainings, completedTrainings, executionRate, totalGroups, submittedPlans, planRate, totalCoaches };
-    }, [trainings, plans, groups, users, coachCenterMap, validCenterIds]);
+    }, [pastValidTrainings, plans, groups, users, validCenterIds, coachCenterMap]);
 
-    // ── Alerts (data-driven only) ──
-    const alerts = useMemo(() => {
-        const items = [];
-
-        if (overallStats.executionRate < 50 && overallStats.totalTrainings > 0) {
-            items.push({ type: 'danger', text: `אחוז ביצוע נמוך: ${overallStats.executionRate}% מהאימונים בוצעו` });
-        }
-
-        if (overallStats.planRate < 50 && overallStats.totalGroups > 0) {
-            items.push({ type: 'warning', text: `${overallStats.totalGroups - overallStats.submittedPlans} תוכניות טרם הוגשו מתוך ${overallStats.totalGroups}` });
-        }
-
-        executionData.filter(c => c.rate === 0 && c.total > 0).forEach(c => {
-            items.push({ type: 'danger', text: `${c.centerName}: אף אימון לא בוצע (${c.total} תוכננו)` });
-        });
-
-        planData.filter(c => c.rate === 0 && c.totalGroups > 0).forEach(c => {
-            items.push({ type: 'warning', text: `${c.centerName}: לא הוגשו תוכניות (${c.totalGroups} קבוצות)` });
-        });
-
-        return items;
-    }, [overallStats, executionData, planData]);
 
     // ── Bar chart data ──
     const coachesPerCenter = useMemo(() => {
-        if (!centers.length || !users?.length) return [];
+        if (!centers.length || !users?.length || !groups.length) return [];
+        const assignedGroups = groups.filter(g => g.isActive !== false && g.coachId && activeCoachIds.has(g.coachId));
         return centers.map(c => {
-            const count = users.filter(u => u.role === 'coach' && u.isActive !== false && u.centerIds?.includes(c.id)).length;
+            // Only count coaches that have at least one active assigned group in this center
+            const count = users.filter(u =>
+                u.role === 'coach' && u.isActive !== false && u.centerIds?.includes(c.id) &&
+                assignedGroups.some(g => g.coachId === u.id)
+            ).length;
             return { name: c.name, count };
         }).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
-    }, [centers, users]);
+    }, [centers, users, groups, activeCoachIds]);
 
     const groupsPerCenter = useMemo(() => {
         if (!centers.length || !groups.length) return [];
         return centers.map(c => {
-            const count = groups.filter(g => g.centerId === c.id && g.isActive !== false).length;
+            const count = groups.filter(g => g.centerId === c.id && g.isActive !== false && g.coachId && activeCoachIds.has(g.coachId)).length;
             return { name: c.name, count };
         }).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
-    }, [centers, groups]);
+    }, [centers, groups, activeCoachIds]);
 
     const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
     const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -360,26 +360,24 @@ const ManagerAnalyticsDashboard = () => {
 
     return (
         <div className={styles.page}>
-            {/* Header */}
+            {/* Page Header */}
             <div className={styles.header}>
-                <div className={styles.headerText}>
-                    <h1 className={styles.title}>נתונים</h1>
-                    <p className={styles.subtitle}>
-                        {isCenterManager() ? 'סקירה חודשית של ביצוע ותוכניות במרכז שלך' : 'סקירה חודשית של ביצוע ותוכניות בכל המרכזים'}
-                    </p>
-                </div>
+                <h1 className={styles.title}>נתונים</h1>
+                <p className={styles.subtitle}>
+                    {isCenterManager() ? 'סקירה חודשית של ביצוע ותוכניות במרכז שלך' : 'סקירה חודשית של ביצוע ותוכניות בכל המרכזים'}
+                </p>
+            </div>
 
-                <div className={styles.monthSelector}>
-                    <button onClick={handlePrevMonth} className={styles.navButton}>
-                        <ChevronRight size={20} />
-                    </button>
-                    <span className={`${styles.monthTitle} ${isCurrentMonth ? styles.monthTitleCurrent : ''}`}>
-                        {format(currentDate, 'MMMM yyyy', { locale: he })}
-                    </span>
-                    <button onClick={handleNextMonth} className={styles.navButton}>
-                        <ChevronLeft size={20} />
-                    </button>
-                </div>
+            <div className={styles.monthSelector}>
+                <button onClick={handlePrevMonth} className={styles.navButton}>
+                    <ChevronRight size={20} />
+                </button>
+                <span className={`${styles.monthTitle} ${isCurrentMonth ? styles.monthTitleCurrent : ''}`}>
+                    {format(currentDate, 'MMMM yyyy', { locale: he })}
+                </span>
+                <button onClick={handleNextMonth} className={styles.navButton}>
+                    <ChevronLeft size={20} />
+                </button>
             </div>
 
             {/* Summary Stats */}
@@ -431,7 +429,7 @@ const ManagerAnalyticsDashboard = () => {
                 </div>
                 <div className={styles.statCard}>
                     <div className={styles.statIcon} style={{ background: getRateBg(overallStats.planRate), color: getRateColor(overallStats.planRate) }}>
-                        {overallStats.planRate >= 80 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                        {overallStats.planRate >= 80 ? <TrendingUp size={18} className={styles.rtlIcon} /> : <TrendingDown size={18} className={styles.rtlIcon} />}
                     </div>
                     <div className={styles.statInfo}>
                         <div className={styles.statValue}>{overallStats.planRate}%</div>
@@ -440,23 +438,15 @@ const ManagerAnalyticsDashboard = () => {
                 </div>
             </div>
 
-            {/* ── Alerts ── */}
-            {alerts.length > 0 && (
-                <div className={styles.alertsSection}>
-                    {alerts.map((alert, i) => (
-                        <div key={i} className={`${styles.alertItem} ${styles[alert.type]}`}>
-                            <AlertTriangle size={16} />
-                            <span>{alert.text}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {/* Alerts removed per user request */}
 
             {/* ── Section 1: Training Execution ── */}
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <CheckCircle size={18} />
-                    <h2 className={styles.sectionTitle}>ביצוע אימונים</h2>
+                    <div className={styles.sectionTitleRow}>
+                        <CheckCircle size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>ביצוע אימונים</h2>
+                    </div>
                     <span className={styles.sectionBadge}>{overallStats.executionRate}%</span>
                 </div>
 
@@ -530,8 +520,10 @@ const ManagerAnalyticsDashboard = () => {
             {/* ── Section 2: Plan Submission ── */}
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <FileText size={18} />
-                    <h2 className={styles.sectionTitle}>הגשת תוכניות חודשיות</h2>
+                    <div className={styles.sectionTitleRow}>
+                        <FileText size={18} className={styles.sectionIcon} />
+                        <h2 className={styles.sectionTitle}>הגשת תוכניות חודשיות</h2>
+                    </div>
                     <span className={styles.sectionBadge}>{overallStats.planRate}%</span>
                 </div>
 
