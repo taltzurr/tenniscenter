@@ -254,7 +254,7 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
         {/* Completion Rate */}
         <div className={styles.statCard} onClick={() => navigate('/analytics')}>
           <div className={`${styles.statIcon} ${styles.purple}`}>
-            <TrendingUp size={18} />
+            <TrendingUp size={18} className={styles.rtlIcon} />
           </div>
           <div className={styles.statInfo}>
             <div className={styles.statValue}>{completionRate}%</div>
@@ -357,7 +357,7 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitleRow}>
-            <TrendingUp size={18} className={styles.sectionIcon} />
+            <TrendingUp size={18} className={`${styles.sectionIcon} ${styles.rtlIcon}`} />
             <h2 className={styles.sectionTitle}>ביצוע חודשי - {format(currentDate, 'MMMM yyyy', { locale: he })}</h2>
           </div>
           <Link to="/analytics" className={styles.sectionAction}>

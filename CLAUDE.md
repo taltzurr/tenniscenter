@@ -281,6 +281,7 @@ Goals and values share a `.contextCard` container with consistent design. They a
 - Use `margin-inline-start` / `margin-inline-end` instead of `margin-left` / `margin-right`.
 - Chevron icons: `ChevronRight` points **backward** (previous), `ChevronLeft` points **forward** (next) in RTL.
 - Text alignment defaults to `right` via global RTL direction.
+- **Directional icons MUST always point left in RTL**: `TrendingUp`, `TrendingDown`, `ArrowRight`, `ArrowUpRight`, `ArrowDownRight`, and any other directional icon must be flipped with `transform: scaleX(-1)` so arrows point left. Use a `.rtlIcon { transform: scaleX(-1); }` CSS class in each module and apply it to every directional icon. This is a **hard rule** — no exceptions.
 
 ---
 

@@ -284,7 +284,7 @@ const ManagerDashboard = () => {
             </div>
           </div>
           <div className={styles.statCard} onClick={() => setTrainingModal(true)}>
-            <div className={`${styles.statIcon} ${styles.green}`}><TrendingUp size={18} /></div>
+            <div className={`${styles.statIcon} ${styles.green}`}><TrendingUp size={18} className={styles.rtlIcon} /></div>
             <div className={styles.statInfo}>
               <div className={styles.statValue}>{quickStats.completionRate}%</div>
               <div className={styles.statLabel}>ביצוע חודשי</div>
