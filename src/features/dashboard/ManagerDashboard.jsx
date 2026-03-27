@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  Users, Building2, Calendar, BarChart2, Trophy, Heart, Target,
+  Users, Building2, Calendar, BarChart2, BarChart3, Trophy, Heart, Target,
   ShieldCheck, AlertTriangle, CheckCircle, Clock, FileText, TrendingUp,
   CalendarDays, Info, ArrowUp, ArrowDown, ChevronLeft, X
 } from 'lucide-react';
@@ -203,7 +203,7 @@ const ManagerDashboard = () => {
   const dashboardItems = useMemo(() => [
     { title: 'ניהול משתמשים', description: 'צפייה, הוספה ועריכה של משתמשים, מאמנים ומנהלים.', icon: Users, color: 'blue', path: '/users' },
     ...(isSupervisor() ? [{ title: 'ניהול מרכזים', description: 'הגדרת מרכזים, כתובות ופרטי התקשרות.', icon: Building2, color: 'green', path: '/centers' }] : []),
-    { title: 'פיקוח ובקרה', description: 'דוחות ביצוע, סטטיסטיקות מאמנים ומעקב.', icon: BarChart2, color: 'orange', path: '/analytics' },
+    { title: 'נתונים', description: 'דוחות ביצוע, סטטיסטיקות מאמנים ומעקב.', icon: BarChart3, color: 'orange', path: '/analytics' },
     { title: 'מטרות וערכים', description: 'מטרות חודשיות, ערכים ואירועים ארגוניים.', icon: Calendar, color: 'purple', path: '/events-calendar' },
     { title: 'מצטייני החודש', description: 'בחירת מאמנים ומרכזים מצטיינים.', icon: Trophy, color: 'yellow', path: '/monthly-outstanding' }
   ], [isSupervisor]);
@@ -434,36 +434,47 @@ const ManagerDashboard = () => {
 
       {/* ═══ Monthly Context ═══ */}
       <div className={styles.contextGrid}>
-        <div className={styles.dashboardCard}>
-          <div className={styles.cardHeader}>
-            <div className={styles.contextTitle} style={{ color: 'var(--accent-700)' }}><Target size={18} /> מטרות החודש</div>
+        <div className={styles.contextCard}>
+          <div className={styles.contextCardHeader}>
+            <Target size={16} className={styles.contextCardIcon} style={{ color: 'var(--accent-700)' }} />
+            <h3 className={styles.contextCardTitle}>מטרות החודש</h3>
           </div>
-          <div className={styles.goalsByGroup}>
-            {monthlyGoalsArray.length > 0 ? (
-              <div className={styles.cardContent}>
-                {monthlyGoalsArray.map(goal => <span key={goal.id} className={`${styles.tag} ${styles.tagGoal}`}>{goal.name}</span>)}
-              </div>
-            ) : Object.keys(monthlyGoalsByGroup).length > 0 ? (
-              DEFAULT_GROUP_TYPES.map(groupType => {
+          {monthlyGoalsArray.length > 0 ? (
+            <div className={styles.goalsList}>
+              {monthlyGoalsArray.map(goal => (
+                <div key={goal.id} className={styles.goalItem}>
+                  <span className={styles.goalText}>{goal.name}</span>
+                </div>
+              ))}
+            </div>
+          ) : Object.keys(monthlyGoalsByGroup).length > 0 ? (
+            <div className={styles.goalsList}>
+              {DEFAULT_GROUP_TYPES.map(groupType => {
                 const goal = monthlyGoalsByGroup[groupType.id];
                 if (!goal) return null;
                 return (
-                  <div key={groupType.id} className={styles.goalRow}>
-                    <span className={styles.goalGroupLabel}>{groupType.name}</span>
-                    <span className={`${styles.tag} ${styles.tagGoal}`}>{goal}</span>
+                  <div key={groupType.id} className={styles.goalItem}>
+                    <span className={styles.goalTypeBadge}>{groupType.name}</span>
+                    <span className={styles.goalText}>{goal}</span>
                   </div>
                 );
-              })
-            ) : <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>טרם הוגדרו מטרות</span>}
-          </div>
+              })}
+            </div>
+          ) : <div className={styles.contextEmpty}>טרם הוגדרו מטרות</div>}
         </div>
-        <div className={styles.dashboardCard}>
-          <div className={styles.cardHeader}>
-            <div className={styles.contextTitle} style={{ color: 'var(--primary-700)' }}><Heart size={18} /> ערכי החודש</div>
+
+        <div className={styles.contextCard}>
+          <div className={styles.contextCardHeader}>
+            <Heart size={16} className={styles.contextCardIcon} style={{ color: 'var(--primary-600)' }} />
+            <h3 className={styles.contextCardTitle}>ערכי החודש</h3>
           </div>
-          <div className={styles.cardContent}>
-            {monthlyValues.length > 0 ? monthlyValues.map(value => <span key={value.id} className={`${styles.tag} ${styles.tagValue}`}>{value.name}</span>) : <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>טרם הוגדרו ערכים</span>}
-          </div>
+          {monthlyValues.length > 0 ? (
+            <div className={styles.valuesList}>
+              {monthlyValues.map(value => (
+                <span key={value.id} className={styles.valueTag}>{value.name}</span>
+              ))}
+            </div>
+          ) : <div className={styles.contextEmpty}>טרם הוגדרו ערכים</div>}
         </div>
       </div>
 

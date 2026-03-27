@@ -3,12 +3,14 @@ import {
     ChevronLeft,
     ChevronRight,
     ChevronDown,
-    BarChart2,
+    BarChart3,
     CheckCircle,
     FileText,
     TrendingUp,
     TrendingDown,
-    Building2
+    Building2,
+    Users,
+    AlertTriangle
 } from 'lucide-react';
 import {
     format,
@@ -16,6 +18,7 @@ import {
     endOfMonth,
     addMonths,
     subMonths,
+    isSameMonth,
 } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { getOrganizationTrainings } from '../../services/trainings';
@@ -28,6 +31,37 @@ import Avatar from '../../components/ui/Avatar';
 import Spinner from '../../components/ui/Spinner';
 import CoachTrainingsModal from './CoachTrainingsModal';
 import styles from './ManagerAnalyticsDashboard.module.css';
+
+// ── Horizontal Bar Chart ──
+const HorizontalBarChart = ({ data, color, label, icon: Icon }) => {
+    const max = Math.max(...data.map(d => d.count), 1);
+    return (
+        <div className={styles.chartSection}>
+            <div className={styles.chartHeader}>
+                {Icon && <Icon size={18} />}
+                <h2 className={styles.chartTitle}>{label}</h2>
+                <span className={styles.sectionBadge}>{data.reduce((s, d) => s + d.count, 0)}</span>
+            </div>
+            <div className={styles.chartBars}>
+                {data.map(item => (
+                    <div key={item.name} className={styles.barRow}>
+                        <span className={styles.barLabel}>{item.name}</span>
+                        <div className={styles.barTrack}>
+                            <div
+                                className={styles.barFill}
+                                style={{
+                                    width: `${(item.count / max) * 100}%`,
+                                    backgroundColor: color
+                                }}
+                            />
+                        </div>
+                        <span className={styles.barValue}>{item.count}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const ManagerAnalyticsDashboard = () => {
     const { userData, isSupervisor, isCenterManager } = useAuthStore();
@@ -46,6 +80,7 @@ const ManagerAnalyticsDashboard = () => {
     const monthEnd = endOfMonth(currentDate);
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth() + 1;
+    const isCurrentMonth = isSameMonth(currentDate, new Date());
 
     // Get center coach IDs for filtering (center managers only)
     const centerCoachIds = useMemo(() => {
@@ -120,6 +155,9 @@ const ManagerAnalyticsDashboard = () => {
         return map;
     }, [centers]);
 
+    // Set of valid center IDs (real centers only)
+    const validCenterIds = useMemo(() => new Set(centers.map(c => c.id)), [centers]);
+
     // ── Training Execution stats by center → coach ──
     const executionData = useMemo(() => {
         const centerMap = {};
@@ -128,6 +166,9 @@ const ManagerAnalyticsDashboard = () => {
             const coachId = t.coachId || 'unknown';
             const coachInfo = coachCenterMap[coachId];
             const centerId = coachInfo?.centerIds?.[0] || 'unknown';
+
+            // Skip trainings from unknown/invalid centers
+            if (!validCenterIds.has(centerId)) return;
 
             if (!centerMap[centerId]) {
                 centerMap[centerId] = { total: 0, completed: 0, coaches: {} };
@@ -149,7 +190,7 @@ const ManagerAnalyticsDashboard = () => {
 
         return Object.entries(centerMap).map(([centerId, data]) => ({
             centerId,
-            centerName: centerNameMap[centerId] || 'מרכז לא ידוע',
+            centerName: centerNameMap[centerId] || centerId,
             total: data.total,
             completed: data.completed,
             rate: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0,
@@ -158,21 +199,20 @@ const ManagerAnalyticsDashboard = () => {
                 rate: c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0
             })).sort((a, b) => b.total - a.total)
         })).sort((a, b) => b.total - a.total);
-    }, [trainings, coachCenterMap, centerNameMap]);
+    }, [trainings, coachCenterMap, centerNameMap, validCenterIds]);
 
     // ── Plan Submission stats by center → coach ──
     const planData = useMemo(() => {
-        // Count groups per coach per center
         const centerGroupCounts = {};
         groups.forEach(g => {
             const centerId = g.centerId || 'unknown';
+            if (!validCenterIds.has(centerId)) return;
             const coachId = g.coachId || 'unknown';
             if (!centerGroupCounts[centerId]) centerGroupCounts[centerId] = {};
             if (!centerGroupCounts[centerId][coachId]) centerGroupCounts[centerId][coachId] = 0;
             centerGroupCounts[centerId][coachId] += 1;
         });
 
-        // Count submitted plans (anything beyond draft) per coach per center
         const centerPlanCounts = {};
         plans.forEach(p => {
             const coachId = p.coachId || 'unknown';
@@ -180,14 +220,15 @@ const ManagerAnalyticsDashboard = () => {
             const coachInfo = coachCenterMap[coachId];
             const centerId = groupCenterId || coachInfo?.centerIds?.[0] || 'unknown';
 
+            if (!validCenterIds.has(centerId)) return;
+
             if (!centerPlanCounts[centerId]) centerPlanCounts[centerId] = {};
             if (!centerPlanCounts[centerId][coachId]) centerPlanCounts[centerId][coachId] = 0;
-            if (p.status !== 'draft') {
+            if (['submitted', 'approved', 'reviewed'].includes(p.status)) {
                 centerPlanCounts[centerId][coachId] += 1;
             }
         });
 
-        // Merge into center-level data
         const allCenterIds = new Set([
             ...Object.keys(centerGroupCounts),
             ...Object.keys(centerPlanCounts)
@@ -220,27 +261,77 @@ const ManagerAnalyticsDashboard = () => {
 
             return {
                 centerId,
-                centerName: centerNameMap[centerId] || 'מרכז לא ידוע',
+                centerName: centerNameMap[centerId] || centerId,
                 totalGroups,
                 submittedPlans,
                 rate: totalGroups > 0 ? Math.round((submittedPlans / totalGroups) * 100) : 0,
                 coaches: coaches.sort((a, b) => b.totalGroups - a.totalGroups)
             };
         }).filter(c => c.totalGroups > 0).sort((a, b) => b.totalGroups - a.totalGroups);
-    }, [plans, groups, groupCenterMap, coachCenterMap, centerNameMap]);
+    }, [plans, groups, groupCenterMap, coachCenterMap, centerNameMap, validCenterIds]);
 
     // Overall stats
     const overallStats = useMemo(() => {
-        const totalTrainings = trainings.length;
-        const completedTrainings = trainings.filter(t => t.status === 'completed').length;
+        // Only count trainings belonging to valid centers
+        const validTrainings = trainings.filter(t => {
+            const coachInfo = coachCenterMap[t.coachId];
+            const centerId = coachInfo?.centerIds?.[0];
+            return centerId && validCenterIds.has(centerId);
+        });
+
+        const totalTrainings = validTrainings.length;
+        const completedTrainings = validTrainings.filter(t => t.status === 'completed').length;
         const executionRate = totalTrainings > 0 ? Math.round((completedTrainings / totalTrainings) * 100) : 0;
 
-        const totalGroups = groups.length;
-        const submittedPlans = plans.filter(p => p.status !== 'draft').length;
+        const validGroups = groups.filter(g => g.centerId && validCenterIds.has(g.centerId));
+        const totalGroups = validGroups.length;
+        const submittedPlans = plans.filter(p => ['submitted', 'approved', 'reviewed'].includes(p.status)).length;
         const planRate = totalGroups > 0 ? Math.round((submittedPlans / totalGroups) * 100) : 0;
 
-        return { totalTrainings, completedTrainings, executionRate, totalGroups, submittedPlans, planRate };
-    }, [trainings, plans, groups]);
+        const totalCoaches = users?.filter(u => u.role === 'coach' && u.isActive !== false).length || 0;
+
+        return { totalTrainings, completedTrainings, executionRate, totalGroups, submittedPlans, planRate, totalCoaches };
+    }, [trainings, plans, groups, users, coachCenterMap, validCenterIds]);
+
+    // ── Alerts (data-driven only) ──
+    const alerts = useMemo(() => {
+        const items = [];
+
+        if (overallStats.executionRate < 50 && overallStats.totalTrainings > 0) {
+            items.push({ type: 'danger', text: `אחוז ביצוע נמוך: ${overallStats.executionRate}% מהאימונים בוצעו` });
+        }
+
+        if (overallStats.planRate < 50 && overallStats.totalGroups > 0) {
+            items.push({ type: 'warning', text: `${overallStats.totalGroups - overallStats.submittedPlans} תוכניות טרם הוגשו מתוך ${overallStats.totalGroups}` });
+        }
+
+        executionData.filter(c => c.rate === 0 && c.total > 0).forEach(c => {
+            items.push({ type: 'danger', text: `${c.centerName}: אף אימון לא בוצע (${c.total} תוכננו)` });
+        });
+
+        planData.filter(c => c.rate === 0 && c.totalGroups > 0).forEach(c => {
+            items.push({ type: 'warning', text: `${c.centerName}: לא הוגשו תוכניות (${c.totalGroups} קבוצות)` });
+        });
+
+        return items;
+    }, [overallStats, executionData, planData]);
+
+    // ── Bar chart data ──
+    const coachesPerCenter = useMemo(() => {
+        if (!centers.length || !users?.length) return [];
+        return centers.map(c => {
+            const count = users.filter(u => u.role === 'coach' && u.isActive !== false && u.centerIds?.includes(c.id)).length;
+            return { name: c.name, count };
+        }).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
+    }, [centers, users]);
+
+    const groupsPerCenter = useMemo(() => {
+        if (!centers.length || !groups.length) return [];
+        return centers.map(c => {
+            const count = groups.filter(g => g.centerId === c.id && g.isActive !== false).length;
+            return { name: c.name, count };
+        }).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
+    }, [centers, groups]);
 
     const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
     const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -272,7 +363,7 @@ const ManagerAnalyticsDashboard = () => {
             {/* Header */}
             <div className={styles.header}>
                 <div className={styles.headerText}>
-                    <h1 className={styles.title}>דאשבורד פיקוח ובקרה</h1>
+                    <h1 className={styles.title}>נתונים</h1>
                     <p className={styles.subtitle}>
                         {isCenterManager() ? 'סקירה חודשית של ביצוע ותוכניות במרכז שלך' : 'סקירה חודשית של ביצוע ותוכניות בכל המרכזים'}
                     </p>
@@ -282,7 +373,7 @@ const ManagerAnalyticsDashboard = () => {
                     <button onClick={handlePrevMonth} className={styles.navButton}>
                         <ChevronRight size={20} />
                     </button>
-                    <span className={styles.monthTitle}>
+                    <span className={`${styles.monthTitle} ${isCurrentMonth ? styles.monthTitleCurrent : ''}`}>
                         {format(currentDate, 'MMMM yyyy', { locale: he })}
                     </span>
                     <button onClick={handleNextMonth} className={styles.navButton}>
@@ -295,7 +386,25 @@ const ManagerAnalyticsDashboard = () => {
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <div className={styles.statIcon} style={{ background: 'var(--primary-100)', color: 'var(--primary-600)' }}>
-                        <BarChart2 size={18} />
+                        <Users size={18} />
+                    </div>
+                    <div className={styles.statInfo}>
+                        <div className={styles.statValue}>{overallStats.totalCoaches}</div>
+                        <div className={styles.statLabel}>מאמנים</div>
+                    </div>
+                </div>
+                <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ background: 'var(--accent-100)', color: 'var(--accent-700)' }}>
+                        <Users size={18} />
+                    </div>
+                    <div className={styles.statInfo}>
+                        <div className={styles.statValue}>{overallStats.totalGroups}</div>
+                        <div className={styles.statLabel}>קבוצות</div>
+                    </div>
+                </div>
+                <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ background: 'var(--primary-100)', color: 'var(--primary-600)' }}>
+                        <BarChart3 size={18} />
                     </div>
                     <div className={styles.statInfo}>
                         <div className={styles.statValue}>{overallStats.totalTrainings}</div>
@@ -330,6 +439,18 @@ const ManagerAnalyticsDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* ── Alerts ── */}
+            {alerts.length > 0 && (
+                <div className={styles.alertsSection}>
+                    {alerts.map((alert, i) => (
+                        <div key={i} className={`${styles.alertItem} ${styles[alert.type]}`}>
+                            <AlertTriangle size={16} />
+                            <span>{alert.text}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* ── Section 1: Training Execution ── */}
             <div className={styles.section}>
@@ -476,6 +597,28 @@ const ManagerAnalyticsDashboard = () => {
                     </div>
                 )}
             </div>
+
+            {/* ── Bar Charts ── */}
+            {(coachesPerCenter.length > 0 || groupsPerCenter.length > 0) && (
+                <div className={styles.chartsGrid}>
+                    {coachesPerCenter.length > 0 && (
+                        <HorizontalBarChart
+                            data={coachesPerCenter}
+                            color="var(--primary-500)"
+                            label="מאמנים לפי מרכז"
+                            icon={Users}
+                        />
+                    )}
+                    {groupsPerCenter.length > 0 && (
+                        <HorizontalBarChart
+                            data={groupsPerCenter}
+                            color="var(--accent-600)"
+                            label="קבוצות לפי מרכז"
+                            icon={Users}
+                        />
+                    )}
+                </div>
+            )}
 
             <CoachTrainingsModal
                 isOpen={!!selectedCoach}

@@ -185,6 +185,31 @@ When placing a lucide-react icon next to text (in badges, meta items, buttons, l
 
 This applies globally to all components, not just specific pages.
 
+### Monthly Context Cards (Goals & Values)
+
+Goals and values share a `.contextCard` container with consistent design. They appear on both ManagerDashboard and CoachDashboard.
+
+**Container** (`.contextCard`): `background: white`, `border-radius: var(--radius-lg)`, `padding: var(--space-4)`, `border: 1px solid var(--gray-100)`, `box-shadow: var(--shadow-xs)`
+
+**Card header** (`.contextCardHeader`): flex row with 16px icon + bold title (`font-weight: 700`, `font-size: var(--font-size-sm)`)
+
+**Goal items** (`.goalItem`): Each goal = colored type badge + bold goal text in a row.
+- Row: `padding: var(--space-3) var(--space-4)`, `background: var(--gray-50)`, `border-radius: var(--radius-md)`, `border-inline-end: 3px solid var(--accent-400)`, `gap: var(--space-3)`
+- Type badge (`.goalTypeBadge`): `font-size: 10px`, `font-weight: 700`, gold colors (`accent-700` text, `accent-100` bg), `border-radius: var(--radius-sm)`, `padding: var(--space-1) 10px`
+- Goal text (`.goalText`): `font-size: var(--font-size-base)`, `font-weight: 600` — must look prominent, NOT plain text
+
+**Value items** (`.valueTag`): Same row style as goals but with blue accent.
+- Row: `padding: var(--space-3) var(--space-4)`, `background: var(--gray-50)`, `border-radius: var(--radius-md)`, `border-inline-end: 3px solid var(--primary-400)`
+- Text: `font-size: var(--font-size-base)`, `font-weight: 600`, `color: var(--text-primary)`
+- `.valuesList`: `flex-direction: column` (NOT `flex-wrap`)
+
+**Key rules**:
+- Values must NOT look like goal type badges — different shape, size, color, and padding
+- Goal text must be bold and prominent, never look like plain unstyled text
+- Tags/badges must always have generous padding (minimum 10px horizontal)
+- Coach dashboard filters goals to only show group types the coach manages
+- Design must look good with 1-2 goals (coach) AND many goals (supervisor)
+
 ---
 
 ## RTL Notes
@@ -251,6 +276,38 @@ All changes to calendar design must be applied to **every** calendar in the app:
 - `PlansList` (coach plans view)
 - `CalendarPage` (react-big-calendar view)
 - `calendar.css` (global react-big-calendar overrides)
+
+---
+
+## Analytics Dashboard (נתונים)
+
+The analytics dashboard (`ManagerAnalyticsDashboard`) is the supervisor/centerManager data overview page at `/analytics`.
+
+### Navigation Placement
+- **Bottom nav**: "נתונים" with `BarChart3` icon (replaces משתמשים for supervisor)
+- **Sidebar**: Under "ניהול" section for supervisor
+- **Main dashboard**: Management card titled "נתונים" with `BarChart3` icon
+- Users page is accessible only from sidebar, NOT bottom nav
+
+### Page Structure (top to bottom)
+1. **Header**: Page title "נתונים" + subtitle, centered on mobile
+2. **Month selector**: Centered, with current month highlight (`monthTitleCurrent` class — bold, primary colors)
+3. **Stats grid**: 6 cards in 3x2 (mobile), 3x2 (tablet), 6x1 (desktop) — מאמנים, קבוצות, אימונים תוכננו, אחוז ביצוע, תוכניות הוגשו, אחוז הגשה
+4. **Alerts section**: Data-driven alerts (low execution, missing plans, per-center warnings). Only real data — never hardcoded!
+5. **Training execution**: Expandable center → coach breakdown with progress bars
+6. **Plan submission**: Same expandable structure
+7. **Bar charts**: Horizontal bar charts — "מאמנים לפי מרכז" (primary-500) and "קבוצות לפי מרכז" (accent-600). Side by side on desktop.
+
+### Data Accuracy Rules
+- **Filter unknown centers**: Only show centers that exist in the `centers` collection (`validCenterIds` set)
+- **Plan submission**: Count only plans with status `submitted`, `approved`, or `reviewed` — NOT all non-draft plans
+- **Never show "מרכז לא ידוע"**: Skip trainings/groups without a valid center ID
+- **Zero-count centers**: Hide from bar charts (`.filter(c => c.count > 0)`)
+
+### Color Coding for Rates
+- `≥80%`: success green (`--success-500`)
+- `≥50%`: warning orange (`--warning-500`)
+- `<50%`: error red (`--error-500`)
 
 ---
 

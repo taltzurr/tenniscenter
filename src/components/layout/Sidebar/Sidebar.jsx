@@ -14,7 +14,8 @@ import {
     UserCog,
     Settings,
     LogOut,
-    FileText
+    FileText,
+    BarChart3
 } from 'lucide-react';
 import Avatar from '../../ui/Avatar';
 import useAuthStore from '../../../stores/authStore';
@@ -82,6 +83,7 @@ function Sidebar() {
                 {
                     section: 'ניהול',
                     items: [
+                        { to: '/analytics', icon: BarChart3, label: 'נתונים' },
                         { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                         { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
                         { to: '/monthly-plans/review', icon: CalendarCheck, label: 'אישור תכניות' },
