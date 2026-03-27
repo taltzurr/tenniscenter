@@ -1,105 +1,415 @@
+/* ── Page ── */
 .page {
     padding: var(--space-4);
     background-color: var(--bg-secondary);
     min-height: 100vh;
 }
 
+/* ── Header ── */
 .header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+.headerText {
+    min-width: 0;
 }
 
 .title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     font-weight: 800;
     color: var(--text-primary);
+    margin-bottom: var(--space-1);
 }
 
 .subtitle {
     color: var(--text-secondary);
+    font-size: var(--font-size-sm);
 }
 
 .monthSelector {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: var(--space-2);
     background: white;
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-xs);
+    align-self: flex-start;
 }
 
 .monthTitle {
     font-weight: 600;
-    min-width: 120px;
+    font-size: var(--font-size-sm);
+    min-width: 100px;
     text-align: center;
 }
 
-/* Stats Cards */
+.navButton {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--primary-50);
+    color: var(--primary-600);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.navButton:hover {
+    background: var(--primary-100);
+}
+
+/* ── Stats Grid ── */
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
 }
 
 .statCard {
     background: white;
-    padding: var(--space-5);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-xs);
     border: 1px solid var(--gray-100);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 }
 
-.statCard:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+.statIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-.statLabel {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    margin-bottom: var(--space-2);
+.statInfo {
+    min-width: 0;
 }
 
 .statValue {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-lg);
     font-weight: 800;
     color: var(--text-primary);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-/* Charts Section */
-.chartsSection {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+.statLabel {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
 }
 
-.card {
+/* ── Section ── */
+.section {
     background: white;
-    padding: var(--space-4);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-100);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: var(--space-4);
+    overflow: hidden;
 }
 
-.card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--gray-200);
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--text-primary);
 }
 
-/* Tablet breakpoint */
+.sectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    flex: 1;
+}
+
+.sectionBadge {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full, 999px);
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+/* ── Center List ── */
+.centerList {
+    display: flex;
+    flex-direction: column;
+}
+
+.centerCard {
+    border-bottom: 1px solid var(--gray-50);
+}
+
+.centerCard:last-child {
+    border-bottom: none;
+}
+
+.centerRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.centerRow:hover {
+    background: var(--gray-50);
+}
+
+.centerInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.centerIcon {
+    color: var(--primary-500);
+    flex-shrink: 0;
+}
+
+.centerName {
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.centerMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    margin-inline-start: auto;
+}
+
+.centerStats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-inline-start: 24px; /* align with text after icon */
+}
+
+.centerNumbers {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    font-weight: 500;
+    min-width: 32px;
+    white-space: nowrap;
+}
+
+.progressBar {
+    flex: 1;
+    height: 6px;
+    background: var(--gray-100);
+    border-radius: 999px;
+    overflow: hidden;
+    min-width: 60px;
+}
+
+.progressFill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.rateValue {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    min-width: 36px;
+    text-align: left;
+}
+
+.expandIcon {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.expandIconOpen {
+    transform: rotate(180deg);
+}
+
+/* ── Coach List (expanded) ── */
+.coachList {
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-100);
+}
+
+.coachRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    padding-inline-start: calc(var(--space-4) + 24px);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.coachRow:last-child {
+    border-bottom: none;
+}
+
+.coachRow:hover {
+    background: var(--gray-100);
+}
+
+.coachInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.coachName {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.coachStats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-inline-start: 32px; /* align with text after avatar */
+}
+
+.coachNumbers {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    min-width: 28px;
+    white-space: nowrap;
+}
+
+.progressBarSmall {
+    flex: 1;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 999px;
+    overflow: hidden;
+    min-width: 50px;
+}
+
+.coachRate {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    min-width: 32px;
+    text-align: left;
+}
+
+/* ── Empty State ── */
+.emptyState {
+    padding: var(--space-6);
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
+}
+
+/* ── Tablet ── */
 @media (min-width: 768px) {
     .page {
         padding: var(--space-6);
+    }
+
+    .header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .title {
+        font-size: var(--font-size-xl);
+    }
+
+    .monthSelector {
+        align-self: auto;
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .monthTitle {
+        font-size: var(--font-size-base);
+        min-width: 120px;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-4);
+    }
+
+    .statCard {
+        padding: var(--space-4);
+        gap: var(--space-3);
+    }
+
+    .statIcon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .statValue {
+        font-size: var(--font-size-xl);
+    }
+
+    .sectionTitle {
+        font-size: var(--font-size-lg);
+    }
+
+    /* Flatten center row on tablet */
+    .centerRow {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .centerStats {
+        padding-inline-start: 0;
+        min-width: 240px;
+    }
+
+    .centerMeta {
+        margin-inline-start: var(--space-2);
+    }
+
+    /* Flatten coach row on tablet */
+    .coachRow {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .coachStats {
+        padding-inline-start: 0;
+        min-width: 200px;
+    }
+}
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--space-8);
     }
 
     .title {
@@ -107,221 +417,22 @@
     }
 
     .statsGrid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .chartsSection {
-        gap: var(--space-6);
-    }
-
-    .card {
-        padding: var(--space-6);
-    }
-
-    .statValue {
-        font-size: var(--font-size-3xl);
-    }
-}
-
-/* Desktop breakpoint - activate 12-column grid */
-@media (min-width: 1024px) {
-    .page {
-        padding: var(--space-8);
-    }
-
-    .title {
-        font-size: var(--font-size-3xl);
-    }
-
-    .statsGrid {
-        grid-template-columns: repeat(4, 1fr);
         gap: var(--space-5);
     }
 
-    .chartsSection {
-        grid-template-columns: repeat(12, 1fr);
-    }
-
-    /* Pie Chart - Takes 4 columns on desktop */
-    .pieCard {
-        grid-column: span 4;
-    }
-
-    /* Bar Chart (Top Performers) - Takes 8 columns on desktop */
-    .barCard {
-        grid-column: span 8;
-    }
-
-    /* Coaches Table - Full width */
-    .tableCard {
-        grid-column: span 12;
-    }
-
-    .statCard {
-        padding: var(--space-6);
-    }
-
-    .header {
-        margin-bottom: var(--space-8);
-    }
-
     .statValue {
-        font-size: var(--font-size-4xl);
+        font-size: var(--font-size-2xl);
     }
 
-    .cardTitle {
-        font-size: var(--font-size-xl);
+    .centerStats {
+        min-width: 300px;
     }
-}
 
-.cardTitle {
-    font-size: var(--font-size-lg);
-    font-weight: 800;
-    margin-bottom: var(--space-4);
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
+    .progressBar {
+        min-width: 100px;
+    }
 
-/* Simple Bar Chart */
-.barChart {
-    display: flex;
-    align-items: flex-end;
-    gap: var(--space-4);
-    height: 200px;
-    padding-top: var(--space-4);
-    overflow-x: auto;
-}
-
-.barGroup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
-    flex: 1;
-}
-
-.barContainer {
-    width: 40px;
-    height: 100%;
-    background: var(--gray-50);
-    border-radius: var(--radius-md);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-}
-
-.barFill {
-    width: 100%;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    transition: height 0.5s ease;
-}
-
-.barLabel {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-    text-align: center;
-}
-
-/* Table */
-.tableContainer {
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    text-align: right;
-    padding: var(--space-3);
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: var(--font-size-sm);
-    border-bottom: 1px solid var(--gray-100);
-}
-
-.table td {
-    padding: var(--space-3);
-    border-bottom: 1px solid var(--gray-50);
-    color: var(--text-primary);
-}
-
-.coachName {
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.progressBar {
-    width: 100px;
-    height: 6px;
-    background: var(--gray-100);
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.progressFill {
-    height: 100%;
-    border-radius: 999px;
-}
-
-.actionButton {
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-xs);
-    background: var(--primary-50);
-    color: var(--primary-600);
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.actionButton:hover {
-    background: var(--primary-100);
-}
-
-/* Pie Chart */
-.pieChartContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-}
-
-.pieChart {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    position: relative;
-    margin-bottom: var(--space-4);
-    box-shadow: inset 0 0 0 20px white;
-    /* Donut effect optional */
-}
-
-/* Legend */
-.legend {
-    display: flex;
-    gap: var(--space-4);
-    justify-content: center;
-    width: 100%;
-}
-
-.legendItem {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-}
-
-.legendDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    .coachStats {
+        min-width: 260px;
+    }
 }

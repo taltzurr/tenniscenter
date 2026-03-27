@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Users, Building2, Calendar, BarChart2, Trophy, Heart, Target,
   ShieldCheck, AlertTriangle, CheckCircle, Clock, FileText, TrendingUp,
-  CalendarDays, Info, ArrowUp, ArrowDown, ChevronDown, X
+  CalendarDays, Info, ArrowUp, ArrowDown, ChevronLeft, X
 } from 'lucide-react';
 import { startOfMonth, endOfMonth, format } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -15,12 +15,10 @@ import useCentersStore from '../../stores/centersStore';
 import useEventsStore from '../../stores/eventsStore';
 import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
 import { getOrganizationTrainings } from '../../services/trainings';
-import { getStatusColor } from './utils/centerDashboardUtils';
 import {
   getOrgQuickStats,
   getAlerts,
   getTodayTrainingsByCenter,
-  getCenterComparison,
   getPlanSubmissionStatus,
   getTopBottomCoaches,
   getTrainingExecutionData,
@@ -95,14 +93,11 @@ const ManagerDashboard = () => {
 
   const [orgTrainings, setOrgTrainings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAllCenters, setShowAllCenters] = useState(false);
   const [showAllTop, setShowAllTop] = useState(false);
   const [showAllBottom, setShowAllBottom] = useState(false);
   const [trainingModal, setTrainingModal] = useState(false);
   const [planModal, setPlanModal] = useState(false);
   const [statModal, setStatModal] = useState(null); // 'coaches' | 'todayTrainings'
-  const [selectedCenter, setSelectedCenter] = useState(null); // center object from centerComparison
-  const [expandedCenterId, setExpandedCenterId] = useState(null); // for center table drill-down
 
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -148,13 +143,6 @@ const ManagerDashboard = () => {
     getTodayTrainingsByCenter(orgTrainings, groups, users, centers),
     [orgTrainings, groups, users, centers]);
 
-  const centerComparison = useMemo(() => {
-    if (!centers.length) return [];
-    return getCenterComparison(users, orgTrainings, monthlyPlans, groups, centers, currentYear, currentMonth);
-  }, [users, orgTrainings, monthlyPlans, groups, centers, currentYear, currentMonth]);
-
-  const activeCenters = useMemo(() => centerComparison.filter(c => c.hasActivity), [centerComparison]);
-  const inactiveCenters = useMemo(() => centerComparison.filter(c => !c.hasActivity), [centerComparison]);
 
   const planStatus = useMemo(() =>
     getPlanSubmissionStatus(users, monthlyPlans, groups, centers, currentYear, currentMonth),
@@ -228,8 +216,8 @@ const ManagerDashboard = () => {
     completed: '#3d7db5',    // primary-600 (blue)
     notCompleted: '#d4b82e', // accent-600 (gold)
     cancelled: '#f44336',    // error-500 (red)
-    submitted: '#1e5680',    // primary-800 (dark blue)
-    draft: '#8dc7e8',        // primary-300 (light blue)
+    submitted: '#388e3c',    // success-700 (green)
+    draft: '#f5d742',        // accent-500 (gold)
     missing: '#e0e0e0',      // gray-300
   };
 
@@ -322,17 +310,37 @@ const ManagerDashboard = () => {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}><AlertTriangle size={18} /> התראות</h2>
+            <span className={styles.alertBadge}>{alerts.length}</span>
           </div>
           <div className={styles.alertsList}>
             {alerts.map((alert, i) => {
               const AlertIcon = alertIconMap[alert.type] || Info;
+              const handleAlertClick = () => {
+                if (!alert.action) return;
+                if (alert.action.type === 'navigate') {
+                  navigate(alert.action.path);
+                } else if (alert.action.type === 'modal') {
+                  if (alert.action.modal === 'trainings') setTrainingModal(true);
+                  else if (alert.action.modal === 'plans') setPlanModal(true);
+                }
+              };
               return (
-                <div key={i} className={`${styles.alertItem} ${styles[alert.type]}`}>
+                <div
+                  key={i}
+                  className={`${styles.alertItem} ${styles[alert.type]} ${alert.action ? styles.alertClickable : ''}`}
+                  onClick={handleAlertClick}
+                >
                   <AlertIcon size={16} className={`${styles.alertIcon} ${styles[alert.type]}`} />
                   <div className={styles.alertContent}>
                     <div className={styles.alertTitle}>{alert.title}</div>
                     {alert.details && <div className={styles.alertDetails}>{alert.details}</div>}
                   </div>
+                  {alert.action && (
+                    <div className={styles.alertAction}>
+                      <span className={styles.alertActionLabel}>{alert.action.label}</span>
+                      <ChevronLeft size={14} />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -350,15 +358,27 @@ const ManagerDashboard = () => {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}><Clock size={18} /> אימונים היום לפי מרכז</h2>
+            <span className={styles.sectionAction} onClick={() => setStatModal('todayTrainings')} style={{ cursor: 'pointer' }}>פירוט מלא</span>
           </div>
           <div className={styles.centerTrainingsList}>
-            {todayByCenter.map(c => (
-              <div key={c.centerId} className={styles.centerTrainingRow}>
-                <div className={styles.centerTrainingCount}>{c.total}</div>
-                <div className={styles.centerTrainingName}>{c.centerName}</div>
-                <div className={styles.centerTrainingMeta}>{c.completed} הושלמו · {c.pending} נותרו</div>
-              </div>
-            ))}
+            {todayByCenter.map(c => {
+              const completionRate = c.total > 0 ? Math.round((c.completed / c.total) * 100) : 0;
+              const statusColor = completionRate >= 75 ? 'success' : completionRate >= 50 ? 'warning' : 'danger';
+              return (
+                <div key={c.centerId} className={styles.centerTrainingRow} onClick={() => setStatModal('todayTrainings')}>
+                  <div className={styles.centerTrainingInfo}>
+                    <div className={styles.centerTrainingName}>{c.centerName}</div>
+                    <div className={styles.centerTrainingMeta}>
+                      <span className={`${styles.centerTrainingStatus} ${styles[statusColor]}`}>{c.completed} הושלמו</span>
+                      <span className={styles.centerTrainingDivider}>·</span>
+                      <span>{c.pending} נותרו</span>
+                    </div>
+                  </div>
+                  <div className={styles.centerTrainingCount}>{c.total}</div>
+                  <ChevronLeft size={14} className={styles.centerTrainingChevron} />
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -406,155 +426,6 @@ const ManagerDashboard = () => {
         </div>
       </div>
 
-      {/* ═══ Center Comparison ═══ */}
-      {activeCenters.length > 0 && (
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}><Building2 size={18} /> השוואת מרכזים</h2>
-            <Link to="/analytics" className={styles.sectionAction}>צפייה מפורטת</Link>
-          </div>
-          <div className={styles.comparisonGrid}>
-            {activeCenters.map(center => {
-              const sc = getStatusColor(center.completionRate);
-              return (
-                <div key={center.id} className={styles.comparisonRow} onClick={() => setSelectedCenter(center)} style={{ cursor: 'pointer' }}>
-                  <div className={styles.comparisonCenter}>
-                    <div className={styles.comparisonCenterName}>{center.name}</div>
-                    <div className={styles.comparisonCenterMeta}>{center.coaches} מאמנים · {center.groups} קבוצות</div>
-                  </div>
-                  <div className={styles.comparisonBar}>
-                    <div className={`${styles.comparisonBarFill} ${styles[sc]}`} style={{ width: `${center.completionRate}%` }} />
-                  </div>
-                  <div className={`${styles.comparisonRate} ${styles[sc]}`}>{center.completionRate}%</div>
-                </div>
-              );
-            })}
-            {showAllCenters && inactiveCenters.map(center => (
-              <div key={center.id} className={styles.comparisonRow}>
-                <div className={styles.comparisonCenter}>
-                  <div className={styles.comparisonCenterName}>{center.name}</div>
-                  <div className={styles.comparisonCenterMeta}>0 מאמנים · 0 קבוצות</div>
-                </div>
-                <div className={styles.comparisonBar}><div className={`${styles.comparisonBarFill} ${styles.danger}`} style={{ width: '0%' }} /></div>
-                <div className={`${styles.comparisonRate} ${styles.danger}`}>0%</div>
-              </div>
-            ))}
-          </div>
-          {inactiveCenters.length > 0 && (
-            <button className={styles.showMoreBtn} onClick={() => setShowAllCenters(!showAllCenters)}>
-              <ChevronDown size={16} style={{ transform: showAllCenters ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-              {showAllCenters ? 'הסתר מרכזים ריקים' : `הצג ${inactiveCenters.length} מרכזים נוספים`}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* ═══ Section: מאמנים ותוכניות ═══ */}
-      <div className={styles.sectionDivider}>
-        <span className={styles.sectionDividerText}>מאמנים ותוכניות</span>
-      </div>
-
-      {/* ═══ Center Performance Table ═══ */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}><Building2 size={18} /> ביצוע ותוכניות לפי מרכז</h2>
-          <Link to="/analytics" className={styles.sectionAction}>צפייה מפורטת</Link>
-        </div>
-        <div className={styles.rankingExplain}>
-          לחץ על מרכז לפירוט מאמנים · נתוני ביצוע מבוססים על אימונים שתאריכם עבר
-        </div>
-
-        {activeCenters.length > 0 ? (
-          <div className={styles.centerTable}>
-            {/* Table header */}
-            <div className={styles.centerTableHeader}>
-              <div className={styles.centerTableCol}>מרכז</div>
-              <div className={styles.centerTableCol}>ביצוע</div>
-              <div className={styles.centerTableCol}>תוכניות</div>
-              <div className={styles.centerTableCol}>מאמנים</div>
-            </div>
-
-            {activeCenters.map(center => {
-              const isExpanded = expandedCenterId === center.id;
-              const execColor = center.completionRate >= 75 ? 'success' : center.completionRate >= 50 ? 'warning' : 'danger';
-              const planColor = center.planRate >= 75 ? 'success' : center.planRate >= 50 ? 'warning' : 'danger';
-
-              return (
-                <div key={center.id} className={styles.centerTableGroup}>
-                  <div
-                    className={`${styles.centerTableRow} ${isExpanded ? styles.centerTableRowExpanded : ''}`}
-                    onClick={() => setExpandedCenterId(isExpanded ? null : center.id)}
-                  >
-                    <div className={styles.centerTableCol}>
-                      <div className={styles.centerTableName}>
-                        <ChevronDown size={14} className={styles.centerTableChevron} style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }} />
-                        {center.name}
-                      </div>
-                    </div>
-                    <div className={styles.centerTableCol}>
-                      <div className={styles.centerTableMetric}>
-                        <div className={styles.centerTableBar}>
-                          <div className={`${styles.centerTableBarFill} ${styles[execColor]}`} style={{ width: `${center.completionRate}%` }} />
-                        </div>
-                        <span className={`${styles.centerTableRate} ${styles[execColor]}`}>{center.completionRate}%</span>
-                      </div>
-                      <div className={styles.centerTableSub}>{center.completed}/{center.trainings}</div>
-                    </div>
-                    <div className={styles.centerTableCol}>
-                      <span className={`${styles.centerTableRate} ${styles[planColor]}`}>{center.plansSubmitted}/{center.plansTotal}</span>
-                    </div>
-                    <div className={styles.centerTableCol}>
-                      <span className={styles.centerTableCoachCount}>{center.coaches}</span>
-                    </div>
-                  </div>
-
-                  {/* Expanded coach details */}
-                  {isExpanded && center.coachDetails.length > 0 && (
-                    <div className={styles.centerTableExpanded}>
-                      {center.coachDetails.map(coach => {
-                        const coachExecColor = coach.trainingRate >= 75 ? 'success' : coach.trainingRate >= 50 ? 'warning' : 'danger';
-                        return (
-                          <div key={coach.id} className={styles.centerTableCoachRow}>
-                            <div className={styles.centerTableCol}>
-                              <div className={styles.centerTableCoachName}>
-                                <div className={styles.coachAvatar}>{coach.name?.charAt(0) || 'M'}</div>
-                                {coach.name}
-                              </div>
-                            </div>
-                            <div className={styles.centerTableCol}>
-                              <div className={styles.centerTableMetric}>
-                                <div className={styles.centerTableBar}>
-                                  <div className={`${styles.centerTableBarFill} ${styles[coachExecColor]}`} style={{ width: `${coach.trainingRate}%` }} />
-                                </div>
-                                <span className={`${styles.centerTableRate} ${styles[coachExecColor]}`}>{coach.trainingRate}%</span>
-                              </div>
-                              <div className={styles.centerTableSub}>{coach.completedTrainings}/{coach.trainings}</div>
-                            </div>
-                            <div className={styles.centerTableCol}>
-                              <span className={styles.centerTableRate}>{coach.plansSubmitted}/{coach.plansTotal}</span>
-                              {coach.plansDraft > 0 && <span className={styles.centerTableDraftBadge}>{coach.plansDraft} טיוטה</span>}
-                            </div>
-                            <div className={styles.centerTableCol}>
-                              <span className={styles.centerTableSub}>{coach.groups} קבוצות</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {isExpanded && center.coachDetails.length === 0 && (
-                    <div className={styles.centerTableExpanded}>
-                      <div className={styles.emptyState}>אין מאמנים פעילים במרכז</div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className={styles.emptyState}>אין נתונים זמינים</div>
-        )}
-      </div>
 
       {/* ═══ Section: הקשר חודשי ═══ */}
       <div className={styles.sectionDivider}>
@@ -789,76 +660,6 @@ const ManagerDashboard = () => {
             </div>
           );
         })}
-      </DetailModal>
-
-      {/* Center Detail Modal */}
-      <DetailModal isOpen={!!selectedCenter} onClose={() => setSelectedCenter(null)} title={selectedCenter?.name || ''} icon={Building2}>
-        {selectedCenter && (
-          <>
-            {/* Summary */}
-            <div className={styles.modalSummary}>
-              <div className={styles.modalSummaryItem}>
-                <div className={styles.modalSummaryValue}>{selectedCenter.coaches}</div>
-                <div className={styles.modalSummaryLabel}>מאמנים</div>
-              </div>
-              <div className={styles.modalSummaryItem}>
-                <div className={styles.modalSummaryValue}>{selectedCenter.groups}</div>
-                <div className={styles.modalSummaryLabel}>קבוצות</div>
-              </div>
-              <div className={styles.modalSummaryItem}>
-                <div className={styles.modalSummaryValue} style={{ color: CHART_COLORS.completed }}>{selectedCenter.completionRate}%</div>
-                <div className={styles.modalSummaryLabel}>ביצוע</div>
-              </div>
-              <div className={styles.modalSummaryItem}>
-                <div className={styles.modalSummaryValue} style={{ color: CHART_COLORS.submitted }}>{selectedCenter.planRate}%</div>
-                <div className={styles.modalSummaryLabel}>תוכניות</div>
-              </div>
-            </div>
-
-            {/* Training execution */}
-            <div className={styles.modalSectionTitle}>ביצוע אימונים</div>
-            <div className={styles.modalRow}>
-              <div className={styles.modalRowInfo}>
-                <div className={styles.modalRowName}>{selectedCenter.completed} מתוך {selectedCenter.trainings} אימונים{selectedCenter.cancelled > 0 ? ` · ${selectedCenter.cancelled} בוטלו` : ''}</div>
-              </div>
-              <div className={styles.modalRowBar} style={{ width: 80 }}>
-                <div className={styles.modalRowBarFill} style={{ width: `${selectedCenter.completionRate}%`, backgroundColor: CHART_COLORS.completed }} />
-              </div>
-            </div>
-
-            {/* Plan submission */}
-            <div className={styles.modalSectionTitle}>הגשת תוכניות</div>
-            <div className={styles.modalRow}>
-              <div className={styles.modalRowInfo}>
-                <div className={styles.modalRowName}>{selectedCenter.plansSubmitted} מתוך {selectedCenter.plansTotal} תוכניות</div>
-              </div>
-              <div className={styles.modalRowBar} style={{ width: 80 }}>
-                <div className={styles.modalRowBarFill} style={{ width: `${selectedCenter.planRate}%`, backgroundColor: CHART_COLORS.submitted }} />
-              </div>
-            </div>
-
-            {/* Per-coach breakdown */}
-            {selectedCenter.coachDetails?.length > 0 && (
-              <>
-                <div className={styles.modalSectionTitle}>מאמנים ({selectedCenter.coachDetails.length})</div>
-                {selectedCenter.coachDetails.map(coach => (
-                  <div key={coach.id} className={styles.modalRow}>
-                    <div className={styles.coachAvatar}>{coach.name?.charAt(0) || 'M'}</div>
-                    <div className={styles.modalRowInfo}>
-                      <div className={styles.modalRowName}>{coach.name}</div>
-                      <div className={styles.modalRowCenter}>
-                        {coach.groups} קבוצות · {coach.completedTrainings}/{coach.trainings} אימונים ({coach.trainingRate}%) · {coach.plansSubmitted}/{coach.plansTotal} תוכניות
-                      </div>
-                    </div>
-                    <div className={styles.modalRowBar}>
-                      <div className={styles.modalRowBarFill} style={{ width: `${coach.trainingRate}%`, backgroundColor: CHART_COLORS.completed }} />
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </>
-        )}
       </DetailModal>
 
     </div>
