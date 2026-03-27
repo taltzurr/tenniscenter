@@ -6,40 +6,34 @@
     min-height: 100vh;
 }
 
-/* ── Header ── */
+/* ── Page Header (standard format) ── */
 .header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-5);
-    text-align: center;
-}
-
-.headerText {
-    min-width: 0;
+    margin-bottom: var(--space-4);
 }
 
 .title {
-    font-size: var(--font-size-lg);
-    font-weight: 800;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
-    margin-bottom: var(--space-1);
+    margin: 0 0 var(--space-1) 0;
 }
 
 .subtitle {
-    color: var(--text-secondary);
     font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
 }
 
 .monthSelector {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-2);
     background: white;
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xs);
+    margin-bottom: var(--space-4);
 }
 
 .monthTitle {
@@ -167,6 +161,7 @@
 .sectionHeader {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--space-2);
     padding: var(--space-4);
     border-bottom: 1px solid var(--gray-100);
@@ -174,9 +169,10 @@
 }
 
 .sectionTitle {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-weight: 700;
     flex: 1;
+    white-space: nowrap;
 }
 
 .sectionBadge {
@@ -359,6 +355,11 @@
     font-weight: 700;
     min-width: 32px;
     text-align: left;
+}
+
+/* ── RTL Icon Flip ── */
+.rtlIcon {
+    transform: scaleX(-1);
 }
 
 /* ── Empty State ── */

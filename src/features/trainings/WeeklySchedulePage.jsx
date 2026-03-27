@@ -302,7 +302,7 @@ export default function WeeklySchedulePage() {
                     <ChevronRight size={20} />
                 </button>
                 <span className={`${styles.weekLabel} ${isCurrentWeek ? styles.currentWeekLabel : ''}`}>
-                    {format(weekStart, 'd.M', { locale: he })} - {format(weekEnd, 'd.M', { locale: he })}
+                    {format(weekEnd, 'd.M', { locale: he })} - {format(weekStart, 'd.M', { locale: he })}
                 </span>
                 <button
                     className={styles.weekNavBtn}
