@@ -78,10 +78,6 @@
         font-size: var(--font-size-xl);
     }
 
-    .sectionTitle {
-        font-size: var(--font-size-xl);
-    }
-
     .planProgressList,
     .trainingsList,
     .executionList {
@@ -118,11 +114,7 @@
     }
 
     .section {
-        margin-bottom: var(--space-8);
-    }
-
-    .sectionTitle {
-        font-size: var(--font-size-2xl);
+        margin-bottom: var(--space-5);
     }
 
     .coachProgressItem,
@@ -206,8 +198,36 @@
     line-height: 1.2;
 }
 
+/* Page-level Section Dividers */
+.pageSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.pageSectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.pageSectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+/* White Card Sections */
 .section {
-    margin-bottom: var(--space-6);
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    margin-bottom: var(--space-4);
 }
 
 .sectionHeader {
@@ -217,16 +237,38 @@
     margin-bottom: var(--space-4);
 }
 
+.sectionTitleRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.sectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
 .sectionTitle {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+.sectionBadge {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full, 999px);
+    background: var(--primary-50);
+    color: var(--primary-700);
 }
 
 .sectionAction {
     font-size: var(--font-size-sm);
     color: var(--primary-600);
-    font-weight: var(--font-weight-medium);
+    font-weight: 600;
     text-decoration: none;
 }
 

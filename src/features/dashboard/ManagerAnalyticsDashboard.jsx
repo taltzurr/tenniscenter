@@ -4,12 +4,14 @@ import {
     ChevronRight,
     ChevronDown,
     BarChart3,
+    BarChart2,
     CheckCircle,
     FileText,
     TrendingUp,
     TrendingDown,
     Building2,
-    Users
+    Users,
+    AlertTriangle
 } from 'lucide-react';
 import {
     format,
@@ -381,6 +383,10 @@ const ManagerAnalyticsDashboard = () => {
             </div>
 
             {/* Summary Stats */}
+            <div className={styles.pageSectionHeader}>
+                <BarChart2 size={18} className={styles.pageSectionIcon} />
+                <h2 className={styles.pageSectionTitle}>סיכום נתונים</h2>
+            </div>
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <div className={styles.statIcon} style={{ background: 'var(--primary-100)', color: 'var(--primary-600)' }}>
@@ -441,6 +447,10 @@ const ManagerAnalyticsDashboard = () => {
             {/* Alerts removed per user request */}
 
             {/* ── Section 1: Training Execution ── */}
+            <div className={styles.pageSectionHeader}>
+                <CheckCircle size={18} className={styles.pageSectionIcon} />
+                <h2 className={styles.pageSectionTitle}>ביצוע אימונים</h2>
+            </div>
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
                     <div className={styles.sectionTitleRow}>
@@ -518,6 +528,10 @@ const ManagerAnalyticsDashboard = () => {
             </div>
 
             {/* ── Section 2: Plan Submission ── */}
+            <div className={styles.pageSectionHeader}>
+                <FileText size={18} className={styles.pageSectionIcon} />
+                <h2 className={styles.pageSectionTitle}>הגשת תוכניות חודשיות</h2>
+            </div>
             <div className={styles.section}>
                 <div className={styles.sectionHeader}>
                     <div className={styles.sectionTitleRow}>
@@ -592,6 +606,11 @@ const ManagerAnalyticsDashboard = () => {
 
             {/* ── Bar Charts ── */}
             {(coachesPerCenter.length > 0 || groupsPerCenter.length > 0) && (
+                <>
+                <div className={styles.pageSectionHeader}>
+                    <Building2 size={18} className={styles.pageSectionIcon} />
+                    <h2 className={styles.pageSectionTitle}>נתונים לפי מרכז</h2>
+                </div>
                 <div className={styles.chartsGrid}>
                     {coachesPerCenter.length > 0 && (
                         <HorizontalBarChart
@@ -610,6 +629,7 @@ const ManagerAnalyticsDashboard = () => {
                         />
                     )}
                 </div>
+                </>
             )}
 
             <CoachTrainingsModal

@@ -187,7 +187,7 @@ This applies globally to all components, not just specific pages.
 
 ### Unified Header Standards
 
-The app uses two header levels with a single consistent format across ALL pages.
+The app uses three header levels with a single consistent format across ALL pages.
 
 #### Page Header (h1 -- every page)
 
@@ -210,6 +210,33 @@ Every page starts with a `.header` div containing a title and optional subtitle.
 ```
 
 Desktop override: `.title { font-size: var(--font-size-2xl); }`
+
+#### Page Section Divider (h2 -- between content groups)
+
+Used to separate logical groups of content on dashboards and feature pages. Always includes an 18px icon in `primary-400`. Provides consistent vertical spacing between sections via `margin-top: var(--space-6)`.
+
+**CSS classes**: `.pageSectionHeader`, `.pageSectionIcon`, `.pageSectionTitle`
+
+```css
+.pageSectionHeader { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); margin-top: var(--space-6); }
+.pageSectionIcon { color: var(--primary-400); flex-shrink: 0; }
+.pageSectionTitle { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-secondary); margin: 0; letter-spacing: 0.02em; }
+```
+
+**JSX pattern**:
+```jsx
+<div className={styles.pageSectionHeader}>
+    <Icon size={18} className={styles.pageSectionIcon} />
+    <h2 className={styles.pageSectionTitle}>כותרת קטגוריה</h2>
+</div>
+```
+
+**Key rules**:
+- Every CSS module that uses this pattern must define these 3 classes locally
+- Icon is ALWAYS 18px, `primary-400` color -- choose a relevant lucide-react icon per section
+- Text is muted (`text-secondary`, `semibold`) -- same style as section titles inside cards
+- `margin-top: var(--space-6)` creates breathing room between page groups -- do NOT reduce this
+- Used on ALL dashboards (ManagerDashboard, CoachDashboard, CenterManagerDashboard, ManagerAnalyticsDashboard) and feature pages (GoalsPage, EventsCalendarPage)
 
 #### Section Header (h2 -- inside white cards)
 

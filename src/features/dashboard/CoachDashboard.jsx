@@ -10,6 +10,8 @@ import {
     Target,
     BookOpen,
     FileText,
+    BarChart2,
+    Star,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
@@ -369,9 +371,9 @@ function CoachDashboard() {
             {/* 3. Today's Trainings */}
             <div className={`${styles.dashSection} ${styles.delay2}`}>
                 <div className={styles.sectionHeader}>
-                    <div className={styles.sectionTitleRow}>
-                        <CalendarDays size={18} className={styles.sectionIcon} />
-                        <h2 className={styles.sectionTitle}>אימוני היום</h2>
+                    <div className={styles.pageSectionHeader} style={{ marginTop: 0, marginBottom: 0 }}>
+                        <CalendarDays size={18} className={styles.pageSectionIcon} />
+                        <h2 className={styles.pageSectionTitle}>אימוני היום</h2>
                     </div>
                     <Link to="/calendar" className={styles.sectionAction}>
                         תכנית אימון מלאה
@@ -448,11 +450,9 @@ function CoachDashboard() {
             {/* 5. Upcoming Events */}
             {upcomingEvents.length > 0 && (
                 <div className={`${styles.dashSection} ${styles.delay3}`}>
-                    <div className={styles.sectionHeader}>
-                        <div className={styles.sectionTitleRow}>
-                            <Calendar size={18} className={styles.sectionIcon} />
-                            <h2 className={styles.sectionTitle}>אירועים קרובים</h2>
-                        </div>
+                    <div className={styles.pageSectionHeader}>
+                        <Calendar size={18} className={styles.pageSectionIcon} />
+                        <h2 className={styles.pageSectionTitle}>אירועים קרובים</h2>
                     </div>
                     <div className={styles.eventsContainer}>
                         {upcomingEvents.map(event => {
@@ -480,15 +480,13 @@ function CoachDashboard() {
                 </div>
             )}
 
-            <div className={styles.sectionDivider} />
-
             {/* 6. Monthly Plans Status */}
             {groups.length > 0 && (
                 <div className={`${styles.dashSection} ${styles.delay4}`}>
                     <div className={styles.sectionHeader}>
-                        <div className={styles.sectionTitleRow}>
-                            <FileText size={18} className={styles.sectionIcon} />
-                            <h2 className={styles.sectionTitle}>תכניות חודשיות</h2>
+                        <div className={styles.pageSectionHeader} style={{ marginTop: 0, marginBottom: 0 }}>
+                            <FileText size={18} className={styles.pageSectionIcon} />
+                            <h2 className={styles.pageSectionTitle}>תכניות חודשיות</h2>
                         </div>
                         <Link to="/monthly-plans" className={styles.sectionAction}>
                             הצג הכל
@@ -501,11 +499,9 @@ function CoachDashboard() {
 
             {/* 7. Monthly Info */}
             <div className={`${styles.dashSection} ${styles.delay4}`}>
-                <div className={styles.sectionHeader}>
-                    <div className={styles.sectionTitleRow}>
-                        <BookOpen size={18} className={styles.sectionIcon} />
-                        <h2 className={styles.sectionTitle}>מידע חודשי</h2>
-                    </div>
+                <div className={styles.pageSectionHeader}>
+                    <BookOpen size={18} className={styles.pageSectionIcon} />
+                    <h2 className={styles.pageSectionTitle}>מידע חודשי</h2>
                 </div>
 
                 {/* Goals & Values Grid */}

@@ -41,6 +41,29 @@
     margin-bottom: var(--space-5);
 }
 
+/* ── Page-Level Section Headers ── */
+/* Used between major dashboard sections (outside white cards) */
+.pageSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.pageSectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.pageSectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
 /* ── Unified Section Title ── */
 /* All section titles use this pattern: icon + text in a flex row */
 .sectionTitleRow {
@@ -520,6 +543,7 @@
     .greetingSubtitle { font-size: var(--font-size-base); }
 
     .sectionTitle { font-size: var(--font-size-lg); }
+    .pageSectionTitle { font-size: var(--font-size-lg); }
     .sectionSubheading { font-size: var(--font-size-lg); }
 
     .todayList { gap: var(--space-4); }
@@ -540,6 +564,7 @@
     .greetingTitle { font-size: var(--font-size-3xl); }
     .greetingSubtitle { font-size: var(--font-size-lg); }
     .sectionTitle { font-size: var(--font-size-xl); }
+    .pageSectionTitle { font-size: var(--font-size-xl); }
     .sectionSubheading { font-size: var(--font-size-xl); }
     .dashSection { margin-bottom: var(--space-12); }
     .sectionDivider { margin-bottom: var(--space-12); }

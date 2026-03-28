@@ -108,6 +108,28 @@
 }
 
 
+/* Page Section Headers */
+.pageSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.pageSectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.pageSectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
 /* Layout Split - Stacked on Mobile */
 .container {
     display: flex;

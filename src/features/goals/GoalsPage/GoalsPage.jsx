@@ -309,10 +309,10 @@ function GoalsPage() {
                 {/* Values Section */}
                 <div className={styles.section}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <Heart size={20} />
-                            ערכי החודש
-                        </h2>
+                        <div className={styles.sectionTitleRow}>
+                            <Heart size={18} className={styles.sectionIcon} />
+                            <h2 className={styles.sectionTitle}>ערכי החודש</h2>
+                        </div>
                         {canEdit && (
                             <div className={styles.adminButtons}>
                                 <Button size="small" onClick={openAssignValues}>
@@ -347,10 +347,10 @@ function GoalsPage() {
                 {/* Goals Section - organized by group type */}
                 <div className={styles.section}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            <Target size={20} />
-                            מטרות החודש
-                        </h2>
+                        <div className={styles.sectionTitleRow}>
+                            <Target size={18} className={styles.sectionIcon} />
+                            <h2 className={styles.sectionTitle}>מטרות החודש</h2>
+                        </div>
                         {canEdit && (
                             <div className={styles.adminButtons}>
                                 <Button size="small" onClick={openAssignGoals}>

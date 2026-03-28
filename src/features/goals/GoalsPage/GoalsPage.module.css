@@ -14,16 +14,20 @@
 
 /* Header */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: var(--space-4);
 }
 
 .title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-primary);
+    margin: 0 0 var(--space-1) 0;
+}
+
+.subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
 }
 
 /* Month Navigation */
@@ -89,13 +93,23 @@
     margin-bottom: var(--space-4);
 }
 
-.sectionTitle {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
+.sectionTitleRow {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+}
+
+.sectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.sectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
 }
 
 .adminButtons {
@@ -491,7 +505,7 @@
     }
 
     .title {
-        font-size: var(--font-size-3xl);
+        font-size: var(--font-size-2xl);
     }
 
     .sectionsGrid {

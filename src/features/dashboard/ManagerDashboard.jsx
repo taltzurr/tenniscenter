@@ -302,6 +302,7 @@ const ManagerDashboard = () => {
 
       {/* ═══ Section: מצב נוכחי ═══ */}
       <div className={styles.pageSectionHeader}>
+        <ShieldCheck size={18} className={styles.pageSectionIcon} />
         <h2 className={styles.pageSectionTitle}>מצב נוכחי</h2>
       </div>
 
@@ -385,6 +386,7 @@ const ManagerDashboard = () => {
 
       {/* ═══ Section: ביצועים חודשיים ═══ */}
       <div className={styles.pageSectionHeader}>
+        <BarChart2 size={18} className={styles.pageSectionIcon} />
         <h2 className={styles.pageSectionTitle}>ביצועים חודשיים</h2>
       </div>
 
@@ -435,6 +437,7 @@ const ManagerDashboard = () => {
 
       {/* ═══ Section: הקשר חודשי ═══ */}
       <div className={styles.pageSectionHeader}>
+        <Calendar size={18} className={styles.pageSectionIcon} />
         <h2 className={styles.pageSectionTitle}>הקשר חודשי</h2>
       </div>
 
@@ -486,6 +489,7 @@ const ManagerDashboard = () => {
 
       {/* ═══ Navigation Cards ═══ */}
       <div className={styles.pageSectionHeader}>
+        <Building2 size={18} className={styles.pageSectionIcon} />
         <h2 className={styles.pageSectionTitle}>ניהול שוטף</h2>
       </div>
       <div className={styles.grid}>

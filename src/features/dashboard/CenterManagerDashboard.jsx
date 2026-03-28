@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Users, Calendar, CheckCircle, TrendingUp, Clock, FileText, Target, CalendarDays } from 'lucide-react';
+import { Users, Calendar, CheckCircle, TrendingUp, Clock, FileText, Target, CalendarDays, ClipboardList, BarChart2, Award } from 'lucide-react';
 import { startOfMonth, endOfMonth, format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import useAuthStore from '../../stores/authStore';
@@ -274,6 +274,12 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
         </div>
       </div>
 
+      {/* Page Section: Operational Status */}
+      <div className={styles.pageSectionHeader}>
+        <ClipboardList size={18} className={styles.pageSectionIcon} />
+        <h2 className={styles.pageSectionTitle}>מצב תפעולי</h2>
+      </div>
+
       {/* Plan Submission Status Section */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
@@ -353,6 +359,12 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
         )}
       </div>
 
+      {/* Page Section: Performance */}
+      <div className={styles.pageSectionHeader}>
+        <BarChart2 size={18} className={styles.pageSectionIcon} />
+        <h2 className={styles.pageSectionTitle}>ביצועים חודשיים</h2>
+      </div>
+
       {/* Monthly Execution Section */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
@@ -398,6 +410,12 @@ const CenterManagerDashboard = ({ overrideCenterId } = {}) => {
             })}
           </div>
         )}
+      </div>
+
+      {/* Page Section: Recognition */}
+      <div className={styles.pageSectionHeader}>
+        <Award size={18} className={styles.pageSectionIcon} />
+        <h2 className={styles.pageSectionTitle}>הוקרה חודשית</h2>
       </div>
 
       {/* Monthly Outstanding - after operational sections */}

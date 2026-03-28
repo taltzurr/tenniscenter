@@ -114,6 +114,28 @@
     border-radius: var(--radius-full);
 }
 
+/* ── Page Section Headers (divider h2s) ── */
+.pageSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.pageSectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.pageSectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
 /* ── Section Card ── */
 .section {
     background: white;
@@ -121,7 +143,7 @@
     padding: var(--space-4);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-100);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
 .sectionHeader {
@@ -131,13 +153,23 @@
     margin-bottom: var(--space-3);
 }
 
-.sectionTitle {
-    font-size: var(--font-size-base);
-    font-weight: 700;
-    color: var(--text-primary);
+.sectionTitleRow {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+}
+
+.sectionIcon {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.sectionTitle {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.02em;
 }
 
 .sectionAction {
@@ -185,6 +217,34 @@
 .alertIcon.warning { color: var(--warning-500); }
 .alertIcon.info { color: var(--info-500, #3b82f6); }
 
+.alertBadge {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full, 999px);
+    background: var(--error-100);
+    color: var(--error-700);
+}
+
+.alertClickable {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.alertAction {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+    color: var(--primary-600);
+}
+
+.alertActionLabel {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 .alertContent { min-width: 0; flex: 1; }
 
 .alertTitle {
@@ -227,12 +287,29 @@
     background-color: var(--gray-50);
 }
 
+.centerTrainingInfo {
+    flex: 1;
+    min-width: 0;
+}
+
 .centerTrainingName {
     font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--text-primary);
-    flex: 1;
-    min-width: 0;
+}
+
+.centerTrainingStatus.success { color: var(--success-600, #059669); }
+.centerTrainingStatus.warning { color: var(--warning-600, #d97706); }
+.centerTrainingStatus.danger { color: var(--error-500); }
+
+.centerTrainingDivider {
+    color: var(--text-tertiary);
+    margin: 0 var(--space-1);
+}
+
+.centerTrainingChevron {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
 }
 
 .centerTrainingCount {
@@ -964,80 +1041,85 @@
     margin-bottom: var(--space-6);
 }
 
-.dashboardCard {
+.contextCard {
     background: white;
-    border-radius: var(--radius-xl);
-    padding: var(--space-5);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
     border: 1px solid var(--gray-100);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    height: 100%;
+    box-shadow: var(--shadow-xs);
 }
 
-.cardHeader {
+.contextCardHeader {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
 }
 
-.contextTitle {
-    font-size: var(--font-size-base);
+.contextCardIcon {
+    flex-shrink: 0;
+}
+
+.contextCardTitle {
     font-weight: 700;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.cardContent {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-}
-
-.tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    border-radius: var(--radius-full);
     font-size: var(--font-size-sm);
-    font-weight: 500;
-    border: 1px solid transparent;
+    color: var(--text-primary);
+    margin: 0;
 }
 
-.tagGoal {
-    background-color: var(--accent-50);
-    color: var(--accent-700);
-    border-color: var(--accent-200);
+.contextEmpty {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    padding: var(--space-2) 0;
 }
 
-.tagValue {
-    background-color: var(--primary-50);
-    color: var(--primary-700);
-    border-color: var(--primary-200);
-}
-
-.goalsByGroup {
+.goalsList {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
 }
 
-.goalRow {
+.goalItem {
     display: flex;
-    align-items: baseline;
-    gap: var(--space-2);
-    font-size: var(--font-size-sm);
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border-inline-end: 3px solid var(--accent-400);
 }
 
-.goalGroupLabel {
-    font-weight: 600;
+.goalTypeBadge {
+    font-size: 10px;
+    font-weight: 700;
     color: var(--accent-700);
+    background: var(--accent-100);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) 10px;
     white-space: nowrap;
-    min-width: 80px;
+}
+
+.goalText {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.valuesList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.valueTag {
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border-inline-end: 3px solid var(--primary-400);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 /* ── Ranking Explanation ── */

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import useSwipeNavigation from '../../../hooks/useSwipeNavigation';
-import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, ChevronDown, Building2, Check } from 'lucide-react';
+import { ArrowRight, Save, Target, Heart, Plus, Trash, Clock, ChevronRight, ChevronLeft, ChevronDown, Building2, Check, CalendarDays } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../../stores/authStore';
 import useMonthlyThemesStore from '../../../stores/monthlyThemesStore';
@@ -485,8 +485,11 @@ function EventsCalendarPage() {
             <div className={styles.container}>
                 {/* Left: Interactive Calendar */}
                 <div ref={calendarRef} className={styles.calendarSection} {...swipeHandlers}>
+                    <div className={styles.pageSectionHeader}>
+                        <CalendarDays size={18} className={styles.pageSectionIcon} />
+                        <h2 className={styles.pageSectionTitle}>לוח שנה ארגוני</h2>
+                    </div>
                     <div className={styles.calendarHeader}>
-                        <h2 className={styles.cardTitle}>לוח שנה ארגוני</h2>
                         <div className={styles.calendarLegend}>
                             {Object.entries(EVENT_LABELS).map(([key, label]) => (
                                 <div key={key} className={styles.legendItem}>
@@ -559,11 +562,11 @@ function EventsCalendarPage() {
                 <div className={styles.themesSidebar}>
                     <form onSubmit={handleSaveThemes}>
                         {/* Monthly Values */}
+                        <div className={styles.pageSectionHeader}>
+                            <Heart size={18} className={styles.pageSectionIcon} />
+                            <h2 className={styles.pageSectionTitle}>ערכי החודש</h2>
+                        </div>
                         <div className={styles.card}>
-                            <div className={styles.cardHeader}>
-                                <Heart className={styles.cardIcon} size={20} color="var(--primary-600)" />
-                                <h2 className={styles.cardTitle}>ערכי החודש</h2>
-                            </div>
                             <input
                                 className={styles.input}
                                 placeholder="לדוגמה: התמדה, כבוד..."
@@ -580,11 +583,11 @@ function EventsCalendarPage() {
                         </div>
 
                         {/* Monthly Goals by group type */}
-                        <div className={styles.card} style={{ marginTop: '1.5rem' }}>
-                            <div className={styles.cardHeader}>
-                                <Target className={styles.cardIcon} size={20} color="var(--accent-500)" />
-                                <h2 className={styles.cardTitle}>מטרות החודש</h2>
-                            </div>
+                        <div className={styles.pageSectionHeader}>
+                            <Target size={18} className={styles.pageSectionIcon} />
+                            <h2 className={styles.pageSectionTitle}>מטרות החודש</h2>
+                        </div>
+                        <div className={styles.card}>
                             <div className={styles.goalsGroupForm}>
                                 {DEFAULT_GROUP_TYPES.map((groupType) => {
                                     const goalValue = themesFormData.goals[groupType.id] || '';
