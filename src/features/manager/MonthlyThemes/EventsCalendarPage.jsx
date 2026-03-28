@@ -14,6 +14,8 @@ import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import Modal from '../../../components/ui/Modal/Modal';
 import EventDetailsModal from '../../../components/ui/EventDetailsModal/EventDetailsModal';
+import DateTimePicker from '../../../components/ui/DateTimePicker/DateTimePicker';
+import { normalizeDate } from '../../../utils/dateUtils';
 import styles from './EventsCalendarPage.module.css';
 
 function EventsCalendarPage() {
@@ -175,36 +177,48 @@ function EventsCalendarPage() {
             type: currentEvent?.type || EVENT_TYPES.HOLIDAY,
             description: currentEvent?.description || '',
             centerIds: currentEvent?.centerIds || (isCM && managedCenterId ? [managedCenterId] : []),
-            time: currentEvent?.time || '',
             location: currentEvent?.location || '',
-            isRange: currentEvent?.endDate ? true : false,
         });
 
-        const currentEventDate = currentEvent?.date
-            ? (currentEvent.date instanceof Date ? currentEvent.date.getDate() : new Date(currentEvent.date.seconds * 1000).getDate())
-            : eventDate;
+        const [modalCenterOpen, setModalCenterOpen] = useState(false);
+        const modalCenterRef = useRef(null);
 
-        const currentEventEndDate = currentEvent?.endDate
-            ? (currentEvent.endDate instanceof Date ? currentEvent.endDate.getDate() : new Date(currentEvent.endDate.seconds * 1000).getDate())
-            : eventDate;
+        useEffect(() => {
+            function handleClickOutside(e) {
+                if (modalCenterRef.current && !modalCenterRef.current.contains(e.target)) {
+                    setModalCenterOpen(false);
+                }
+            }
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }, []);
 
-        const [startDay, setStartDay] = useState(currentEventDate);
-        const [endDay, setEndDay] = useState(currentEventEndDate);
+        const [dateTimeState, setDateTimeState] = useState(() => {
+            const existingStart = currentEvent?.date ? normalizeDate(currentEvent.date) : null;
+            const existingEnd = currentEvent?.endDate ? normalizeDate(currentEvent.endDate) : null;
+            return {
+                startDate: existingStart || new Date(selectedYear, selectedMonth, eventDate),
+                endDate: existingEnd || null,
+                startTime: currentEvent?.time || '',
+                endTime: currentEvent?.endTime || '',
+                isAllDay: !currentEvent?.time,
+                isRange: !!existingEnd,
+            };
+        });
 
         const handleSubmit = async (e) => {
             e.preventDefault();
-            // Always use the startDay from the form input (user may have changed it)
-            const startDate = new Date(selectedYear, selectedMonth, startDay);
 
             const eventPayload = {
                 ...formData,
-                date: startDate,
-                endDate: formData.isRange ? new Date(selectedYear, selectedMonth, endDay) : null,
-                year: selectedYear,
-                month: selectedMonth,
-                centerIds: formData.centerIds,  // empty array = all centers
+                date: dateTimeState.startDate,
+                endDate: dateTimeState.isRange ? dateTimeState.endDate : null,
+                time: dateTimeState.isAllDay ? '' : dateTimeState.startTime,
+                endTime: dateTimeState.isAllDay ? '' : (dateTimeState.isRange ? dateTimeState.endTime : ''),
+                year: dateTimeState.startDate.getFullYear(),
+                month: dateTimeState.startDate.getMonth(),
+                centerIds: formData.centerIds,
             };
-            delete eventPayload.isRange;
 
             let res;
             if (currentEvent) {
@@ -267,7 +281,7 @@ function EventsCalendarPage() {
                         />
                     </div>
 
-                    {/* Center selection - supervisor sees multi-select, CM sees locked to their center */}
+                    {/* Center selection - supervisor sees multi-select dropdown, CM sees locked to their center */}
                     {isCM ? (
                         <div className={styles.formGroup}>
                             <label className={styles.label}>מרכז</label>
@@ -278,74 +292,71 @@ function EventsCalendarPage() {
                     ) : (
                         <div className={styles.formGroup}>
                             <label className={styles.label}>מרכזים</label>
-                            <div className={styles.centerChipsModal}>
+                            <div className={styles.centerDropdown} ref={modalCenterRef}>
                                 <button
                                     type="button"
-                                    className={`${styles.centerChipSmall} ${formData.centerIds.length === 0 ? styles.centerChipSmallActive : ''}`}
-                                    onClick={() => setModalFormData({ ...formData, centerIds: [] })}
+                                    className={`${styles.centerDropdownTrigger} ${styles.centerDropdownTriggerModal} ${modalCenterOpen ? styles.centerDropdownTriggerOpen : ''}`}
+                                    onClick={() => setModalCenterOpen(!modalCenterOpen)}
                                 >
-                                    כל המרכזים
+                                    <Building2 size={16} />
+                                    {formData.centerIds.length === 0
+                                        ? 'כל המרכזים'
+                                        : `${formData.centerIds.length} מרכזים`}
+                                    {formData.centerIds.length > 0 && (
+                                        <span className={styles.centerDropdownCount}>{formData.centerIds.length}</span>
+                                    )}
+                                    <ChevronDown
+                                        size={16}
+                                        className={`${styles.centerDropdownArrow} ${modalCenterOpen ? styles.centerDropdownArrowOpen : ''}`}
+                                    />
                                 </button>
-                                {centers.map(c => (
-                                    <button
-                                        type="button"
-                                        key={c.id}
-                                        className={`${styles.centerChipSmall} ${formData.centerIds.includes(c.id) ? styles.centerChipSmallActive : ''}`}
-                                        onClick={() => toggleCenter(c.id)}
-                                    >
-                                        {c.name}
-                                    </button>
-                                ))}
+                                {modalCenterOpen && (
+                                    <div className={`${styles.centerDropdownPanel} ${styles.centerDropdownPanelModal}`}>
+                                        <button
+                                            type="button"
+                                            className={`${styles.centerDropdownItem} ${formData.centerIds.length === 0 ? styles.centerDropdownItemActive : ''}`}
+                                            onClick={() => setModalFormData({ ...formData, centerIds: [] })}
+                                        >
+                                            <div className={`${styles.centerDropdownCheckbox} ${formData.centerIds.length === 0 ? styles.centerDropdownCheckboxChecked : ''}`}>
+                                                {formData.centerIds.length === 0 && <Check size={12} color="white" />}
+                                            </div>
+                                            <Building2 size={14} />
+                                            כל המרכזים
+                                        </button>
+                                        <div className={styles.centerDropdownDivider} />
+                                        {centers.map(c => {
+                                            const isActive = formData.centerIds.includes(c.id);
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={c.id}
+                                                    className={`${styles.centerDropdownItem} ${isActive ? styles.centerDropdownItemActive : ''}`}
+                                                    onClick={() => toggleCenter(c.id)}
+                                                >
+                                                    <div className={`${styles.centerDropdownCheckbox} ${isActive ? styles.centerDropdownCheckboxChecked : ''}`}>
+                                                        {isActive && <Check size={12} color="white" />}
+                                                    </div>
+                                                    <Building2 size={14} />
+                                                    {c.name}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
 
-                    {/* Date + Time row */}
-                    <div className={styles.dateTimeGroup}>
-                        <div className={styles.dateTimeField}>
-                            <label className={styles.label}>יום בחודש</label>
-                            <div className={styles.dateRangeRow}>
-                                <input
-                                    type="number"
-                                    className={`${styles.input} ${styles.dayInput}`}
-                                    value={startDay}
-                                    onChange={e => setStartDay(Number(e.target.value))}
-                                    min={1}
-                                    max={getDaysInMonth(selectedYear, selectedMonth)}
-                                />
-                                {formData.isRange && (
-                                    <>
-                                        <span className={styles.dateRangeSeparator}>עד</span>
-                                        <input
-                                            type="number"
-                                            className={`${styles.input} ${styles.dayInput}`}
-                                            value={endDay}
-                                            onChange={e => setEndDay(Number(e.target.value))}
-                                            min={startDay}
-                                            max={getDaysInMonth(selectedYear, selectedMonth)}
-                                        />
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                        <div className={styles.dateTimeField}>
-                            <label className={styles.label}>שעה</label>
-                            <input
-                                type="time"
-                                className={styles.input}
-                                value={formData.time}
-                                onChange={e => setModalFormData({ ...formData, time: e.target.value })}
-                            />
-                        </div>
-                    </div>
-                    <label className={styles.checkboxRow}>
-                        <input
-                            type="checkbox"
-                            checked={formData.isRange}
-                            onChange={e => setModalFormData({ ...formData, isRange: e.target.checked })}
-                        />
-                        טווח תאריכים
-                    </label>
+                    {/* Date + Time picker */}
+                    <DateTimePicker
+                        startDate={dateTimeState.startDate}
+                        endDate={dateTimeState.endDate}
+                        startTime={dateTimeState.startTime}
+                        endTime={dateTimeState.endTime}
+                        isAllDay={dateTimeState.isAllDay}
+                        isRange={dateTimeState.isRange}
+                        onChange={setDateTimeState}
+                    />
 
                     {/* Location */}
                     <div className={styles.formGroup}>

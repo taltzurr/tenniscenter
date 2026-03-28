@@ -525,37 +525,14 @@
     width: 100%;
 }
 
-.centerChipsModal {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+/* Modal-specific dropdown - full width trigger, higher z-index panel */
+.centerDropdownTriggerModal {
+    width: 100%;
 }
 
-.centerChipSmall {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
-    border: 1px solid var(--gray-200);
-    background: var(--bg-primary);
-    border-radius: 9999px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-    color: var(--text-primary);
-}
-
-.centerChipSmall:hover {
-    border-color: var(--primary-300);
-}
-
-.centerChipSmallActive {
-    border-color: var(--primary-500);
-    background: var(--primary-50);
-    color: var(--primary-700);
-    font-weight: 600;
+.centerDropdownPanelModal {
+    z-index: 200;
+    max-height: 200px;
 }
 
 .lockedCenter {
@@ -568,64 +545,6 @@
     color: var(--text-secondary);
 }
 
-/* Date + Time inline group */
-.dateTimeGroup {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-    margin-bottom: 0.5rem;
-}
-
-.dateTimeField {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-}
-
-.dateTimeField:first-child {
-    flex: 1.5;
-}
-
-.dateRangeRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.dateRangeSeparator {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    flex-shrink: 0;
-}
-
-.dayInput {
-    width: 100%;
-    min-width: 60px;
-    text-align: center;
-    -moz-appearance: textfield;
-}
-
-.dayInput::-webkit-inner-spin-button,
-.dayInput::-webkit-outer-spin-button {
-    opacity: 1;
-}
-
-.checkboxRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    margin-bottom: 1rem;
-}
-
-.checkboxRow input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary-500);
-}
 
 /* Tablet / Desktop Enhancements */
 @media (min-width: 768px) {

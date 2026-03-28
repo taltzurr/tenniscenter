@@ -505,7 +505,7 @@ The analytics dashboard (`ManagerAnalyticsDashboard`) is the supervisor/centerMa
 
 When filtering by center (supervisor view), use a **multi-select dropdown** instead of scattered chips. This keeps the UI compact with 17+ centers.
 
-**Pages using this pattern**: `WeeklySchedulePage`, `EventsCalendarPage`
+**Pages using this pattern**: `WeeklySchedulePage`, `EventsCalendarPage` (both the calendar filter AND the event creation/editing modal)
 
 **Behavior**:
 - Trigger shows "כל המרכזים" when no filter active, or "X מרכזים" with count badge when centers selected
@@ -522,6 +522,36 @@ When filtering by center (supervisor view), use a **multi-select dropdown** inst
 - Active items: `primary-50` background, `primary-700` color, bold
 - Checked checkbox: `primary-500` background with white check icon
 - Do NOT use flat chip layout for center filters — always use dropdown
+- In modals, add `.centerDropdownTriggerModal` class for full-width trigger and `.centerDropdownPanelModal` for higher z-index + limited max-height
+
+---
+
+## DateTimePicker Component
+
+Google Calendar-inspired date/time picker used in the event creation/editing modal for both supervisor and center manager.
+
+**Location**: `src/components/ui/DateTimePicker/DateTimePicker.jsx` + `DateTimePicker.module.css`
+
+**Props**:
+- `startDate` (Date), `endDate` (Date|null), `startTime` (string "HH:MM"), `endTime` (string)
+- `isAllDay` (boolean), `isRange` (boolean)
+- `onChange` (callback receiving all props as object)
+
+**Features**:
+- Clickable date button showing Hebrew-formatted date (e.g., "יום ראשון, 15 במרץ")
+- Mini calendar dropdown with month navigation, today highlight, selected day highlight, range highlighting
+- Time dropdown with 30-min slots (06:00-23:30), auto-scrolled to current selection
+- "כל היום" toggle hides/shows time pickers
+- "+ הוסף תאריך סיום" for date range mode with start/end dates and X to remove
+- Cross-month date range support
+- RTL-aware layout, mobile-first (fits 375px viewport)
+
+**Key rules**:
+- Uses `formatHebrewDateShort()` from `dateUtils.js` for date display
+- Uses `HEBREW_DAYS`/`HEBREW_MONTHS` from `constants.js`
+- Mini calendar uses `position: absolute; z-index: 100` — ensure parent allows overflow
+- Click-outside handlers use `setTimeout(0)` to avoid same-click closure
+- Do NOT replace with `<input type="date">` or `<input type="time">` — always use this component for event date/time selection
 
 ---
 

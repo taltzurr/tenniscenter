@@ -1,0 +1,343 @@
+/* DateTimePicker - Google Calendar-inspired date/time selection */
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+/* Date row: date button + time button inline */
+.dateRow {
+    position: relative;
+}
+
+.dateTimeButtons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* Shared wrapper for dropdown positioning */
+.dateButtonWrap,
+.timeButtonWrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.dateButtonWrap {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Date button - looks like a form field */
+.dateButton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    text-align: right;
+    font-family: inherit;
+    min-height: 44px;
+}
+
+.dateButton:hover {
+    border-color: var(--primary-300);
+}
+
+.dateButton:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(74, 159, 212, 0.15);
+}
+
+/* Time button - compact */
+.timeButton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+    font-family: inherit;
+    min-height: 44px;
+}
+
+.timeButton:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-300);
+}
+
+.dtIcon {
+    color: var(--primary-500);
+    flex-shrink: 0;
+}
+
+/* Range separator arrow */
+.rangeSeparator {
+    text-align: center;
+    color: var(--gray-400);
+    font-size: var(--font-size-lg);
+    line-height: 1;
+    padding: var(--space-1) 0;
+}
+
+/* Remove range (X) button */
+.removeRange {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--gray-400);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+}
+
+.removeRange:hover {
+    color: var(--error-500);
+    background: var(--error-100);
+}
+
+/* Controls row: all-day toggle + add end date */
+.controlsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.allDayToggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.allDayToggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-500);
+    cursor: pointer;
+}
+
+.addEndDate {
+    background: none;
+    border: none;
+    color: var(--primary-600);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+    font-family: inherit;
+}
+
+.addEndDate:hover {
+    background: var(--primary-50);
+}
+
+/* ============================================
+   Mini Calendar Dropdown
+   ============================================ */
+
+.miniCalendar {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 100;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    padding: var(--space-3);
+    width: 280px;
+}
+
+.calHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.calMonthLabel {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.calNavBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--gray-50);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.calNavBtn:hover {
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.calDayHeaders {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: var(--space-1);
+}
+
+.calDayHeader {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    padding: var(--space-1) 0;
+}
+
+.calGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calEmpty {
+    aspect-ratio: 1;
+}
+
+.calDay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+    font-family: inherit;
+    padding: 0;
+}
+
+.calDay:hover {
+    background: var(--gray-100);
+}
+
+.calToday {
+    border: 2px solid var(--primary-400);
+}
+
+.calSelected {
+    background: var(--primary-500) !important;
+    color: white !important;
+    font-weight: 700;
+}
+
+.calInRange {
+    background: var(--primary-100);
+    border-radius: 0;
+}
+
+.calRangeStart {
+    background: var(--primary-500) !important;
+    color: white !important;
+    font-weight: 700;
+    border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.calRangeEnd {
+    background: var(--primary-500) !important;
+    color: white !important;
+    font-weight: 700;
+    border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+
+/* ============================================
+   Time Dropdown
+   ============================================ */
+
+.timeDropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 100;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    max-height: 220px;
+    overflow-y: auto;
+    width: 100px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.timeSlot {
+    display: block;
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    background: transparent;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s;
+    font-family: inherit;
+}
+
+.timeSlot:hover {
+    background: var(--primary-50);
+}
+
+.timeSlotActive {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    font-weight: 700;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (min-width: 768px) {
+    .miniCalendar {
+        width: 300px;
+        padding: var(--space-4);
+    }
+
+    .timeDropdown {
+        width: 110px;
+    }
+}
