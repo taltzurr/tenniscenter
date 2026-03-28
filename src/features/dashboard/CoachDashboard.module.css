@@ -129,16 +129,11 @@
 .delay4 { animation-delay: 320ms; }
 .delay5 { animation-delay: 380ms; }
 
-/* Stats row: 3 cards + completion ring */
+/* Stats row: 4 equal cards */
 .statsRow {
-    display: flex;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-2);
-}
-
-.statsRow > :first-child {
-    flex: 1;
-    min-width: 0;
 }
 
 .ringCard {
@@ -146,15 +141,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: var(--space-2);
     background: var(--bg-primary);
     border-radius: var(--radius-xl);
     padding: var(--space-3);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-200);
-    min-width: 72px;
     cursor: pointer;
     transition: all var(--transition-fast);
+    text-align: center;
 }
 
 .ringCard:hover {
@@ -168,12 +163,11 @@
 }
 
 .ringLabel {
-    font-size: 9px;
+    font-size: 10px;
     color: var(--text-secondary);
     font-weight: var(--font-weight-medium);
     text-align: center;
     line-height: 1.2;
-    white-space: nowrap;
 }
 
 /* ── Greeting ── */
