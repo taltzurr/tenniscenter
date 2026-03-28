@@ -71,6 +71,11 @@ function UserFormModal({ isOpen, onClose, user, onSubmit, isSubmitting, currentR
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Center managers and coaches must be linked to a center
+        if (formData.role !== ROLES.SUPERVISOR && !formData.centerId) {
+            alert('חובה לבחור מרכז');
+            return;
+        }
         const { centerId, ...rest } = formData;
         const payload = {
             ...rest,

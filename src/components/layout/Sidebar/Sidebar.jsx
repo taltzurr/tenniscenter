@@ -53,17 +53,18 @@ function Sidebar() {
                     section: 'ראשי',
                     items: [
                         { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
-                        { to: '/users', icon: UserCog, label: 'מאמנים' },
-                        { to: '/groups', icon: Users, label: 'קבוצות' },
                         { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
                     ]
                 },
                 {
                     section: 'ניהול',
                     items: [
-                        { to: '/monthly-plans/review', icon: CalendarCheck, label: 'תוכניות' },
+                        { to: '/analytics', icon: BarChart3, label: 'נתונים' },
                         { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
                         { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
+                        { to: '/monthly-plans/review', icon: CalendarCheck, label: 'אישור תכניות' },
+                        { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
+                        { to: '/users', icon: UserCog, label: 'מאמנים' },
                         { to: '/settings', icon: Settings, label: 'הגדרות' },
                     ]
                 }

@@ -83,13 +83,16 @@ const DetailModal = ({ isOpen, onClose, title, icon: Icon, children }) => {
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
-  const { userData, isSupervisor } = useAuthStore();
+  const { userData, isSupervisor, isCenterManager } = useAuthStore();
   const { users, fetchUsers } = useUsersStore();
   const { groups, fetchGroups } = useGroupsStore();
   const { plans: monthlyPlans, fetchAllPlans } = useMonthlyPlansStore();
   const { centers, fetchCenters } = useCentersStore();
   const { events, fetchEvents } = useEventsStore();
   const { fetchTheme, currentTheme } = useMonthlyThemesStore();
+
+  const isCM = isCenterManager();
+  const managedCenterId = userData?.managedCenterId;
 
   const [orgTrainings, setOrgTrainings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,7 +114,7 @@ const ManagerDashboard = () => {
         const monthEnd = endOfMonth(currentDate);
         await Promise.all([
           fetchUsers(),
-          fetchGroups(null, true),
+          isCM ? fetchGroups(null, false, managedCenterId) : fetchGroups(null, true),
           fetchCenters(),
           fetchAllPlans(currentYear, currentMonth),
           fetchEvents(currentYear, currentDate.getMonth()),
@@ -128,46 +131,59 @@ const ManagerDashboard = () => {
     fetchData();
   }, [fetchUsers, fetchGroups, fetchCenters, fetchAllPlans, fetchEvents, fetchTheme, currentYear, currentMonth]);
 
+  // Center-scoped data for centerManager
+  const effectiveCenters = useMemo(() => {
+    if (!isCM || !managedCenterId) return centers;
+    return centers.filter(c => c.id === managedCenterId);
+  }, [centers, isCM, managedCenterId]);
+
+  const effectiveUsers = useMemo(() => {
+    if (!isCM || !managedCenterId) return users;
+    return users.filter(u =>
+      u.role === 'coach' && u.isActive !== false && u.centerIds?.includes(managedCenterId)
+    );
+  }, [users, isCM, managedCenterId]);
+
   // ── Computed Data ──
   const quickStats = useMemo(() => {
-    if (!users.length || !centers.length) return null;
-    return getOrgQuickStats(users, orgTrainings, monthlyPlans, groups, events, centers, currentYear, currentMonth);
-  }, [users, orgTrainings, monthlyPlans, groups, events, centers, currentYear, currentMonth]);
+    if (!effectiveUsers.length || !effectiveCenters.length) return null;
+    return getOrgQuickStats(effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth);
+  }, [effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth]);
 
   const alerts = useMemo(() => {
-    if (!users.length) return [];
-    return getAlerts(users, orgTrainings, monthlyPlans, groups, events, centers, currentYear, currentMonth);
-  }, [users, orgTrainings, monthlyPlans, groups, events, centers, currentYear, currentMonth]);
+    if (!effectiveUsers.length) return [];
+    return getAlerts(effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth);
+  }, [effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth]);
 
   const todayByCenter = useMemo(() =>
-    getTodayTrainingsByCenter(orgTrainings, groups, users, centers),
-    [orgTrainings, groups, users, centers]);
+    getTodayTrainingsByCenter(orgTrainings, groups, effectiveUsers, effectiveCenters),
+    [orgTrainings, groups, effectiveUsers, effectiveCenters]);
 
 
   const planStatus = useMemo(() =>
-    getPlanSubmissionStatus(users, monthlyPlans, groups, centers, currentYear, currentMonth),
-    [users, monthlyPlans, groups, centers, currentYear, currentMonth]);
+    getPlanSubmissionStatus(effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth),
+    [effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
 
   const topBottom = useMemo(() =>
-    getTopBottomCoaches(users, orgTrainings, groups, centers),
-    [users, orgTrainings, groups, centers]);
+    getTopBottomCoaches(effectiveUsers, orgTrainings, groups, effectiveCenters),
+    [effectiveUsers, orgTrainings, groups, effectiveCenters]);
 
   const trainingExec = useMemo(() =>
-    getTrainingExecutionData(orgTrainings, groups, users, centers),
-    [orgTrainings, groups, users, centers]);
+    getTrainingExecutionData(orgTrainings, groups, effectiveUsers, effectiveCenters),
+    [orgTrainings, groups, effectiveUsers, effectiveCenters]);
 
   const planData = useMemo(() =>
-    getPlanSubmissionData(users, monthlyPlans, groups, centers, currentYear, currentMonth),
-    [users, monthlyPlans, groups, centers, currentYear, currentMonth]);
+    getPlanSubmissionData(effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth),
+    [effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
 
   // Stat card detail data
   const coachesByCenter = useMemo(() =>
-    getCoachesListByCenter(users, centers),
-    [users, centers]);
+    getCoachesListByCenter(effectiveUsers, effectiveCenters),
+    [effectiveUsers, effectiveCenters]);
 
   const todayTrainingsDetail = useMemo(() =>
-    getTodayTrainingsDetail(orgTrainings, groups, users, centers),
-    [orgTrainings, groups, users, centers]);
+    getTodayTrainingsDetail(orgTrainings, groups, effectiveUsers, effectiveCenters),
+    [orgTrainings, groups, effectiveUsers, effectiveCenters]);
 
   // Group today's trainings by center
   const todayTrainingsByCenterGrouped = useMemo(() => {
@@ -201,12 +217,12 @@ const ManagerDashboard = () => {
   }, [currentTheme]);
 
   const dashboardItems = useMemo(() => [
-    { title: 'ניהול משתמשים', description: 'צפייה, הוספה ועריכה של משתמשים, מאמנים ומנהלים.', icon: Users, color: 'blue', path: '/users' },
+    { title: isCM ? 'מאמנים' : 'ניהול משתמשים', description: isCM ? 'צפייה ועריכה של מאמני המרכז.' : 'צפייה, הוספה ועריכה של משתמשים, מאמנים ומנהלים.', icon: Users, color: 'blue', path: '/users' },
     ...(isSupervisor() ? [{ title: 'ניהול מרכזים', description: 'הגדרת מרכזים, כתובות ופרטי התקשרות.', icon: Building2, color: 'green', path: '/centers' }] : []),
     { title: 'נתונים', description: 'דוחות ביצוע, סטטיסטיקות מאמנים ומעקב.', icon: BarChart3, color: 'orange', path: '/analytics' },
     { title: 'מטרות וערכים', description: 'מטרות חודשיות, ערכים ואירועים ארגוניים.', icon: Calendar, color: 'purple', path: '/events-calendar' },
     { title: 'מצטייני החודש', description: 'בחירת מאמנים ומרכזים מצטיינים.', icon: Trophy, color: 'yellow', path: '/monthly-outstanding' }
-  ], [isSupervisor]);
+  ], [isSupervisor, isCM]);
 
   const alertIconMap = { danger: AlertTriangle, warning: AlertTriangle, info: Info };
   const monthName = format(currentDate, 'MMMM', { locale: he });
@@ -262,6 +278,7 @@ const ManagerDashboard = () => {
           {getGreeting()}, {(userData?.displayName || 'מנהל').split(' ')[0]}!
         </h1>
         <p className={styles.greetingSubtitle}>
+          {isCM && effectiveCenters[0] ? `${effectiveCenters[0].name} · ` : ''}
           {format(currentDate, 'EEEE, d בMMMM yyyy', { locale: he })}
         </p>
       </div>
@@ -354,8 +371,8 @@ const ManagerDashboard = () => {
         </div>
       )}
 
-      {/* Today's Trainings by Center */}
-      {todayByCenter.length > 0 && (
+      {/* Today's Trainings by Center - only for supervisor */}
+      {!isCM && todayByCenter.length > 0 && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <div className={styles.sectionTitleRow}><Clock size={18} className={styles.sectionIcon} /><h2 className={styles.sectionTitle}>אימונים היום לפי מרכז</h2></div>
@@ -593,20 +610,24 @@ const ManagerDashboard = () => {
           </div>
         </div>
 
-        <div className={styles.modalSectionTitle}>לפי מרכז ({trainingExec.byCenter.length})</div>
-        {trainingExec.byCenter.map(center => (
-          <div key={center.name} className={styles.modalRow}>
-            <div className={styles.modalRowInfo}>
-              <div className={styles.modalRowName}>{center.name}</div>
-              <div className={styles.modalRowCenter}>{center.completed} מתוך {center.total} אימונים{center.cancelled > 0 ? ` · ${center.cancelled} בוטלו` : ''}</div>
-            </div>
-            <div className={styles.modalRowStats}>
-              <span style={{ fontWeight: 700 }}>{center.rate}%</span>
-              <span>{center.completed}/{center.total}</span>
-            </div>
-            <div className={styles.modalRowBar}><div className={styles.modalRowBarFill} style={{ width: `${center.rate}%`, backgroundColor: CHART_COLORS.completed }} /></div>
-          </div>
-        ))}
+        {!isCM && (
+          <>
+            <div className={styles.modalSectionTitle}>לפי מרכז ({trainingExec.byCenter.length})</div>
+            {trainingExec.byCenter.map(center => (
+              <div key={center.name} className={styles.modalRow}>
+                <div className={styles.modalRowInfo}>
+                  <div className={styles.modalRowName}>{center.name}</div>
+                  <div className={styles.modalRowCenter}>{center.completed} מתוך {center.total} אימונים{center.cancelled > 0 ? ` · ${center.cancelled} בוטלו` : ''}</div>
+                </div>
+                <div className={styles.modalRowStats}>
+                  <span style={{ fontWeight: 700 }}>{center.rate}%</span>
+                  <span>{center.completed}/{center.total}</span>
+                </div>
+                <div className={styles.modalRowBar}><div className={styles.modalRowBarFill} style={{ width: `${center.rate}%`, backgroundColor: CHART_COLORS.completed }} /></div>
+              </div>
+            ))}
+          </>
+        )}
 
         <div className={styles.modalSectionTitle}>לפי מאמן ({trainingExec.byCoach.length})</div>
         {trainingExec.byCoach.map(coach => (
@@ -647,23 +668,27 @@ const ManagerDashboard = () => {
           </div>
         </div>
 
-        <div className={styles.modalSectionTitle}>לפי מרכז ({planData.byCenter.length})</div>
-        {planData.byCenter.map(center => {
-          const rate = center.total > 0 ? Math.round((center.submitted / center.total) * 100) : 0;
-          return (
-            <div key={center.name} className={styles.modalRow}>
-              <div className={styles.modalRowInfo}>
-                <div className={styles.modalRowName}>{center.name}</div>
-                <div className={styles.modalRowCenter}>{center.submitted} מתוך {center.total} קבוצות</div>
-              </div>
-              <div className={styles.modalRowStats}>
-                <span style={{ fontWeight: 700 }}>{rate}%</span>
-                <span>{center.submitted}/{center.total}</span>
-              </div>
-              <div className={styles.modalRowBar}><div className={styles.modalRowBarFill} style={{ width: `${rate}%`, backgroundColor: CHART_COLORS.submitted }} /></div>
-            </div>
-          );
-        })}
+        {!isCM && (
+          <>
+            <div className={styles.modalSectionTitle}>לפי מרכז ({planData.byCenter.length})</div>
+            {planData.byCenter.map(center => {
+              const rate = center.total > 0 ? Math.round((center.submitted / center.total) * 100) : 0;
+              return (
+                <div key={center.name} className={styles.modalRow}>
+                  <div className={styles.modalRowInfo}>
+                    <div className={styles.modalRowName}>{center.name}</div>
+                    <div className={styles.modalRowCenter}>{center.submitted} מתוך {center.total} קבוצות</div>
+                  </div>
+                  <div className={styles.modalRowStats}>
+                    <span style={{ fontWeight: 700 }}>{rate}%</span>
+                    <span>{center.submitted}/{center.total}</span>
+                  </div>
+                  <div className={styles.modalRowBar}><div className={styles.modalRowBarFill} style={{ width: `${rate}%`, backgroundColor: CHART_COLORS.submitted }} /></div>
+                </div>
+              );
+            })}
+          </>
+        )}
 
         <div className={styles.modalSectionTitle}>לפי מאמן ({planData.byCoach.length})</div>
         {planData.byCoach.map(coach => {

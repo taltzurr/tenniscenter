@@ -50,6 +50,11 @@ const useUsersStore = create((set, get) => ({
             isActive: true
         };
 
+        // Center managers MUST be linked to a center
+        if (processedData.role === ROLES.CENTER_MANAGER && processedData.centerIds.length === 0) {
+            set({ error: 'מנהל מרכז חייב להיות משויך למרכז', isLoading: false });
+            return { success: false, error: 'מנהל מרכז חייב להיות משויך למרכז' };
+        }
         // Sync managedCenterId for center managers
         if (processedData.role === ROLES.CENTER_MANAGER && processedData.centerIds.length > 0) {
             processedData.managedCenterId = processedData.centerIds[0];
@@ -162,6 +167,11 @@ const useUsersStore = create((set, get) => ({
             delete processedUpdates.centerId;
             delete processedUpdates.onboardingMethod;
             delete processedUpdates.initialPassword;
+            // Center managers MUST be linked to a center
+            if (processedUpdates.role === ROLES.CENTER_MANAGER && (!processedUpdates.centerIds || processedUpdates.centerIds.length === 0)) {
+                set({ error: 'מנהל מרכז חייב להיות משויך למרכז', isLoading: false });
+                return { success: false, error: 'מנהל מרכז חייב להיות משויך למרכז' };
+            }
             if (processedUpdates.role === ROLES.CENTER_MANAGER && processedUpdates.centerIds && processedUpdates.centerIds.length > 0) {
                 processedUpdates.managedCenterId = processedUpdates.centerIds[0];
             }

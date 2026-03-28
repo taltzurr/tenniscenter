@@ -52,7 +52,7 @@ function GoalsPage() {
     const [formData, setFormData] = useState({ title: '', description: '', category: '' });
     const [showDefinitionForm, setShowDefinitionForm] = useState(false);
 
-    const canEdit = userData?.role === ROLES.SUPERVISOR || userData?.role === ROLES.CENTER_MANAGER;
+    const canEdit = userData?.role === ROLES.SUPERVISOR;
     const isCoach = userData?.role === ROLES.COACH;
 
     // Fetch groups for coach filtering

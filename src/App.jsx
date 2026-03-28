@@ -53,9 +53,9 @@ function DashboardWrapper() {
     return <ManagerDashboard />;
   }
 
-  // Center managers see operational consolidated dashboard
+  // Center managers see the same rich dashboard, scoped to their center
   if (isCenterManager()) {
-    return <CenterManagerDashboard />;
+    return <ManagerDashboard />;
   }
 
   // Coaches see their dashboard
@@ -121,7 +121,11 @@ function App() {
             <Route path="/exercises/:id/edit" element={<ExerciseForm />} />
 
             {/* Exercise Requests routes */}
-            <Route path="/exercise-requests" element={<RequestsList />} />
+            <Route path="/exercise-requests" element={
+              <RoleRoute allowedRoles={['supervisor']}>
+                <RequestsList />
+              </RoleRoute>
+            } />
             <Route path="/exercise-requests/new" element={<RequestForm />} />
 
             {/* Monthly Plans routes */}

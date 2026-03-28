@@ -107,12 +107,41 @@ Tennis center management system for the **Israeli Tennis Association**. Manages 
 2. **centerManager** -- manages a single center, sees their center's coaches/groups
 3. **coach** -- manages their own groups, trainings, and monthly plans
 
+### Center Manager Role Details
+
+The center manager sees the **same dashboard and features as the supervisor**, scoped to their single center.
+
+**Data chain**: Coach data → Center Manager → Supervisor (sees everything)
+
+**Center linking**: Every center manager **MUST** be linked to a center from the centers collection. This is enforced at both the form level (UserFormModal) and the store level (usersStore addUser/updateUser). A center manager without `managedCenterId` is invalid.
+
+**Shared with supervisor** (scoped to their center):
+- Rich dashboard (ManagerDashboard) with charts, alerts, coach rankings, monthly context
+- Analytics page (ManagerAnalyticsDashboard)
+- Monthly plans review and approval
+- Events calendar (can create events for their center only)
+- Monthly outstanding (center coach of the month)
+- Training schedule view
+- Groups management
+- Exercises (view, create, submit requests -- same as coach)
+- Coach management (add/edit/deactivate coaches in their center)
+
+**NOT available to center manager** (supervisor only):
+- Centers page (CRUD)
+- Exercise request approval/rejection
+- Goal/value definition management (create/edit/delete)
+- Goal/value monthly assignment (centerManager is view-only on GoalsPage)
+- User management beyond coaches (no creating managers/supervisors)
+- "ניהול מערכת" sidebar section
+
+**Dashboard implementation**: `ManagerDashboard.jsx` serves both roles. When `isCenterManager()`, it filters `centers` and `users` to `effectiveCenters` and `effectiveUsers` (scoped to `managedCenterId`). All utility functions in `supervisorDashboardUtils.js` receive filtered data and auto-scope. Supervisor-only UI sections (today by center, modal center breakdowns) are hidden via `isCM` flag.
+
 ---
 
 ## Feature Domains
 
 - **auth** -- login, authentication, role-based routing
-- **dashboard** -- role-specific dashboards (CoachDashboard, CenterManagerDashboard, ManagerDashboard for supervisors)
+- **dashboard** -- role-specific dashboards (CoachDashboard for coaches, ManagerDashboard for supervisors AND centerManagers)
 - **trainings** -- training session CRUD, status tracking (draft/planned/completed/cancelled)
 - **monthlyPlans** -- monthly training plans per group (draft/submitted/reviewed/approved/rejected)
 - **groups** -- player groups per center/coach
