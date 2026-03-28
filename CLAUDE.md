@@ -15,8 +15,8 @@ Tennis center management system for the **Israeli Tennis Association**. Manages 
 
 ### Live URLs
 
-- **Production**: https://tennis-training-app-gemini.web.app
-- **Secondary**: https://tennis-centers.web.app
+- **Production (primary)**: https://tennis-centers.web.app
+- **Production (legacy)**: https://tennis-training-app-gemini.web.app
 
 ### Hosting & Deployment
 
