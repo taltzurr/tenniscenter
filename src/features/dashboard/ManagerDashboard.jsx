@@ -220,7 +220,7 @@ const ManagerDashboard = () => {
     { title: isCM ? 'מאמנים' : 'ניהול משתמשים', description: isCM ? 'צפייה ועריכה של מאמני המרכז.' : 'צפייה, הוספה ועריכה של משתמשים, מאמנים ומנהלים.', icon: Users, color: 'blue', path: '/users' },
     ...(isSupervisor() ? [{ title: 'ניהול מרכזים', description: 'הגדרת מרכזים, כתובות ופרטי התקשרות.', icon: Building2, color: 'green', path: '/centers' }] : []),
     { title: 'נתונים', description: 'דוחות ביצוע, סטטיסטיקות מאמנים ומעקב.', icon: BarChart3, color: 'orange', path: '/analytics' },
-    { title: 'מטרות וערכים', description: 'מטרות חודשיות, ערכים ואירועים ארגוניים.', icon: Calendar, color: 'purple', path: '/events-calendar' },
+    { title: isCM ? 'לוח אירועים' : 'מטרות וערכים', description: isCM ? 'ניהול אירועים למרכז שלך.' : 'מטרות חודשיות, ערכים ואירועים ארגוניים.', icon: Calendar, color: 'purple', path: '/events-calendar' },
     { title: 'מצטייני החודש', description: 'בחירת מאמנים ומרכזים מצטיינים.', icon: Trophy, color: 'yellow', path: '/monthly-outstanding' }
   ], [isSupervisor, isCM]);
 

@@ -60,8 +60,7 @@ function Sidebar() {
                     section: 'ניהול',
                     items: [
                         { to: '/analytics', icon: BarChart3, label: 'נתונים' },
-                        { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
-                        { to: '/events-calendar#calendar', icon: CalendarRange, label: 'לוח אירועים' },
+                        { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
                         { to: '/monthly-plans/review', icon: CalendarCheck, label: 'אישור תכניות' },
                         { to: '/exercises', icon: Dumbbell, label: 'תרגילים' },
                         { to: '/users', icon: UserCog, label: 'מאמנים' },

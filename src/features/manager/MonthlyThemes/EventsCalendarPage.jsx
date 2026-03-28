@@ -20,7 +20,7 @@ function EventsCalendarPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const calendarRef = useRef(null);
-    const { userData, isSupervisor } = useAuthStore();
+    const { userData, isSupervisor, isCenterManager } = useAuthStore();
     const { fetchTheme, saveTheme, isLoading: themesLoading } = useMonthlyThemesStore();
     const { events, fetchEvents, addEvent, editEvent, removeEvent, isLoading: eventsLoading } = useEventsStore();
     const { centers, fetchCenters } = useCentersStore();
@@ -80,12 +80,15 @@ function EventsCalendarPage() {
         }
     }, [location.hash]);
 
-    // Fetch centers list for supervisor filter
+    const isCM = isCenterManager();
+    const managedCenterId = userData?.managedCenterId;
+
+    // Fetch centers list for supervisor filter or center manager name display
     useEffect(() => {
-        if (isSupervisor()) {
+        if (isSupervisor() || isCM) {
             fetchCenters();
         }
-    }, [isSupervisor, fetchCenters]);
+    }, [isSupervisor, isCM, fetchCenters]);
 
     // Close center dropdown on outside click
     useEffect(() => {
@@ -171,7 +174,7 @@ function EventsCalendarPage() {
             title: currentEvent?.title || '',
             type: currentEvent?.type || EVENT_TYPES.HOLIDAY,
             description: currentEvent?.description || '',
-            centerIds: currentEvent?.centerIds || [],
+            centerIds: currentEvent?.centerIds || (isCM && managedCenterId ? [managedCenterId] : []),
             time: currentEvent?.time || '',
             location: currentEvent?.location || '',
             isRange: currentEvent?.endDate ? true : false,
@@ -264,29 +267,38 @@ function EventsCalendarPage() {
                         />
                     </div>
 
-                    {/* Center selection */}
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>מרכזים</label>
-                        <div className={styles.centerChipsModal}>
-                            <button
-                                type="button"
-                                className={`${styles.centerChipSmall} ${formData.centerIds.length === 0 ? styles.centerChipSmallActive : ''}`}
-                                onClick={() => setModalFormData({ ...formData, centerIds: [] })}
-                            >
-                                כל המרכזים
-                            </button>
-                            {centers.map(c => (
+                    {/* Center selection - supervisor sees multi-select, CM sees locked to their center */}
+                    {isCM ? (
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>מרכז</label>
+                            <div className={styles.lockedCenter}>
+                                {centers.find(c => c.id === managedCenterId)?.name || 'המרכז שלך'}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>מרכזים</label>
+                            <div className={styles.centerChipsModal}>
                                 <button
                                     type="button"
-                                    key={c.id}
-                                    className={`${styles.centerChipSmall} ${formData.centerIds.includes(c.id) ? styles.centerChipSmallActive : ''}`}
-                                    onClick={() => toggleCenter(c.id)}
+                                    className={`${styles.centerChipSmall} ${formData.centerIds.length === 0 ? styles.centerChipSmallActive : ''}`}
+                                    onClick={() => setModalFormData({ ...formData, centerIds: [] })}
                                 >
-                                    {c.name}
+                                    כל המרכזים
                                 </button>
-                            ))}
+                                {centers.map(c => (
+                                    <button
+                                        type="button"
+                                        key={c.id}
+                                        className={`${styles.centerChipSmall} ${formData.centerIds.includes(c.id) ? styles.centerChipSmallActive : ''}`}
+                                        onClick={() => toggleCenter(c.id)}
+                                    >
+                                        {c.name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Date + Time row */}
                     <div className={styles.dateTimeGroup}>
@@ -388,7 +400,13 @@ function EventsCalendarPage() {
 
                 if (!startMatch && !inRange) return false;
 
-                // Apply center filter
+                // Center manager: show global events + events targeting their center
+                if (isCM && managedCenterId) {
+                    if (!e.centerIds || e.centerIds.length === 0) return true; // Global events
+                    return e.centerIds.includes(managedCenterId);
+                }
+
+                // Supervisor: apply center filter if selected
                 if (isSupervisor() && selectedCenterIds.length > 0) {
                     if (e.centerIds && e.centerIds.length > 0) {
                         return e.centerIds.some(cid => selectedCenterIds.includes(cid));
@@ -458,8 +476,8 @@ function EventsCalendarPage() {
                 <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
                     <ArrowRight size={20} /> חזרה לדאשבורד
                 </button>
-                <h1 className={styles.title}>לוח אירועים, מטרות וערכים</h1>
-                <p className={styles.subtitle}>ניהול אירועים, מטרות חודשיות לפי סוג קבוצה וערכים</p>
+                <h1 className={styles.title}>{isCM ? 'לוח אירועים' : 'לוח אירועים, מטרות וערכים'}</h1>
+                <p className={styles.subtitle}>{isCM ? 'ניהול אירועים למרכז שלך' : 'ניהול אירועים, מטרות חודשיות לפי סוג קבוצה וערכים'}</p>
                 {/* Month/Year navigation with arrows */}
                 <div className={styles.monthSelector}>
                     <button
@@ -558,69 +576,71 @@ function EventsCalendarPage() {
                     {renderCalendar()}
                 </div>
 
-                {/* Right: Themes & Goals */}
-                <div className={styles.themesSidebar}>
-                    <form onSubmit={handleSaveThemes}>
-                        {/* Monthly Values */}
-                        <div className={styles.pageSectionHeader}>
-                            <Heart size={18} className={styles.pageSectionIcon} />
-                            <h2 className={styles.pageSectionTitle}>ערכי החודש</h2>
-                        </div>
-                        <div className={styles.card}>
-                            <input
-                                className={styles.input}
-                                placeholder="לדוגמה: התמדה, כבוד..."
-                                value={themesFormData.values}
-                                onChange={(e) => setThemesFormData(prev => ({ ...prev, values: e.target.value }))}
-                            />
-                            {themesFormData.values && (
-                                <div className={styles.previewTags}>
-                                    {themesFormData.values.split(',').filter(Boolean).map((t, i) => (
-                                        <span key={i} className={`${styles.tag} ${styles.tagValue}`}>{t.trim()}</span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Monthly Goals by group type */}
-                        <div className={styles.pageSectionHeader}>
-                            <Target size={18} className={styles.pageSectionIcon} />
-                            <h2 className={styles.pageSectionTitle}>מטרות החודש</h2>
-                        </div>
-                        <div className={styles.card}>
-                            <div className={styles.goalsGroupForm}>
-                                {DEFAULT_GROUP_TYPES.map((groupType) => {
-                                    const goalValue = themesFormData.goals[groupType.id] || '';
-                                    return (
-                                        <div key={groupType.id} className={styles.goalGroupRow}>
-                                            <label className={styles.goalGroupLabel}>{groupType.name}</label>
-                                            <input
-                                                className={styles.input}
-                                                placeholder={`מטרת חודש ל${groupType.name}...`}
-                                                value={goalValue}
-                                                onChange={(e) => setThemesFormData(prev => ({
-                                                    ...prev,
-                                                    goals: { ...prev.goals, [groupType.id]: e.target.value }
-                                                }))}
-                                            />
-                                            {goalValue.trim() && (
-                                                <div className={styles.previewTags}>
-                                                    <span className={`${styles.tag} ${styles.tagGoal}`}>{goalValue.trim()}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                {/* Right: Themes & Goals - supervisor only */}
+                {!isCM && (
+                    <div className={styles.themesSidebar}>
+                        <form onSubmit={handleSaveThemes}>
+                            {/* Monthly Values */}
+                            <div className={styles.pageSectionHeader}>
+                                <Heart size={18} className={styles.pageSectionIcon} />
+                                <h2 className={styles.pageSectionTitle}>ערכי החודש</h2>
                             </div>
-                        </div>
+                            <div className={styles.card}>
+                                <input
+                                    className={styles.input}
+                                    placeholder="לדוגמה: התמדה, כבוד..."
+                                    value={themesFormData.values}
+                                    onChange={(e) => setThemesFormData(prev => ({ ...prev, values: e.target.value }))}
+                                />
+                                {themesFormData.values && (
+                                    <div className={styles.previewTags}>
+                                        {themesFormData.values.split(',').filter(Boolean).map((t, i) => (
+                                            <span key={i} className={`${styles.tag} ${styles.tagValue}`}>{t.trim()}</span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
-                        <div className={styles.actions}>
-                            <Button type="submit" disabled={themesLoading}>
-                                <Save size={18} /> שמור הגדרות
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                            {/* Monthly Goals by group type */}
+                            <div className={styles.pageSectionHeader}>
+                                <Target size={18} className={styles.pageSectionIcon} />
+                                <h2 className={styles.pageSectionTitle}>מטרות החודש</h2>
+                            </div>
+                            <div className={styles.card}>
+                                <div className={styles.goalsGroupForm}>
+                                    {DEFAULT_GROUP_TYPES.map((groupType) => {
+                                        const goalValue = themesFormData.goals[groupType.id] || '';
+                                        return (
+                                            <div key={groupType.id} className={styles.goalGroupRow}>
+                                                <label className={styles.goalGroupLabel}>{groupType.name}</label>
+                                                <input
+                                                    className={styles.input}
+                                                    placeholder={`מטרת חודש ל${groupType.name}...`}
+                                                    value={goalValue}
+                                                    onChange={(e) => setThemesFormData(prev => ({
+                                                        ...prev,
+                                                        goals: { ...prev.goals, [groupType.id]: e.target.value }
+                                                    }))}
+                                                />
+                                                {goalValue.trim() && (
+                                                    <div className={styles.previewTags}>
+                                                        <span className={`${styles.tag} ${styles.tagGoal}`}>{goalValue.trim()}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className={styles.actions}>
+                                <Button type="submit" disabled={themesLoading}>
+                                    <Save size={18} /> שמור הגדרות
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                )}
             </div>
 
             {/* Event Modal */}
@@ -637,7 +657,7 @@ function EventsCalendarPage() {
                 isOpen={!!detailEvent}
                 event={detailEvent}
                 onClose={() => setDetailEvent(null)}
-                canEdit={true}
+                canEdit={isCM ? (detailEvent?.centerIds?.includes(managedCenterId)) : true}
                 onEdit={() => {
                     setCurrentEvent(detailEvent);
                     setDetailEvent(null);

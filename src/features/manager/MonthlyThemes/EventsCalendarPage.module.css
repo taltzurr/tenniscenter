@@ -558,6 +558,16 @@
     font-weight: 600;
 }
 
+.lockedCenter {
+    padding: var(--space-2) var(--space-3);
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
 /* Date + Time inline group */
 .dateTimeGroup {
     display: flex;

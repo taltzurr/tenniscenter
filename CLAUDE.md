@@ -116,10 +116,10 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 **Center linking**: Every center manager **MUST** be linked to a center from the centers collection. This is enforced at both the form level (UserFormModal) and the store level (usersStore addUser/updateUser). A center manager without `managedCenterId` is invalid.
 
 **Shared with supervisor** (scoped to their center):
-- Rich dashboard (ManagerDashboard) with charts, alerts, coach rankings, monthly context
+- Rich dashboard (ManagerDashboard) with charts, alerts, coach rankings, monthly context (shows ALL goal types, not filtered like coach)
 - Analytics page (ManagerAnalyticsDashboard)
 - Monthly plans review and approval
-- Events calendar (can create events for their center only)
+- Events calendar (can create events for their center only -- centerIds auto-set, center selection locked)
 - Monthly outstanding (center coach of the month)
 - Training schedule view
 - Groups management
@@ -129,12 +129,15 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 **NOT available to center manager** (supervisor only):
 - Centers page (CRUD)
 - Exercise request approval/rejection
-- Goal/value definition management (create/edit/delete)
-- Goal/value monthly assignment (centerManager is view-only on GoalsPage)
+- GoalsPage (`/goals`) -- supervisor-only route
+- Goal/value definition and assignment management
+- Themes sidebar on EventsCalendarPage (values + goals editing)
 - User management beyond coaches (no creating managers/supervisors)
 - "ניהול מערכת" sidebar section
 
 **Dashboard implementation**: `ManagerDashboard.jsx` serves both roles. When `isCenterManager()`, it filters `centers` and `users` to `effectiveCenters` and `effectiveUsers` (scoped to `managedCenterId`). All utility functions in `supervisorDashboardUtils.js` receive filtered data and auto-scope. Supervisor-only UI sections (today by center, modal center breakdowns) are hidden via `isCM` flag.
+
+**EventsCalendarPage center manager behavior**: CM sees only the calendar (no themes/goals sidebar). Events filtered to global + their center's events. Event creation auto-assigns `centerIds: [managedCenterId]` with locked center display. CM can only edit events targeting their center (not global supervisor events).
 
 ---
 

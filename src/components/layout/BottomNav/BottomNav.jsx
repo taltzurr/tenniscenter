@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, CalendarDays, CalendarCheck, UserCog, Target, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, CalendarDays, CalendarCheck, CalendarRange, UserCog, Target, BarChart3 } from 'lucide-react';
 import useAuthStore from '../../../stores/authStore';
 import { ROLES } from '../../../config/constants';
 import styles from './BottomNav.module.css';
@@ -14,7 +14,7 @@ function BottomNav() {
             return [
                 { to: '/dashboard', icon: LayoutDashboard, label: 'ראשי' },
                 { to: '/weekly-schedule', icon: CalendarDays, label: 'לוז אימונים' },
-                { to: '/events-calendar', icon: Target, label: 'מטרות וערכים' },
+                { to: '/events-calendar', icon: CalendarRange, label: 'לוח אירועים' },
                 { to: '/analytics', icon: BarChart3, label: 'נתונים' },
             ];
         }

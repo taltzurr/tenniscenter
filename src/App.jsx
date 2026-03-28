@@ -159,8 +159,12 @@ function App() {
               </RoleRoute>
             } />
 
-            {/* Goals routes */}
-            <Route path="/goals" element={<GoalsPage />} />
+            {/* Goals routes - supervisor only */}
+            <Route path="/goals" element={
+              <RoleRoute allowedRoles={['supervisor']}>
+                <GoalsPage />
+              </RoleRoute>
+            } />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/monthly-outstanding" element={
               <RoleRoute allowedRoles={['supervisor', 'centerManager']}>
