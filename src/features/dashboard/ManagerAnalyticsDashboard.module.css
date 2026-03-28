@@ -481,6 +481,89 @@
     text-align: left;
 }
 
+/* ── Detail Lists (Center Manager view) ── */
+.detailList {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--gray-100);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    margin-bottom: var(--space-4);
+}
+
+.detailListItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: white;
+    cursor: pointer;
+    transition: background 0.15s;
+    min-height: 56px;
+}
+
+.detailListItem:hover {
+    background: var(--gray-50);
+}
+
+.detailListAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-100);
+    color: var(--primary-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.detailListInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.detailListName {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.detailListMeta {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.detailListChevron {
+    color: var(--gray-400);
+    flex-shrink: 0;
+}
+
+.detailListRate {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+
+.detailListEmpty {
+    padding: var(--space-6);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    background: white;
+}
+
 /* ── Tablet ── */
 @media (min-width: 768px) {
     .page {

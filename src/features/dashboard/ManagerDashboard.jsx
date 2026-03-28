@@ -12,9 +12,9 @@ import useUsersStore from '../../stores/usersStore';
 import useGroupsStore from '../../stores/groupsStore';
 import useMonthlyPlansStore from '../../stores/monthlyPlansStore';
 import useCentersStore from '../../stores/centersStore';
-import useEventsStore from '../../stores/eventsStore';
 import useMonthlyThemesStore from '../../stores/monthlyThemesStore';
 import { getOrganizationTrainings } from '../../services/trainings';
+import { normalizeDate } from '../../utils/dateUtils';
 import {
   getOrgQuickStats,
   getAlerts,
@@ -88,7 +88,6 @@ const ManagerDashboard = () => {
   const { groups, fetchGroups } = useGroupsStore();
   const { plans: monthlyPlans, fetchAllPlans } = useMonthlyPlansStore();
   const { centers, fetchCenters } = useCentersStore();
-  const { events, fetchEvents } = useEventsStore();
   const { fetchTheme, currentTheme } = useMonthlyThemesStore();
 
   const isCM = isCenterManager();
@@ -117,7 +116,6 @@ const ManagerDashboard = () => {
           isCM ? fetchGroups(null, false, managedCenterId) : fetchGroups(null, true),
           fetchCenters(),
           fetchAllPlans(currentYear, currentMonth),
-          fetchEvents(currentYear, currentDate.getMonth()),
           fetchTheme(currentYear, currentDate.getMonth())
         ]);
         const trainings = await getOrganizationTrainings(monthStart, monthEnd);
@@ -129,7 +127,7 @@ const ManagerDashboard = () => {
       }
     };
     fetchData();
-  }, [fetchUsers, fetchGroups, fetchCenters, fetchAllPlans, fetchEvents, fetchTheme, currentYear, currentMonth]);
+  }, [fetchUsers, fetchGroups, fetchCenters, fetchAllPlans, fetchTheme, currentYear, currentMonth]);
 
   // Center-scoped data for centerManager
   const effectiveCenters = useMemo(() => {
@@ -147,13 +145,26 @@ const ManagerDashboard = () => {
   // ── Computed Data ──
   const quickStats = useMemo(() => {
     if (!effectiveUsers.length || !effectiveCenters.length) return null;
-    return getOrgQuickStats(effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth);
-  }, [effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth]);
+    return getOrgQuickStats(effectiveUsers, orgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth);
+  }, [effectiveUsers, orgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
+
+  // Count trainings in next 7 days
+  const weekTrainingsCount = useMemo(() => {
+    if (!orgTrainings?.length) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(today);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    return orgTrainings.filter(t => {
+      const d = normalizeDate(t.date);
+      return d && d >= today && d < weekEnd;
+    }).length;
+  }, [orgTrainings]);
 
   const alerts = useMemo(() => {
     if (!effectiveUsers.length) return [];
-    return getAlerts(effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth);
-  }, [effectiveUsers, orgTrainings, monthlyPlans, groups, events, effectiveCenters, currentYear, currentMonth]);
+    return getAlerts(effectiveUsers, orgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth);
+  }, [effectiveUsers, orgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
 
   const todayByCenter = useMemo(() =>
     getTodayTrainingsByCenter(orgTrainings, groups, effectiveUsers, effectiveCenters),
@@ -307,11 +318,11 @@ const ManagerDashboard = () => {
               <div className={styles.statLabel}>ביצוע חודשי</div>
             </div>
           </div>
-          <div className={styles.statCard} onClick={() => navigate('/events-calendar#calendar')}>
+          <div className={styles.statCard} onClick={() => navigate('/weekly-schedule')}>
             <div className={`${styles.statIcon} ${styles.yellow}`}><CalendarDays size={18} /></div>
             <div className={styles.statInfo}>
-              <div className={styles.statValue}>{quickStats.upcomingEvents}</div>
-              <div className={styles.statLabel}>אירועים החודש</div>
+              <div className={styles.statValue}>{weekTrainingsCount}</div>
+              <div className={styles.statLabel}>אימוני השבוע</div>
             </div>
           </div>
         </div>
@@ -411,10 +422,7 @@ const ManagerDashboard = () => {
       <div className={styles.pieChartsGrid}>
         <div className={styles.pieChartCard} onClick={() => setTrainingModal(true)}>
           <div className={styles.pieChartHeader}>
-            <div className={styles.sectionTitleRow}>
-              <BarChart2 size={18} className={styles.sectionIcon} />
-              <h2 className={styles.sectionTitle}>ביצוע אימונים - {monthName}</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>ביצוע אימונים מתוכננים - {monthName}</h2>
             <span className={styles.pieChartHint}>לחץ לפירוט</span>
           </div>
           <div className={styles.pieChartSubtitle}>{trainingExec.total} אימונים שתאריכם עבר | {trainingExec.completed} בוצעו ({trainingExec.rate}%)</div>
@@ -431,10 +439,7 @@ const ManagerDashboard = () => {
         </div>
         <div className={styles.pieChartCard} onClick={() => setPlanModal(true)}>
           <div className={styles.pieChartHeader}>
-            <div className={styles.sectionTitleRow}>
-              <FileText size={18} className={styles.sectionIcon} />
-              <h2 className={styles.sectionTitle}>הגשת תוכניות - {monthName}</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>הגשת תוכניות - {monthName}</h2>
             <span className={styles.pieChartHint}>לחץ לפירוט</span>
           </div>
           <div className={styles.pieChartSubtitle}>{planData.total} קבוצות | {planData.submitted} הוגשו ({planData.rate}%)</div>

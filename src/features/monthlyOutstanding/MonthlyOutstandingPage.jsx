@@ -20,7 +20,7 @@ const CATEGORY_CONFIG = [
         description: 'בחר מאמן מצטיין מתוך המרכז שלך',
         iconClass: 'coach',
         Icon: Award,
-        allowedRoles: ['centerManager', 'supervisor']
+        allowedRoles: ['centerManager']
     },
     {
         type: 'overallCoach',

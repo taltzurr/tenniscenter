@@ -120,7 +120,7 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 - Analytics page (ManagerAnalyticsDashboard)
 - Monthly plans review and approval
 - Events calendar (can create events for their center only -- centerIds auto-set, center selection locked)
-- Monthly outstanding (center coach of the month)
+- Monthly outstanding (CM picks center coach of the month; supervisor picks overall coach + outstanding center)
 - Training schedule view
 - Groups management
 - Exercises (view, create, submit requests -- same as coach)
@@ -154,7 +154,7 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 - **centers** -- tennis center management
 - **users** -- user management, role assignment
 - **notifications** -- in-app notification system
-- **monthlyOutstanding** -- monthly outstanding player recognition
+- **monthlyOutstanding** -- monthly outstanding recognition (CM picks centerCoach; supervisor picks overallCoach + outstandingCenter)
 - **settings** -- app settings
 - **manager** -- manager-specific analytics and tools
 
@@ -486,7 +486,8 @@ The analytics dashboard (`ManagerAnalyticsDashboard`) is the supervisor/centerMa
 4. **Alerts section**: Data-driven alerts (low execution, missing plans, per-center warnings). Only real data — never hardcoded!
 5. **Training execution**: Expandable center → coach breakdown with progress bars
 6. **Plan submission**: Same expandable structure
-7. **Bar charts**: Horizontal bar charts — "מאמנים לפי מרכז" (primary-500) and "קבוצות לפי מרכז" (accent-600). Side by side on desktop.
+7. **Bar charts (supervisor)**: Horizontal bar charts — "מאמנים לפי מרכז" (primary-500) and "קבוצות לפי מרכז" (accent-600). Side by side on desktop.
+8. **Coach/Group detail lists (CM only)**: Instead of bar charts, CM sees per-coach list (avatar, groups, execution rate, plan count) and per-group list (name, coach, players, plan status). Expandable execution/plan sections auto-expand for CM's single center.
 
 ### Data Accuracy Rules
 - **Filter unknown centers**: Only show centers that exist in the `centers` collection (`validCenterIds` set)

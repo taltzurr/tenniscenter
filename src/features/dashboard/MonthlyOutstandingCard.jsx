@@ -68,10 +68,12 @@ function MonthlyOutstandingCard() {
     };
 
     // Filter categories based on role:
-    // - Supervisor sees all 3 categories
+    // - Supervisor sees overallCoach + outstandingCenter (not centerCoach — that's CM's domain)
     // - Center Manager sees only centerCoach (their center's outstanding coach)
-    // - Coach sees all visible categories (read-only)
-    const roleFilteredCategories = isCenterManager()
+    // - Coach sees all 3 categories (read-only display)
+    const roleFilteredCategories = isSupervisor()
+        ? CATEGORIES.filter(({ type }) => type !== 'centerCoach')
+        : isCenterManager()
         ? CATEGORIES.filter(({ type }) => type === 'centerCoach')
         : CATEGORIES;
 

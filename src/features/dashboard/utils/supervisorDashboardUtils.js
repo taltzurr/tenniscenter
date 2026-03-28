@@ -47,7 +47,7 @@ export const getCoachCenterName = (coach, centers) => {
  * Calculate org-wide quick stats
  * Only counts trainings with past dates for completion rate
  */
-export const getOrgQuickStats = (users, trainings, plans, groups, events, centers, currentYear, currentMonth) => {
+export const getOrgQuickStats = (users, trainings, plans, groups, centers, currentYear, currentMonth) => {
   const allCoaches = getAllCoaches(users);
   const today = new Date();
   today.setHours(23, 59, 59, 999);
@@ -96,7 +96,6 @@ export const getOrgQuickStats = (users, trainings, plans, groups, events, center
     pendingPlans: coachesWithGroups - coachesWithAllPlans,
     coachesWithAllPlans,
     coachesWithGroups,
-    upcomingEvents: events?.length || 0,
     totalCenters: centers.length,
   };
 };
@@ -104,7 +103,7 @@ export const getOrgQuickStats = (users, trainings, plans, groups, events, center
 /**
  * Get dynamic alert items (relevant red flags only)
  */
-export const getAlerts = (users, trainings, plans, groups, events, centers, currentYear, currentMonth) => {
+export const getAlerts = (users, trainings, plans, groups, centers, currentYear, currentMonth) => {
   const allCoaches = getAllCoaches(users);
   const activeGroups = groups.filter(g => g.isActive !== false && g.coachId);
   const coaches = allCoaches.filter(c => activeGroups.some(g => g.coachId === c.id));

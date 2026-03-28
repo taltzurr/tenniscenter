@@ -127,6 +127,14 @@ const ManagerAnalyticsDashboard = () => {
         }
     }, [currentDate, centerCoachIds, isSupervisor]);
 
+    // Auto-expand the single center for center managers
+    useEffect(() => {
+        if (isCenterManager() && userData?.managedCenterId) {
+            setExpandedExecution(prev => ({ ...prev, [userData.managedCenterId]: true }));
+            setExpandedPlans(prev => ({ ...prev, [userData.managedCenterId]: true }));
+        }
+    }, [isCenterManager, userData?.managedCenterId]);
+
     // Build coach → center mapping from users
     const coachCenterMap = useMemo(() => {
         const map = {};
@@ -334,6 +342,44 @@ const ManagerAnalyticsDashboard = () => {
             return { name: c.name, count };
         }).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
     }, [centers, groups, activeCoachIds]);
+
+    // ── Center Manager detail lists ──
+    const coachDetailsList = useMemo(() => {
+        if (!isCenterManager() || !users?.length || !centerCoachIds) return [];
+        const coaches = users.filter(u => u.role === 'coach' && u.isActive !== false && centerCoachIds.includes(u.id));
+        return coaches.map(coach => {
+            const coachGroups = groups.filter(g => g.coachId === coach.id && g.isActive !== false);
+            const coachTrainings = pastValidTrainings.filter(t => t.coachId === coach.id);
+            const completed = coachTrainings.filter(t => t.status === 'completed').length;
+            const coachPlans = plans.filter(p => coachGroups.some(g => g.id === p.groupId) && ['submitted', 'approved', 'reviewed'].includes(p.status));
+            return {
+                id: coach.id,
+                name: coach.name || coach.displayName,
+                groupCount: coachGroups.length,
+                execRate: coachTrainings.length > 0 ? Math.round((completed / coachTrainings.length) * 100) : 0,
+                planCount: coachPlans.length,
+                totalTrainings: coachTrainings.length,
+                completedTrainings: completed,
+            };
+        }).sort((a, b) => b.groupCount - a.groupCount);
+    }, [isCenterManager, users, centerCoachIds, groups, pastValidTrainings, plans]);
+
+    const groupDetailsList = useMemo(() => {
+        if (!isCenterManager() || !groups?.length || !centerCoachIds) return [];
+        const cmGroups = groups.filter(g => g.isActive !== false && g.coachId && centerCoachIds.includes(g.coachId));
+        return cmGroups.map(group => {
+            const coach = users?.find(u => u.id === group.coachId);
+            const plan = plans.find(p => p.groupId === group.id);
+            const planStatus = plan ? (['submitted', 'approved', 'reviewed'].includes(plan.status) ? 'הוגשה' : 'טיוטה') : 'חסרה';
+            return {
+                id: group.id,
+                name: group.name,
+                coachName: coach?.name || coach?.displayName || 'לא משויך',
+                playerCount: group.players?.length || 0,
+                planStatus,
+            };
+        }).sort((a, b) => a.name.localeCompare(b.name, 'he'));
+    }, [isCenterManager, groups, centerCoachIds, users, plans]);
 
     const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
     const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -604,8 +650,50 @@ const ManagerAnalyticsDashboard = () => {
                 )}
             </div>
 
-            {/* ── Bar Charts ── */}
-            {(coachesPerCenter.length > 0 || groupsPerCenter.length > 0) && (
+            {/* ── Bar Charts (supervisor) / Detail Lists (center manager) ── */}
+            {isCenterManager() ? (
+                <>
+                    {coachDetailsList.length > 0 && (
+                        <>
+                        <div className={styles.pageSectionHeader}>
+                            <Users size={18} className={styles.pageSectionIcon} />
+                            <h2 className={styles.pageSectionTitle}>מאמנים במרכז</h2>
+                        </div>
+                        <div className={styles.detailList}>
+                            {coachDetailsList.map(coach => (
+                                <div key={coach.id} className={styles.detailListItem} onClick={() => setSelectedCoach(coach)}>
+                                    <div className={styles.detailListAvatar}>{coach.name?.charAt(0)}</div>
+                                    <div className={styles.detailListInfo}>
+                                        <div className={styles.detailListName}>{coach.name}</div>
+                                        <div className={styles.detailListMeta}>{coach.groupCount} קבוצות · ביצוע {coach.execRate}% · תוכניות {coach.planCount}/{coach.groupCount}</div>
+                                    </div>
+                                    <div className={styles.detailListRate} style={{ backgroundColor: getRateColor(coach.execRate) + '20', color: getRateColor(coach.execRate) }}>{coach.execRate}%</div>
+                                    <ChevronLeft size={16} className={styles.detailListChevron} />
+                                </div>
+                            ))}
+                        </div>
+                        </>
+                    )}
+                    {groupDetailsList.length > 0 && (
+                        <>
+                        <div className={styles.pageSectionHeader}>
+                            <Users size={18} className={styles.pageSectionIcon} />
+                            <h2 className={styles.pageSectionTitle}>קבוצות במרכז</h2>
+                        </div>
+                        <div className={styles.detailList}>
+                            {groupDetailsList.map(group => (
+                                <div key={group.id} className={styles.detailListItem}>
+                                    <div className={styles.detailListInfo}>
+                                        <div className={styles.detailListName}>{group.name}</div>
+                                        <div className={styles.detailListMeta}>{group.coachName} · {group.playerCount} שחקנים · תוכנית: {group.planStatus}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        </>
+                    )}
+                </>
+            ) : (coachesPerCenter.length > 0 || groupsPerCenter.length > 0) && (
                 <>
                 <div className={styles.pageSectionHeader}>
                     <Building2 size={18} className={styles.pageSectionIcon} />
