@@ -96,7 +96,7 @@ function CompletionDetail({ isOpen, onClose, trainings, groups }) {
                                         יום {day.dayName}
                                         {isToday && <span className={styles.todayBadge}>היום</span>}
                                     </span>
-                                    <span className={styles.dayDate}>{day.dayNum}</span>
+                                    <span className={styles.dayDate}>{day.dayNum}/{day.date.getMonth() + 1}</span>
                                 </div>
                                 <div className={styles.trainingsList}>
                                     {day.trainings.map(t => {
