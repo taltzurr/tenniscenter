@@ -148,16 +148,19 @@ const ManagerDashboard = () => {
     return getOrgQuickStats(effectiveUsers, orgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth);
   }, [effectiveUsers, orgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
 
-  // Count trainings in next 7 days
+  // Count trainings this week (Sunday–Saturday, matching CoachDashboard)
   const weekTrainingsCount = useMemo(() => {
     if (!orgTrainings?.length) return 0;
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const weekEnd = new Date(today);
-    weekEnd.setDate(weekEnd.getDate() + 7);
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (6 - today.getDay())); // Saturday
+    endOfWeek.setHours(23, 59, 59, 999);
     return orgTrainings.filter(t => {
       const d = normalizeDate(t.date);
-      return d && d >= today && d < weekEnd;
+      return d && d >= startOfWeek && d <= endOfWeek;
     }).length;
   }, [orgTrainings]);
 

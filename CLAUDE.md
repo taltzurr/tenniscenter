@@ -137,6 +137,8 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 
 **Dashboard implementation**: `ManagerDashboard.jsx` serves both roles. When `isCenterManager()`, it filters `centers` and `users` to `effectiveCenters` and `effectiveUsers` (scoped to `managedCenterId`). All utility functions in `supervisorDashboardUtils.js` receive filtered data and auto-scope. Supervisor-only UI sections (today by center, modal center breakdowns) are hidden via `isCM` flag.
 
+**Week calculation consistency (CRITICAL)**: Both CoachDashboard and ManagerDashboard MUST use the same **Sunday–Saturday calendar week** for "אימוני השבוע". CoachDashboard calculates `startOfWeek = today - today.getDay()` (Sunday) and `endOfWeek = today + (6 - today.getDay())` (Saturday 23:59:59). ManagerDashboard's `weekTrainingsCount` memo must use the identical range — never use a rolling "next 7 days" window, which produces different counts.
+
 **EventsCalendarPage center manager behavior**: CM sees only the calendar (no themes/goals sidebar). Events filtered to global + their center's events. Event creation auto-assigns `centerIds: [managedCenterId]` with locked center display. CM can only edit events targeting their center (not global supervisor events).
 
 ---
