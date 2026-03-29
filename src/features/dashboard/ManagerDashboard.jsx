@@ -111,6 +111,14 @@ const ManagerDashboard = () => {
         setLoading(true);
         const monthStart = startOfMonth(currentDate);
         const monthEnd = endOfMonth(currentDate);
+
+        // Extend fetch range to cover the full current week (Sun-Sat)
+        // so "אימוני השבוע" matches CoachDashboard even when the week spans months
+        const endOfWeekSat = new Date(currentDate);
+        endOfWeekSat.setDate(currentDate.getDate() + (6 - currentDate.getDay()));
+        endOfWeekSat.setHours(23, 59, 59, 999);
+        const fetchEnd = endOfWeekSat > monthEnd ? endOfWeekSat : monthEnd;
+
         await Promise.all([
           fetchUsers(),
           isCM ? fetchGroups(null, false, managedCenterId) : fetchGroups(null, true),
@@ -118,7 +126,7 @@ const ManagerDashboard = () => {
           fetchAllPlans(currentYear, currentMonth),
           fetchTheme(currentYear, currentDate.getMonth())
         ]);
-        const trainings = await getOrganizationTrainings(monthStart, monthEnd);
+        const trainings = await getOrganizationTrainings(monthStart, fetchEnd);
         setOrgTrainings(trainings);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
