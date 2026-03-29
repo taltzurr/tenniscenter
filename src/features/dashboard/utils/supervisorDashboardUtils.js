@@ -57,10 +57,10 @@ export const getOrgQuickStats = (users, trainings, plans, groups, centers, curre
   // Only coaches that have at least one active assigned group are considered active
   const coaches = allCoaches.filter(c => activeGroups.some(g => g.coachId === c.id));
 
-  // Today's trainings
+  // Today's trainings (filtered by valid groups for consistency with other metrics)
   const todaysTrainings = trainings.filter(t => {
     const d = normalizeDate(t.date);
-    return d && isSameDay(d, new Date());
+    return d && isSameDay(d, new Date()) && validGroupIds.has(t.groupId);
   });
 
   // Monthly completion rate - only past trainings belonging to valid groups
