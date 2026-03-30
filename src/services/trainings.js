@@ -193,9 +193,11 @@ export const createRecurringTrainings = async (baseData, recurrence) => {
                     const nextDayInWeek = selectedIndices.find(d => d > currentDayIndex);
 
                     if (nextDayInWeek !== undefined) {
+                        // Stay in same week, advance to next selected day
                         const diff = nextDayInWeek - currentDayIndex;
                         currentDate = addDays(currentDate, diff);
                     } else {
+                        // No more selected days this week — jump interval weeks, pick first selected day
                         const currentSunday = startOfWeek(currentDate, { weekStartsOn: 0 });
                         const nextTargetSunday = addWeeks(currentSunday, interval);
                         currentDate = setDay(nextTargetSunday, selectedIndices[0]);

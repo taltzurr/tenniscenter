@@ -61,7 +61,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s;
+    transition: background var(--transition-fast);
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .closeBtn:hover {
@@ -85,6 +87,7 @@
     padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--gray-100);
     gap: var(--space-3);
+    min-height: 52px;
 }
 
 .trainingItem:last-child {
@@ -93,7 +96,7 @@
 
 .currentItem {
     background: var(--primary-50);
-    border-right: 3px solid var(--primary-500);
+    border-inline-end: 3px solid var(--primary-500);
 }
 
 .trainingInfo {
@@ -157,7 +160,8 @@
     cursor: pointer;
     border: none;
     font-family: inherit;
-    transition: opacity 0.15s;
+    transition: opacity var(--transition-fast);
+    min-height: 44px;
 }
 
 .actionBtn:disabled {
@@ -193,7 +197,8 @@
     font-size: var(--font-size-sm);
     font-family: inherit;
     padding: var(--space-3) var(--space-4);
-    transition: background 0.15s;
+    transition: background var(--transition-fast);
+    min-height: 44px;
 }
 
 .secondaryBtn:hover:not(:disabled) {
@@ -243,7 +248,8 @@
     cursor: pointer;
     border: none;
     font-family: inherit;
-    transition: opacity 0.15s;
+    transition: opacity var(--transition-fast);
+    min-height: 44px;
 }
 
 .panelActions .primaryBtn:disabled,
@@ -256,7 +262,7 @@
 .scopeSelector {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-3);
     margin-bottom: var(--space-4);
 }
 
@@ -267,6 +273,14 @@
     cursor: pointer;
     font-size: var(--font-size-sm);
     color: var(--text-primary);
+    min-height: 36px;
+}
+
+.radioLabel input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-600);
+    flex-shrink: 0;
 }
 
 /* Update fields grid */
@@ -287,19 +301,21 @@
 .fieldInput {
     width: 100%;
     padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--gray-200);
+    border: 1.5px solid var(--gray-300);
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
     font-family: inherit;
     color: var(--text-primary);
     background: var(--bg-primary);
     box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: border-color var(--transition-fast);
+    min-height: 40px;
 }
 
 .fieldInput:focus {
     outline: none;
     border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
 }
 
 /* Warning text */
@@ -394,11 +410,15 @@
     text-align: center;
 }
 
-/* Mobile adjustments */
+/* ── Mobile (max-width: 480px) ── */
 @media (max-width: 480px) {
     .modal {
         padding: var(--space-4);
         width: 95%;
+    }
+
+    .title {
+        font-size: var(--font-size-lg);
     }
 
     .fieldGroup {
@@ -420,5 +440,9 @@
 
     .confirmActions .actionBtn {
         min-width: unset;
+    }
+
+    .trainingItem {
+        padding: var(--space-2) var(--space-3);
     }
 }

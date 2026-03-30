@@ -147,7 +147,7 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 
 - **auth** -- login, authentication, role-based routing
 - **dashboard** -- role-specific dashboards (CoachDashboard for coaches, ManagerDashboard for supervisors AND centerManagers)
-- **trainings** -- training session CRUD, status tracking (draft/planned/completed/cancelled)
+- **trainings** -- training session CRUD, status tracking (draft/planned/completed/cancelled), recurring trainings with series management
 - **monthlyPlans** -- monthly training plans per group (draft/submitted/reviewed/approved/rejected)
 - **groups** -- player groups per center/coach
 - **players** -- player management within groups
@@ -468,6 +468,86 @@ All changes to calendar design must be applied to **every** calendar in the app:
 - `PlansList` (coach plans view)
 - `CalendarPage` (react-big-calendar view)
 - `calendar.css` (global react-big-calendar overrides)
+
+---
+
+## Recurring Trainings (אימונים חוזרים)
+
+Recurring trainings allow coaches to create a series of trainings at once (e.g., "every Monday and Wednesday until August 31").
+
+### Data Model
+
+Each training in a series shares a `recurrenceGroupId` (Firestore document ID). The recurrence config is stored on the base training:
+
+```javascript
+{
+  recurrenceGroupId: "abc123",   // Shared across all trainings in the series
+  recurrence: {
+    frequency: 'WEEKLY',         // NONE | DAILY | WEEKLY | MONTHLY | YEARLY
+    interval: 1,                 // Every N weeks/days/months
+    days: ['MO', 'WE'],         // For WEEKLY only: SU/MO/TU/WE/TH/FR/SA
+    endDate: '2026-08-31',      // Or null
+    endType: 'date',            // 'date' | 'count' | 'never'
+    count: 13                   // Or null
+  }
+}
+```
+
+### Key Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `RecurrencePicker` | `src/components/ui/RecurrencePicker/` | Dropdown + custom modal for configuring recurrence |
+| `SeriesManagementModal` | `src/features/trainings/SeriesManagementModal/` | View/update/delete series trainings (edit mode) |
+| `createRecurringTrainings()` | `src/services/trainings.js` | Batch-creates all trainings in a series |
+| `fetchSeriesTrainings()` | `src/services/trainings.js` | Queries trainings by recurrenceGroupId |
+| `updateSeriesTrainings()` | `src/services/trainings.js` | Batch-updates fields (scope: future or all) |
+| `deleteSeriesTrainings()` | `src/services/trainings.js` | Batch-deletes trainings (scope: future or all) |
+
+### Creation Flow
+
+1. Coach opens TrainingForm → selects recurrence from RecurrencePicker
+2. Quick-select: "ללא חזרה" / "שבועי ביום X" / "מותאם אישית..."
+3. Custom modal: frequency, interval, days (for weekly), end condition
+4. On submit → `createRecurringTrainings()` generates all dates and batch-writes to Firestore
+5. Hard cap: **100 trainings max** per series. Shows warning toast if truncated.
+6. Default end date: August 31 of current training year (Sept–Aug cycle)
+
+### Weekly Multi-Day Algorithm
+
+For weekly recurrence with multiple days (e.g., Mon+Wed+Fri every 2 weeks):
+- Within a target week, all selected days are generated in order
+- After the last selected day of the week, jumps `interval` weeks to the first selected day
+- Example (interval=2, days=Mon+Wed+Fri): Mon→Wed→Fri→(skip 1 week)→Mon→Wed→Fri
+
+### Edit Mode Behavior
+
+- RecurrencePicker is **hidden** in edit mode (cannot change recurrence rules)
+- If training has `recurrenceGroupId`, shows "ניהול סדרה חוזרת" button instead
+- Opens SeriesManagementModal with two actions:
+  - **Update**: Change startTime, endTime, topic, or location for future/all trainings
+  - **Delete**: Remove future/all trainings with confirmation dialog
+- Scope selector: "רק עתידיים" (future only) or "כל הסדרה" (all)
+- "Future" = trainings with date > today midnight (today itself is NOT included)
+
+### Firestore Index Required
+
+```json
+{
+  "collectionGroup": "trainings",
+  "fields": [
+    { "fieldPath": "recurrenceGroupId", "order": "ASCENDING" },
+    { "fieldPath": "date", "order": "ASCENDING" }
+  ]
+}
+```
+
+### Known Limitations
+
+- Cannot modify recurrence rules after creation (must delete series and recreate)
+- No "skip this occurrence" feature (workaround: cancel individual training)
+- No visual indicator in calendar views showing which trainings are part of a series
+- No conflict detection when creating overlapping series for the same group
 
 ---
 

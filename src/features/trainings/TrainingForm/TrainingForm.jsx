@@ -430,21 +430,7 @@ function TrainingForm() {
                                 <button
                                     type="button"
                                     onClick={() => setShowSeriesModal(true)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        backgroundColor: 'var(--primary-50)',
-                                        border: '1px solid var(--primary-200)',
-                                        borderRadius: 'var(--radius-md)',
-                                        fontSize: 'var(--font-size-sm)',
-                                        color: 'var(--primary-700)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 'var(--space-2)',
-                                        fontWeight: 600,
-                                        fontFamily: 'inherit'
-                                    }}
+                                    className={styles.seriesButton}
                                 >
                                     <Calendar size={16} />
                                     ניהול סדרה חוזרת
