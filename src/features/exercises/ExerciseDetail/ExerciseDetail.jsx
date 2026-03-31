@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowRight, Tag, Layers, Edit3, Puzzle, Crosshair, BarChart3 } from 'lucide-react';
 import useExercisesStore from '../../../stores/exercisesStore';
 import useAuthStore from '../../../stores/authStore';
+import { trackEvent } from '../../../services/analytics';
 import { EXERCISE_CATEGORIES, DIFFICULTY_LEVELS, EXERCISE_TOPICS, GAME_COMPONENTS } from '../../../services/exercises';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
@@ -18,7 +19,9 @@ function ExerciseDetail() {
     const canEdit = userData?.role === 'supervisor' || userData?.role === 'admin';
 
     useEffect(() => {
-        fetchExercise(id);
+        fetchExercise(id).then(() => {
+            trackEvent('exercise_viewed', { exercise_id: id });
+        });
         return () => clearCurrentExercise();
     }, [id, fetchExercise, clearCurrentExercise]);
 

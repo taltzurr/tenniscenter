@@ -13,6 +13,7 @@ import useAuthStore from '../../../stores/authStore';
 import useTrainingsStore from '../../../stores/trainingsStore';
 import useGroupsStore from '../../../stores/groupsStore';
 import useUIStore from '../../../stores/uiStore';
+import { trackEvent } from '../../../services/analytics';
 import { NOTIFICATION_TYPES, notifyGroup } from '../../../services/notifications';
 
 import { createRecurringTrainings } from '../../../services/trainings';
@@ -232,6 +233,15 @@ function TrainingForm() {
             }
 
             if (result.success) {
+                if (!isEditMode) {
+                    const isRecurring = formData.recurrence && formData.recurrence.frequency !== 'NONE';
+                    trackEvent(isRecurring ? 'series_created' : 'training_created', {
+                        group_id: formData.groupId,
+                        topic: formData.topic,
+                        is_recurring: isRecurring,
+                    });
+                }
+
                 const notificationTitle = isEditMode ? 'עדכון אימון' : 'אימון חדש';
                 const notificationMessage = isEditMode
                     ? `האימון בנושא "${formData.topic}" בתאריך ${format(trainingDate, 'dd/MM/yyyy')} עודכן.`

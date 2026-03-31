@@ -5,6 +5,7 @@ import useAuthStore from '../../../stores/authStore';
 import useExerciseRequestsStore from '../../../stores/exerciseRequestsStore';
 import useUIStore from '../../../stores/uiStore';
 import { EXERCISE_CATEGORIES, AGE_GROUPS } from '../../../services/exercises';
+import { trackEvent } from '../../../services/analytics';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
@@ -53,6 +54,10 @@ function RequestForm() {
         });
 
         if (result.success) {
+            trackEvent('exercise_request_submitted', {
+                title: formData.title,
+                category: formData.category,
+            });
             setSubmitted(true);
         } else {
             addToast({ type: 'error', message: 'שגיאה בשליחת הבקשה' });

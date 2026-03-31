@@ -150,20 +150,26 @@ const ManagerDashboard = () => {
     );
   }, [users, isCM, managedCenterId]);
 
+  // Center-scoped groups for CM (supervisor sees all)
+  const effectiveGroups = useMemo(() => {
+    if (!isCM || !managedCenterId) return groups;
+    return groups.filter(g => g.centerId === managedCenterId);
+  }, [groups, isCM, managedCenterId]);
+
   // Center-scoped trainings for CM (supervisor sees all)
   const effectiveOrgTrainings = useMemo(() => {
     if (!isCM || !managedCenterId) return orgTrainings;
     const centerGroupIds = new Set(
-      groups.filter(g => g.centerId === managedCenterId && g.isActive !== false).map(g => g.id)
+      effectiveGroups.filter(g => g.isActive !== false).map(g => g.id)
     );
     return orgTrainings.filter(t => centerGroupIds.has(t.groupId));
-  }, [orgTrainings, isCM, managedCenterId, groups]);
+  }, [orgTrainings, isCM, managedCenterId, effectiveGroups]);
 
   // ── Computed Data ──
   const quickStats = useMemo(() => {
     if (!effectiveUsers.length || !effectiveCenters.length) return null;
-    return getOrgQuickStats(effectiveUsers, effectiveOrgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth);
-  }, [effectiveUsers, effectiveOrgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
+    return getOrgQuickStats(effectiveUsers, effectiveOrgTrainings, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth);
+  }, [effectiveUsers, effectiveOrgTrainings, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth]);
 
   // Count trainings this week (Sunday–Saturday, matching CoachDashboard)
   const weekTrainingsCount = useMemo(() => {
@@ -183,29 +189,29 @@ const ManagerDashboard = () => {
 
   const alerts = useMemo(() => {
     if (!effectiveUsers.length) return [];
-    return getAlerts(effectiveUsers, effectiveOrgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth);
-  }, [effectiveUsers, effectiveOrgTrainings, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
+    return getAlerts(effectiveUsers, effectiveOrgTrainings, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth);
+  }, [effectiveUsers, effectiveOrgTrainings, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth]);
 
   const todayByCenter = useMemo(() =>
-    getTodayTrainingsByCenter(effectiveOrgTrainings, groups, effectiveUsers, effectiveCenters),
-    [effectiveOrgTrainings, groups, effectiveUsers, effectiveCenters]);
+    getTodayTrainingsByCenter(effectiveOrgTrainings, effectiveGroups, effectiveUsers, effectiveCenters),
+    [effectiveOrgTrainings, effectiveGroups, effectiveUsers, effectiveCenters]);
 
 
   const planStatus = useMemo(() =>
-    getPlanSubmissionStatus(effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth),
-    [effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
+    getPlanSubmissionStatus(effectiveUsers, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth),
+    [effectiveUsers, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth]);
 
   const topBottom = useMemo(() =>
-    getTopBottomCoaches(effectiveUsers, effectiveOrgTrainings, groups, effectiveCenters),
-    [effectiveUsers, effectiveOrgTrainings, groups, effectiveCenters]);
+    getTopBottomCoaches(effectiveUsers, effectiveOrgTrainings, effectiveGroups, effectiveCenters),
+    [effectiveUsers, effectiveOrgTrainings, effectiveGroups, effectiveCenters]);
 
   const trainingExec = useMemo(() =>
-    getTrainingExecutionData(effectiveOrgTrainings, groups, effectiveUsers, effectiveCenters),
-    [effectiveOrgTrainings, groups, effectiveUsers, effectiveCenters]);
+    getTrainingExecutionData(effectiveOrgTrainings, effectiveGroups, effectiveUsers, effectiveCenters),
+    [effectiveOrgTrainings, effectiveGroups, effectiveUsers, effectiveCenters]);
 
   const planData = useMemo(() =>
-    getPlanSubmissionData(effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth),
-    [effectiveUsers, monthlyPlans, groups, effectiveCenters, currentYear, currentMonth]);
+    getPlanSubmissionData(effectiveUsers, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth),
+    [effectiveUsers, monthlyPlans, effectiveGroups, effectiveCenters, currentYear, currentMonth]);
 
   // Stat card detail data
   const coachesByCenter = useMemo(() =>
@@ -213,8 +219,8 @@ const ManagerDashboard = () => {
     [effectiveUsers, effectiveCenters]);
 
   const todayTrainingsDetail = useMemo(() =>
-    getTodayTrainingsDetail(effectiveOrgTrainings, groups, effectiveUsers, effectiveCenters),
-    [effectiveOrgTrainings, groups, effectiveUsers, effectiveCenters]);
+    getTodayTrainingsDetail(effectiveOrgTrainings, effectiveGroups, effectiveUsers, effectiveCenters),
+    [effectiveOrgTrainings, effectiveGroups, effectiveUsers, effectiveCenters]);
 
   // Group today's trainings by center
   const todayTrainingsByCenterGrouped = useMemo(() => {

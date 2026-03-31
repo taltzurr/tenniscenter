@@ -8,6 +8,7 @@ import useCentersStore from '../../../stores/centersStore';
 import useUIStore from '../../../stores/uiStore';
 import { HEBREW_MONTHS, WEEK_STRUCTURE } from '../../../services/monthlyPlans';
 import { PLAN_STATUS } from '../../../config/constants';
+import { trackEvent } from '../../../services/analytics';
 import Button from '../../../components/ui/Button';
 import Spinner from '../../../components/ui/Spinner';
 import StatusIndicator from '../../../components/ui/StatusIndicator/StatusIndicator';
@@ -196,6 +197,12 @@ function PlanForm() {
             });
 
             if (result.success) {
+                trackEvent('plan_submitted', {
+                    group_id: selectedGroup,
+                    month: selectedMonth,
+                    year: selectedYear,
+                    center_id: centerId,
+                });
                 addToast({ type: 'success', message: 'התכנית הוגשה לאישור בהצלחה' });
                 setPlanStatus(PLAN_STATUS.SUBMITTED);
                 setIsEditing(false);

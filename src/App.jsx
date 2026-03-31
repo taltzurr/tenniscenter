@@ -6,6 +6,8 @@ import RoleRoute from './routes/RoleRoute';
 import PageContainer from './components/layout/PageContainer';
 import ToastContainer from './components/ui/Toast';
 import Spinner from './components/ui/Spinner';
+import AnalyticsTracker from './components/common/AnalyticsTracker';
+import { setAnalyticsUser, clearAnalyticsUser } from './services/analytics';
 import './styles/global.css';
 
 // Lazy load all page components for better code splitting
@@ -63,12 +65,24 @@ function DashboardWrapper() {
 }
 
 function App() {
-  const { initialize, isLoading } = useAuthStore();
+  const { initialize, isLoading, user, userData } = useAuthStore();
 
   useEffect(() => {
     const unsubscribe = initialize();
     return () => unsubscribe();
   }, [initialize]);
+
+  // Set analytics user when authenticated
+  useEffect(() => {
+    if (user && userData) {
+      setAnalyticsUser(user.uid, {
+        role: userData.role || '',
+        center_id: userData.managedCenterId || userData.centerId || '',
+      });
+    } else if (!user) {
+      clearAnalyticsUser();
+    }
+  }, [user, userData]);
 
   if (isLoading) {
     return <Spinner.FullPage />;
@@ -76,6 +90,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <Suspense fallback={<Spinner.FullPage />}>
         <Routes>
           {/* Public routes */}

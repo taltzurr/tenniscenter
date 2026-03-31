@@ -32,7 +32,15 @@ Tennis center management system for the **Israeli Tennis Association**. Manages 
 - **Firestore** -- main database (collections: users, centers, groups, trainings, monthlyPlans, exercises, events, notifications, goals, players, exerciseRequests, monthlyOutstanding)
 - **Firebase Storage** -- file uploads
 - **Firebase Functions** -- server-side logic (in `/functions` directory)
+- **Firebase Analytics** -- user behavior tracking (measurement ID: `G-8F4CHY6B6C`, only runs in production)
 - **Firebase Emulators** -- local dev (auth:9099, firestore:8080, storage:9199)
+
+### External Analytics
+
+- **Microsoft Clarity** -- heatmaps, session recordings, dead click tracking (project ID: `w4af7o5agl`, script in `index.html`)
+- Analytics service: `src/services/analytics.js` -- `trackEvent()`, `trackPageView()`, `setAnalyticsUser()`
+- Route tracker: `src/components/common/AnalyticsTracker.jsx` -- auto-tracks page views on route changes
+- Custom events tracked: `training_created`, `series_created`, `plan_submitted`, `exercise_viewed`, `exercise_request_submitted`
 
 ---
 
@@ -49,6 +57,18 @@ Tennis center management system for the **Israeli Tennis Association**. Manages 
 - **@sentry/react** for error monitoring
 - **react-big-calendar** for calendar views
 - **RTL (Hebrew)** -- all layouts must support `direction: rtl`
+
+---
+
+## Brand Identity
+
+- **Brand name**: מרכזי הטניס (full: מרכזי הטניס — ניהול אימונים)
+- **Brand book**: See `brand-book.md` for full visual identity guide (colors, fonts, logo usage, presentation templates)
+- **Logo**: Blue circle (`#1a56db`) with golden tennis ball curves (`#fbbf24`) — files in `public/` (favicon.svg, logo.png, icons/)
+- **Font**: Rubik (Google Fonts) — weights 400/500/600/700, full Hebrew support
+- **Font stack**: `'Rubik', 'Segoe UI', system-ui, -apple-system, sans-serif`
+- **Theme color**: `#1e5680` (primary-800) — used in PWA manifest and browser chrome
+- **Design philosophy**: Mobile-first, clean/spacious, RTL-native, color-coded statuses, soft shadows, rounded corners
 
 ---
 
@@ -135,7 +155,7 @@ The center manager sees the **same dashboard and features as the supervisor**, s
 - User management beyond coaches (no creating managers/supervisors)
 - "ניהול מערכת" sidebar section
 
-**Dashboard implementation**: `ManagerDashboard.jsx` serves both roles. When `isCenterManager()`, it filters `centers` and `users` to `effectiveCenters` and `effectiveUsers` (scoped to `managedCenterId`). All utility functions in `supervisorDashboardUtils.js` receive filtered data and auto-scope. Supervisor-only UI sections (today by center, modal center breakdowns) are hidden via `isCM` flag.
+**Dashboard implementation**: `ManagerDashboard.jsx` serves both roles. When `isCenterManager()`, it filters `centers`, `users`, `groups`, and `orgTrainings` to `effectiveCenters`, `effectiveUsers`, `effectiveGroups`, and `effectiveOrgTrainings` (all scoped to `managedCenterId`). All utility functions in `supervisorDashboardUtils.js` MUST receive these filtered variants -- never pass the raw `groups` or `orgTrainings` store data for a CM view. Supervisor-only UI sections (today by center, modal center breakdowns) are hidden via `isCM` flag.
 
 **Week calculation consistency (CRITICAL)**: Both CoachDashboard and ManagerDashboard MUST use the same **Sunday–Saturday calendar week** for "אימוני השבוע". CoachDashboard fetches trainings directly with that date range. ManagerDashboard fetches `orgTrainings` for the current month but **extends the fetch range to include the full current week** (end of Saturday) so trainings aren't missed when a week spans two months. The `weekTrainingsCount` memo then filters using `startOfWeek` (Sunday) to `endOfWeek` (Saturday 23:59:59). Never use a rolling "next 7 days" window or month-only fetch range.
 
